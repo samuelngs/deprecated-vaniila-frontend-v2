@@ -7,15 +7,7 @@ import Cookies from 'js-cookie';
 import withRedux from './redux';
 import { prefix } from './config';
 
-import serverReducer from '../reducers/server';
-import authenticationReducer from '../reducers/authentication';
-import landingReducer from '../reducers/landing';
-
-const collections = {
-  ...serverReducer,
-  ...authenticationReducer,
-  ...landingReducer,
-};
+import { collections, middlewares } from '../reducers';
 
 export const reducers = (() => {
   if ( typeof window === 'undefined' || typeof location === 'undefined' ) {
@@ -79,6 +71,7 @@ export const initStore = initialState => {
   ));
 }
 
-export default function (Component, mapStateToProps) {
-  return withRedux(initStore)(Component, mapStateToProps);
+export default function (Component, mapStateToProps, hooks = []) {
+  return withRedux(initStore)(Component, mapStateToProps, [ ...middlewares, ...hooks ]);
 }
+

@@ -20,7 +20,6 @@ class SignIn extends React.Component {
   }
 
   render () {
-    const { authenticationToken, query } = this.props;
     return <div>
       <Head>
         <title>Sign In</title>

@@ -15,8 +15,7 @@ export default class AppHeader extends React.Component {
 
   render() {
     const { store: { getState } } = this.context;
-    const { authenticationToken } = getState();
-    // console.log(authenticationToken);
+    const { authenticationToken, accountUsername } = getState();
     return <header className="header">
       <style jsx>{`
         .header {
@@ -47,14 +46,18 @@ export default class AppHeader extends React.Component {
           width: 1170px;
           max-width: calc(100% - 40px);
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
+        }
+        a + a {
+          margin-left: 10px;
         }
       `}</style>
       <nav className="header-nav">
         <Link href="/landing" as="/"><a>Home</a></Link>
         { authenticationToken && <Link href="/new-moment" as="/new"><a>Create new Moment</a></Link> }
-        { authenticationToken && <Link href="/monents" as="/moments"><a>Moments</a></Link> }
-        { !authenticationToken && <Link href="/signin" as="/signin"><a>Signin</a></Link> }
+        { authenticationToken && <Link href={{ pathname: '/list-moments', query: { username: accountUsername }}} as={`/${accountUsername}`}><a>@{ accountUsername }</a></Link> }
+        { authenticationToken && <Link href="/signout" as="/signout"><a>Sign Out</a></Link> }
+        { !authenticationToken && <Link href="/signin" as="/signin"><a>Sign In</a></Link> }
       </nav>
     </header>
   }

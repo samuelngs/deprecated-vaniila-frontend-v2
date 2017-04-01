@@ -57,7 +57,7 @@ function serverSubdomains (subdomains = defaults.subdomains, action = defaults.a
   }
 }
 
-function serverXhr(xhr = defaults.xhr, action = defaults.action) {
+function serverXhr (xhr = defaults.xhr, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerXhr:
       return action.xhr;
@@ -66,7 +66,7 @@ function serverXhr(xhr = defaults.xhr, action = defaults.action) {
   }
 }
 
-function serverHostname(hostname = defaults.hostname, action = defaults.action) {
+function serverHostname (hostname = defaults.hostname, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerHostname:
       return action.hostname;
@@ -75,7 +75,7 @@ function serverHostname(hostname = defaults.hostname, action = defaults.action) 
   }
 }
 
-function serverIp(ip = defaults.ip, action = defaults.action) {
+function serverIp (ip = defaults.ip, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerIp:
       return action.ip;
@@ -84,7 +84,7 @@ function serverIp(ip = defaults.ip, action = defaults.action) {
   }
 }
 
-function serverPath(path = defaults.path, action = defaults.action) {
+function serverPath (path = defaults.path, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerPath:
       return action.path;
@@ -93,7 +93,7 @@ function serverPath(path = defaults.path, action = defaults.action) {
   }
 }
 
-function serverOriginalUrl(originalUrl = defaults.originalUrl, action = defaults.action) {
+function serverOriginalUrl (originalUrl = defaults.originalUrl, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerOriginalUrl:
       return action.originalUrl;
@@ -102,7 +102,7 @@ function serverOriginalUrl(originalUrl = defaults.originalUrl, action = defaults
   }
 }
 
-function serverBaseUrl(baseUrl = defaults.baseUrl, action = defaults.action) {
+function serverBaseUrl (baseUrl = defaults.baseUrl, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerBaseUrl:
       return action.baseUrl;
@@ -111,7 +111,7 @@ function serverBaseUrl(baseUrl = defaults.baseUrl, action = defaults.action) {
   }
 }
 
-function serverParams(params = defaults.params, action = defaults.action) {
+function serverParams (params = defaults.params, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerParams:
       return action.params;
@@ -120,7 +120,7 @@ function serverParams(params = defaults.params, action = defaults.action) {
   }
 }
 
-function serverCookies(cookies = defaults.cookies, action = defaults.action) {
+function serverCookies (cookies = defaults.cookies, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerCookies:
       return action.cookies;
@@ -129,7 +129,7 @@ function serverCookies(cookies = defaults.cookies, action = defaults.action) {
   }
 }
 
-function serverSignedCookies(signedCookies = defaults.signedCookies, action = defaults.action) {
+function serverSignedCookies (signedCookies = defaults.signedCookies, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerSignedCookies:
       return action.signedCookies;
@@ -137,6 +137,79 @@ function serverSignedCookies(signedCookies = defaults.signedCookies, action = de
       return signedCookies;
   }
 }
+
+async function serverProtocolMiddleware ({ req: { protocol }, store }) {
+  store.dispatch({ type: actions.SetServerProtocol, protocol });
+}
+
+async function serverSecureMiddleware ({ req: { secure }, store }) {
+  store.dispatch({ type: actions.SetServerSecure, secure });
+}
+
+async function serverSubdomainsMiddleware ({ req: { subdomains }, store }) {
+  store.dispatch({ type: actions.SetServerSubdomains, subdomains });
+}
+
+async function serverXhrMiddleware ({ req: { xhr }, store }) {
+  store.dispatch({ type: actions.SetServerXhr, xhr });
+}
+
+async function serverHostnameMiddleware ({ req: { hostname }, store }) {
+  store.dispatch({ type: actions.SetServerHostname, hostname });
+}
+
+async function serverIpMiddleware ({ req: { ip }, store }) {
+  store.dispatch({ type: actions.SetServerIp, ip });
+}
+
+async function serverPathMiddleware ({ req: { path }, store }) {
+  store.dispatch({ type: actions.SetServerPath, path });
+}
+
+async function serverOriginalUrlMiddleware ({ req: { originalUrl }, store }) {
+  store.dispatch({ type: actions.SetServerOriginalUrl, originalUrl });
+}
+
+async function serverBaseUrlMiddleware ({ req: { baseUrl }, store }) {
+  store.dispatch({ type: actions.SetServerBaseUrl, baseUrl });
+}
+
+async function serverParamsMiddleware ({ req: { params }, store }) {
+  store.dispatch({ type: actions.SetServerParams, params });
+}
+
+async function serverCookiesMiddleware ({ req: { cookies }, store }, keyPrefix) {
+  // dispatch and sync request cookie to redux storage
+  const filteredCookies = { };
+  for ( const key in cookies ) {
+    if ( key.indexOf(keyPrefix) === -1 ) filteredCookies[key] = cookies[key];
+  }
+  store.dispatch({ type: actions.SetServerCookies, cookies: filteredCookies });
+}
+
+async function serverSignedCookiesMiddleware ({ req: { signedCookies }, store }, keyPrefix) {
+  // dispatch and sync request signed-cookies to redux storage
+  const filteredSignedCookies = { };
+  for ( const key in signedCookies ) {
+    if ( key.indexOf(keyPrefix) === -1 ) filteredSignedCookies[key] = signedCookies[key];
+  }
+  store.dispatch({ type: actions.SetServerSignedCookies, signedCookies: filteredSignedCookies });
+}
+
+export const middleware = [
+  serverProtocolMiddleware,
+  serverSecureMiddleware,
+  serverSubdomainsMiddleware,
+  serverXhrMiddleware,
+  serverHostnameMiddleware,
+  serverIpMiddleware,
+  serverPathMiddleware,
+  serverOriginalUrlMiddleware,
+  serverBaseUrlMiddleware,
+  serverParamsMiddleware,
+  serverCookiesMiddleware,
+  serverSignedCookiesMiddleware,
+];
 
 export default {
   serverProtocol,

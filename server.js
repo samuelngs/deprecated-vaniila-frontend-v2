@@ -8,10 +8,29 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 const routes = {
-  '/'           : '/landing',
-  '/signin'     : '/signin',
-  '/new'        : '/new-moment',
+  '/'                       : '/landing',
+  '/signin'                 : '/signin',
+  '/signout'                : '/signout',
+  '/new'                    : '/new-moment',
+  '/:username'              : '/list-moments',
+  '/:username/:moment'      : '/view-moment',
+  '/:username/:moment/edit' : '/edit-moment',
 };
+
+const router = (() => {
+  const paths = [ ];
+  Object.keys(routes).forEach(route => {
+    paths.push({
+      uri   : route,
+      view  : routes[route],
+      params: route
+        .split('/')
+        .filter(r => r.indexOf(':') === 0)
+        .map(r => r.substring(1)),
+    });
+  });
+  return paths;
+})();
 
 app.prepare().then(() => {
 
@@ -19,11 +38,20 @@ app.prepare().then(() => {
 
   server.use(cookieParser());
 
-  Object.keys(routes).forEach(route => {
-    const path = route;
-    const page = routes[route];
-    server.get(path, (req, res) => app.render(req, res, page, req.query));
-  });
+  server.use('/favicon.ico', (req, res) => res.status(404).end());
+
+  for ( const { uri, view, params } of router ) {
+    server.get(uri, (req, res) => {
+      const query = Object.assign({}, req.params, req.query);
+      if ( params.length > 0 ) {
+        const _core = req.params[params[0]];
+        if ( dev && (_core === '_webpack' || _core === '__webpack_hmr' || _core === '_next') ) {
+          return handle(req, res, req._parsedUrl)
+        }
+      }
+      return app.render(req, res, view, query)
+    });
+  }
 
   server.get('*', (req, res) => handle(req, res));
 

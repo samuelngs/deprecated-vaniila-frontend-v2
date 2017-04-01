@@ -41,7 +41,7 @@ export default function(createStore) {
 
   const args = [].slice.call(arguments).slice(1);
 
-  return function (Component, mapper) {
+  return function (Component, mapper, middlewares) {
 
     let mapStateToProps;
     if ( typeof mapper === 'function' ) mapStateToProps = mapper;
@@ -163,31 +163,15 @@ export default function(createStore) {
             }
           }
 
-          // dispatch server state to redux storage
-          context.store.dispatch({ type: actions.SetServerProtocol, protocol });
-          context.store.dispatch({ type: actions.SetServerSecure, secure });
-          context.store.dispatch({ type: actions.SetServerSubdomains, subdomains });
-          context.store.dispatch({ type: actions.SetServerXhr, xhr });
-          context.store.dispatch({ type: actions.SetServerHostname, hostname });
-          context.store.dispatch({ type: actions.SetServerIp, ip });
-          context.store.dispatch({ type: actions.SetServerPath, path });
-          context.store.dispatch({ type: actions.SetServerOriginalUrl, originalUrl });
-          context.store.dispatch({ type: actions.SetServerBaseUrl, baseUrl });
-          context.store.dispatch({ type: actions.SetServerParams, params });
-
-          // dispatch and sync request cookie to redux storage
-          const filteredCookies = { };
-          for ( const key in cookies ) {
-            if ( key.indexOf(keyPrefix) === -1 ) filteredCookies[key] = cookies[key];
+          // run redux middlewares
+          if ( Array.isArray(middlewares) ) {
+            await Promise.all(middlewares.map(async middleware => {
+              if ( typeof middleware === 'function' ) {
+                return await middleware(context, keyPrefix);
+              }
+              return await false;
+            }));
           }
-          context.store.dispatch({ type: actions.SetServerCookies, cookies: filteredCookies });
-
-          // dispatch and sync request signed-cookies to redux storage
-          const filteredSignedCookies = { };
-          for ( const key in signedCookies ) {
-            if ( key.indexOf(keyPrefix) === -1 ) filteredSignedCookies[key] = signedCookies[key];
-          }
-          context.store.dispatch({ type: actions.SetServerSignedCookies, signedCookies: filteredSignedCookies });
         }
 
         // get the `initialProps` from the ComposedComponent

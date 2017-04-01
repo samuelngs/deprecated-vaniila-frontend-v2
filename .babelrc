@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "next/babel",
+    "stage-0"
+  ],
+  "plugins": [
+    "inline-react-svg",
+    ["transform-define", "./env.js"]
+  ]
+}

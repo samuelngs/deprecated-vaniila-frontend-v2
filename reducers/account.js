@@ -58,7 +58,7 @@ async function accountSync ({ store }) {
     },
   }).then(res => {
     return res.json();
-  });
+  }).catch(_ => null);
   if ( !user ) return false;
   if ( user.error ) {
     return store.dispatch({ type: 'set_authentication_token', _vt: '' });

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 import AppHeader from '../components/AppHeader';
 
@@ -32,6 +33,7 @@ class ViewMoment extends React.Component {
       `}</style>
       <div className="container">
         <h1>{ username }/{ moment }</h1>
+        <Link href={{ pathname: '/edit-moment', query: { username, moment }}} as={`/${username}/${moment}/edit`}><a>Edit</a></Link>
       </div>
     </div>
   }

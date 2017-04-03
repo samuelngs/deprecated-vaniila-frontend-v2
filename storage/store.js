@@ -67,7 +67,7 @@ export const initStore = initialState => {
   return createStore(combineReducers(reducers), initialState, compose(
     applyMiddleware(thunkMiddleware),
     autoRehydrate(),
-    typeof window !== 'undefined' && window.devToolsExtension ? window.devToolsExtension() : f => f,
+    typeof window !== 'undefined' && window.devToolsExtension && process.env.NODE_ENV !== 'production' ? window.devToolsExtension() : f => f,
   ));
 }
 

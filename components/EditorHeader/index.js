@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 
 import EditorHeaderBack from '../EditorHeaderBack';
+import EditorHeaderDetails from '../EditorHeaderDetails';
 import EditorPeersList from '../EditorPeersList';
 
 export default class EditorHeader extends React.Component {
@@ -12,11 +13,13 @@ export default class EditorHeader extends React.Component {
   }
 
   static propTypes = {
-    peers: React.PropTypes.array,
+    doc   : React.PropTypes.object,
+    peers : React.PropTypes.array,
   }
 
   static defaultProps = {
-    peers: [ ],
+    doc   : null,
+    peers : [ ],
   }
 
   static cssVariables = {
@@ -52,16 +55,33 @@ export default class EditorHeader extends React.Component {
           display: flex;
           flex-direction: row;
         }
+        .header-grid-column-4 {
+          flex: 1;
+          display: flex;
+          flex-direction: row;
+        }
+        .header-grid-column-al { justify-content: flex-start; }
+        .header-grid-column-ac { justify-content: center; }
+        .header-grid-column-ar { justify-content: flex-end; }
       `}</style>
-      <nav className="header-nav">
-        <EditorHeaderBack
-          headerHeight={EditorHeader.cssVariables.headerHeight}
-          headerIconColor={EditorHeader.cssVariables.headerIconColor}
-        />
-        <EditorPeersList
-          headerHeight={EditorHeader.cssVariables.headerHeight}
-          peers={peers}
-        />
+      <nav className="header-nav header-grid">
+        <div className="header-grid-column-4 header-grid-column-al">
+          <EditorHeaderBack
+            headerHeight={EditorHeader.cssVariables.headerHeight}
+            headerIconColor={EditorHeader.cssVariables.headerIconColor}
+          />
+          <EditorHeaderDetails
+            headerHeight={EditorHeader.cssVariables.headerHeight}
+          />
+        </div>
+        <div className="header-grid-column-4 header-grid-column-ac">
+        </div>
+        <div className="header-grid-column-4 header-grid-column-ar">
+          <EditorPeersList
+            headerHeight={EditorHeader.cssVariables.headerHeight}
+            peers={peers}
+          />
+        </div>
       </nav>
     </header>
   }

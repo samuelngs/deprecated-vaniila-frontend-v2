@@ -31,6 +31,7 @@ export default class _Document extends Document {
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_blackweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_blackweb.woff') format('woff'); font-weight: 900; font-style: normal; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_blackitweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_blackitweb.woff') format('woff'); font-weight: 900; font-style: italic; font-display: fallback; }
           body { margin: 0; padding: 0; font-family: 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-weight: 400; }
+          input, textarea, select, button { font-family: 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
           h1, h2, h3, h4, h5, h6, ul, ol, li, div, p, span { margin: 0; padding: 0; }
           ::-webkit-scrollbar { width: 12px; background-color: transparent; }
           ::-webkit-scrollbar-track { background-color: transparent; margin: 2px; }

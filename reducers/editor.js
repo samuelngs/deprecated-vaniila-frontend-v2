@@ -75,6 +75,9 @@ function hookAppendChange(histories, { id, state }) {
   return histories;
 }
 
+/**
+ * hook for undo editor history
+ */
 function hookRevertChange(histories, { id }) {
 
   const { present, past, future } = histories[id];
@@ -97,6 +100,9 @@ function hookRevertChange(histories, { id }) {
   return histories;
 }
 
+/**
+ * hook for redo editor history
+ */
 function hookReplayChange(histories, { id }) {
 
   const { present, past, future } = histories[id];
@@ -119,6 +125,9 @@ function hookReplayChange(histories, { id }) {
   return histories;
 }
 
+/**
+ * hook for patching history state
+ */
 function hookPatchState(histories, { id, diff, state }) {
 
   const { present } = histories[id];
@@ -138,6 +147,9 @@ function hookPatchState(histories, { id, diff, state }) {
   return histories;
 }
 
+/**
+ * hook to remove all changes records
+ */
 function hookRemoveChanges(histories, { id }) {
 
   const { past, future } = histories[id];
@@ -271,7 +283,11 @@ function undo(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.RevertEditorChange, id }));
     })
-    .then(histories => histories[id].present);
+    .then(histories => {
+      const { future } = histories[id];
+      const changes = future[future.length - 1];
+      return patcher.reverse(changes);
+    });
   }
 }
 
@@ -283,7 +299,10 @@ function redo(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.ReplayEditorChange, id }));
     })
-    .then(histories => histories[id].present);
+    .then(histories => {
+      const { past } = histories[id];
+      return past[past.length - 1];
+    });
   }
 }
 
@@ -295,7 +314,7 @@ function clearChanges(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.RemoveEditorChanges, id }));
     })
-    .then(histories => histories[id].present);
+    .then(histories => histories[id]);
   }
 }
 

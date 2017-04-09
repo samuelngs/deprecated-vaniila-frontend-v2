@@ -4,25 +4,36 @@ import 'isomorphic-fetch';
 import React from 'react';
 import Head from 'next/head';
 
+import WindowObserver from '../components/WindowObserver';
 import EditorSync from '../components/EditorSync';
 import EditorHeader from '../components/EditorHeader';
 import EditorLaunchFail from '../components/EditorLaunchFail';
 import EditorLaunchSuccess from '../components/EditorLaunchSuccess';
+import EditorStoryboard from '../components/EditorStoryboard';
 
 import { api as accountReducerApi } from '../reducers/account';
 import { api as momentReducerApi } from '../reducers/moment';
+import { api as editorReducerApi } from '../reducers/editor';
+
 import withRedux from '../storage';
 
 class EditMoment extends React.Component {
 
   static async getInitialProps ({ query: { username, moment }, store, isServer }) {
     const id = `${username}/${moment}`;
-    const { err, ...doc } = await store.dispatch(momentReducerApi.retrieveMomentDocument(id));
-    return { id, username, moment, err };
+    {
+      const { err } = await store.dispatch(momentReducerApi.retrieveMomentDocument(id));
+      if ( err ) return { id, username, moment, err };
+    }
+    {
+      const { err } = await store.dispatch(editorReducerApi.retrieveEditableState(id, true));
+      if ( err ) return { id, username, moment, err };
+    }
+    return { id, username, moment };
   }
 
-  static observe ({ authenticationToken, momentDocuments }) {
-    return { authenticationToken, momentDocuments };
+  static observe ({ authenticationToken, momentDocuments, editorHistories, windowSize }) {
+    return { authenticationToken, momentDocuments, editorHistories, windowSize };
   }
 
   state = {
@@ -77,21 +88,23 @@ class EditMoment extends React.Component {
       const { err } = await dispatch(momentReducerApi.retrieveMomentDocument(id));
       if ( err ) return this.setState({ err });
     }
+    {
+      const { err } = await store.dispatch(editorReducerApi.retrieveEditableState(id, true));
+      if ( err ) return this.setState({ err });
+    }
     return this.setState({ err: null });
   }
 
-  componentDidMount() {
-    console.log('documents', this.props.momentDocuments);
-  }
-
   render () {
-    const { username, moment } = this.props;
-    const { err, doc, peers } = this.state;
+    const { id, username, moment, editorHistories, windowSize } = this.props;
+    const { err, peers } = this.state;
+    const { present: doc, future, past } = editorHistories[id] || { };
     return <div>
       <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F5F8F9; }`}</style>
       <Head>
         <title>Moment</title>
       </Head>
+      <WindowObserver />
       <EditorLaunchFail err={err} retry={::this.onRetry} />
       <EditorLaunchSuccess err={err}>
         <EditorSync
@@ -104,7 +117,8 @@ class EditMoment extends React.Component {
           onUpdate={::this.onUpdate}
           onSignal={::this.onSignal}
         />
-        <EditorHeader doc={doc} peers={peers} />
+        <EditorHeader peers={peers} />
+        <EditorStoryboard windowSize={windowSize} doc={doc} />
       </EditorLaunchSuccess>
     </div>
   }

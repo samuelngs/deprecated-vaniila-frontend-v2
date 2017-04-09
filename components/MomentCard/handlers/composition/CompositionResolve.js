@@ -9,8 +9,7 @@ export default function resolveComposition(type, e) {
 
   // composition has resolved
   this.set({ contentCompositionHasResolved: true, contentCompositionIsActive: false, contentCompositionInputData: '' });
-
-  console.log('input', contentCompositionInputData);
+  this.emit('resolve', contentCompositionInputData);
 
 }
 

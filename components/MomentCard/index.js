@@ -72,7 +72,17 @@ export default class MomentCard extends React.Component {
    * trigger when receiving callback from handlers
    */
   contextReceiveEvent(event, data) {
-    console.log(event);
+    switch ( event ) {
+      case 'beforeinput':
+        return this.onContentInput(data);
+    }
+  }
+
+  /**
+   * trigger when input event within content area
+   */
+  onContentInput(character) {
+    console.log('input', character);
   }
 
   /**

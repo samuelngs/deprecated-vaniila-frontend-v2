@@ -31,6 +31,25 @@ export const actions = {
 };
 
 /**
+ * hook to sort moments
+ */
+function hookMomentsSort(moments) {
+  const momentsNames = Object.keys(moments);
+  const momentsOrdered = { };
+  momentsNames.sort((a, b) => {
+    const momentA = moments[a] || { };
+    const monentB = monents[b] || { };
+    if ( typeof monentA.order === 'number' && typeof monentB.order === 'number' ) {
+      return monentA.order - monentB.order;
+    }
+    return a - b;
+  }).forEach((name, i) => {
+    momentsOrdered[name] = moments[name];
+  });
+  return momentsOrdered;
+}
+
+/**
  * hook for initial history placeholder
  */
 function hookInitialPlaceholder(histories, { id }) {
@@ -48,7 +67,9 @@ function hookInitialPlaceholder(histories, { id }) {
  */
 function hookInitialHistory(histories, { id, state }) {
   if ( typeof state !== 'object' || state === null ) return histories;
-  histories[id].present = { ...state };
+  const doc = { ...state };
+  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+  histories[id].present = doc;
   return histories;
 }
 
@@ -91,7 +112,9 @@ function hookRevertChange(histories, { id }) {
   const diff = past[past.length - 1];
 
   // unpatch last change
-  histories[id].present = patcher.unpatch(present, diff);
+  const doc = patcher.unpatch(present, diff);
+  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+  histories[id].present = doc;
 
   // move changes to the future stack
   future.push(diff);
@@ -116,7 +139,10 @@ function hookReplayChange(histories, { id }) {
   const diff = future[future.length - 1];
 
   // patch last change
-  histories[id].present = patcher.patch(present, diff);
+  const doc = patcher.patch(present, diff);
+  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+  histories[id].present = doc;
+
 
   // move changes to past stack
   past.push(diff);
@@ -134,13 +160,21 @@ function hookPatchState(histories, { id, diff, state }) {
 
   // patch state with diff object
   if ( typeof diff !== 'undefined' ) {
-    histories[id].present = patcher.patch(present, diff);
+    {
+      const doc = patcher.patch(present, diff);
+      doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+      histories[id].present = doc;
+    }
     return histories;
   }
 
   // full patch with document state
   if ( typeof state === 'object' || state !== null ) {
-    histories[id].present = { ...state };
+    {
+      const doc = { ...state };
+      doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+      histories[id].present = doc;
+    }
     return histories;
   }
 
@@ -218,9 +252,17 @@ function editorHistories (histories = defaults.histories, action = defaults.acti
 /**
  * retrieve moment editable document api
  */
-function retrieveEditableState(id) {
+function retrieveEditableState(id, cache = false) {
   return function ( dispatch, getState ) {
-    const { authenticationToken } = getState();
+    const { authenticationToken, momentDocuments } = getState();
+    if ( cache ) {
+      const state = momentDocuments[id];
+      if ( typeof state === 'object' && state !== null ) {
+        return new Promise(resolve => {
+          return resolve(dispatch({ type: actions.InitialEditorHistory, id, state: (state.document || { }) }));
+        });
+      }
+    }
     const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
     return fetch(`${BACKEND_URL}/i/plot/${id}`, {
       method      : 'get',

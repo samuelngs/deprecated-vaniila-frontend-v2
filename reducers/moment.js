@@ -45,6 +45,25 @@ function hookMomentDocumentsCleanup(documents = defaults.documents) {
 }
 
 /**
+ * hook to sort moments
+ */
+function hookMomentsSort(moments) {
+  const momentsNames = Object.keys(moments);
+  const momentsOrdered = { };
+  momentsNames.sort((a, b) => {
+    const momentA = moments[a] || { };
+    const monentB = monents[b] || { };
+    if ( typeof monentA.order === 'number' && typeof monentB.order === 'number' ) {
+      return monentA.order - monentB.order;
+    }
+    return a - b;
+  }).forEach((name, i) => {
+    momentsOrdered[name] = moments[name];
+  });
+  return momentsOrdered;
+}
+
+/**
  * moment documents storage
  */
 function momentDocuments (documents = defaults.documents, action = defaults.action) {
@@ -57,8 +76,13 @@ function momentDocuments (documents = defaults.documents, action = defaults.acti
       // do not do anything if moment document is missing
       if ( typeof action.moment !== 'object' || action.moment === null ) return hookMomentDocumentsCleanup(documents);
 
+      const doc = { ...action.moment, expires: Date.now() + LIFESPAN };
+
+      // sort moments
+      doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+
       // return merged documents
-      return hookMomentDocumentsCleanup({ ...documents, [action.id]: { ...action.moment, expires: Date.now() + LIFESPAN } });
+      return hookMomentDocumentsCleanup({ ...documents, [action.id]: doc });
     case actions.RemoveMomentDocument:
 
       // do not do anything if id is missing

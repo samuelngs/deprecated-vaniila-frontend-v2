@@ -4,6 +4,7 @@ import authenticationReducer from './authentication';
 import accountReducer, { middleware as accountMiddleware } from './account';
 import momentReducer from './moment';
 import editorReducer from './editor';
+import windowReducer from './window';
 import landingReducer from './landing';
 
 export const collections = {
@@ -12,6 +13,7 @@ export const collections = {
   ...accountReducer,
   ...momentReducer,
   ...editorReducer,
+  ...windowReducer,
   ...landingReducer,
 };
 

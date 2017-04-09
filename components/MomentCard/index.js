@@ -4,6 +4,10 @@ import React from 'react';
 import MomentEditorHandler, { defaultState } from './handlers';
 import MomentCardText from '../MomentCardText';
 
+const defaults = {
+  blocks: [ ],
+};
+
 export default class MomentCard extends React.Component {
 
   static propTypes = {
@@ -11,8 +15,10 @@ export default class MomentCard extends React.Component {
     scale   : React.PropTypes.number,
     width   : React.PropTypes.number,
     height  : React.PropTypes.number,
+    cover   : React.PropTypes.bool,
     editmode: React.PropTypes.bool,
     editable: React.PropTypes.bool,
+    moment  : React.PropTypes.object,
   }
 
   static defaultProps = {
@@ -20,12 +26,26 @@ export default class MomentCard extends React.Component {
     scale   : 1,
     width   : 0,
     height  : 0,
+    cover   : false,
     editmode: false,
     editable: false,
+    moment  : {
+      data  : {
+        blocks: [ ],
+      },
+      hash  : 0,
+      order : 1,
+      style : { },
+    },
   }
 
   state = {
-    contentFocused: false,
+    contentFocused            : false,
+    contentAnchorOffsetKey    : null,
+    contentAnchorOffset       : 0,
+    contentFocusOffsetKey     : null,
+    contentFocusOffset        : 0,
+    contentSelectionRecovery  : false,
   }
 
   componentDidMount() {
@@ -50,15 +70,17 @@ export default class MomentCard extends React.Component {
       contextReceiveProps: props,
       contextReceiveState: state,
       contextReceiveEvent: emit,
+      contextReceiveSelection: getSelection,
     } = this;
     const store = { ...defaultState };
     this.handlers = MomentEditorHandler({
-      set     : o => o && Object.keys(o).forEach(k => store[k] = o[k]),
-      get     : o => store,
-      dispatch: setState.bind(this),
-      emit    : emit.bind(this),
-      props   : props.bind(this),
-      state   : state.bind(this),
+      set         : o => o && Object.keys(o).forEach(k => store[k] = o[k]),
+      get         : o => store,
+      dispatch    : setState.bind(this),
+      emit        : emit.bind(this),
+      props       : props.bind(this),
+      state       : state.bind(this),
+      getSelection: getSelection.bind(this),
     });
   }
 
@@ -67,6 +89,13 @@ export default class MomentCard extends React.Component {
    */
   contextReceiveProps() { return this.props; }
   contextReceiveState() { return this.state; }
+
+  /**
+   * function to receive selection
+   */
+  contextReceiveSelection() {
+    return { };
+  }
 
   /**
    * trigger when receiving callback from handlers
@@ -82,7 +111,19 @@ export default class MomentCard extends React.Component {
    * trigger when input event within content area
    */
   onContentInput(character) {
-    console.log('input', character);
+    const {
+      contentAnchorOffsetKey,
+      contentAnchorOffset,
+      contentFocusOffsetKey,
+      contentFocusOffset,
+    } = this.state;
+    console.log('input', {
+      character,
+      contentAnchorOffset,
+      contentAnchorOffsetKey,
+      contentFocusOffset,
+      contentFocusOffsetKey,
+    });
   }
 
   /**
@@ -116,10 +157,25 @@ export default class MomentCard extends React.Component {
   }
 
   /**
+   * render block view
+   */
+  renderBlock(block, i) {
+    const { scale, editmode, editable } = this.props;
+    const { key, type } = block;
+    switch ( type ) {
+      case 'text':
+        return <MomentCardText key={key} block={block} scale={scale} editmode={editmode} editable={editable} />
+      default:
+        return null;
+    }
+  }
+
+  /**
    * render component view
    */
   render() {
-    const { scale, editmode, editable } = this.props;
+    const { scale, cover, editmode, editable, moment } = this.props;
+    const blocks = (moment && moment.data && moment.data.blocks) || defaults.blocks;
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
     return <article aria-label="moment-card" className={ editmode ? "base base-editor" : "base"} style={cardStyle}>
@@ -151,6 +207,7 @@ export default class MomentCard extends React.Component {
         }
         .base-hcenter {
           align-items: center;
+          text-aligin: center;
         }
         .base-word {
           word-break: break-word;
@@ -159,18 +216,17 @@ export default class MomentCard extends React.Component {
       `}</style>
       <div
         { ...this.handlers }
-        className="base-content base-word base-vcenter"
+        className={cover ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
         aria-label="moment-content"
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
-        contentEditable={true}
+        contentEditable={editmode}
         suppressContentEditableWarning={true}
         style={contentStyle}
       >
-        <MomentCardText scale={scale} editmode={editmode} editable={editable} />
-        <MomentCardText scale={scale} editmode={editmode} editable={editable} />
+        { blocks.map((block, i) => this.renderBlock(block, i)) }
       </div>
     </article>;
   }

@@ -19,6 +19,7 @@ import onMouseDown from './pointer/MouseDown';
 import onTouchStart from './pointer/TouchStart';
 
 export const defaultState = {
+  // composition
   contentCompositionIsActive: false,
   contentCompositionIsComposing: false,
   contentCompositionHasResolved: false,

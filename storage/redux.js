@@ -5,7 +5,7 @@ import localforage from 'localforage';
 
 import { connect, Provider } from 'react-redux';
 import { createPersistor, persistStore } from 'redux-persist';
-import { prefix as keyPrefix } from './config';
+import { prefix as keyPrefix, blacklist } from './config';
 import { syncCookies } from './store';
 import { actions } from '../reducers/server';
 
@@ -80,6 +80,7 @@ export default function(createStore) {
           // create redux persist configuration
           const persistConfig = {
             storage,
+            blacklist,
             keyPrefix,
           };
 
@@ -213,6 +214,7 @@ export default function(createStore) {
         // create redux persist configuration
         const persistConfig = {
           storage: localforage,
+          blacklist,
           keyPrefix,
         };
 

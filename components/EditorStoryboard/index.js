@@ -1,5 +1,6 @@
 
 import React from 'react';
+
 import MomentCard from '../MomentCard';
 
 export default class EditorStoryboard extends React.Component {
@@ -10,6 +11,8 @@ export default class EditorStoryboard extends React.Component {
       width : React.PropTypes.number,
       height: React.PropTypes.number,
     }),
+    onMomentCreate: React.PropTypes.func,
+    onMomentChange: React.PropTypes.func,
   }
 
   static defaultProps = {
@@ -18,14 +21,15 @@ export default class EditorStoryboard extends React.Component {
       width : typeof window !== 'undefined' ? window.innerWidth : 0,
       height: typeof window !== 'undefined' ? window.innerHeight : 0,
     },
+    onMomentCreate: _ => null,
+    onMomentChange: _ => null,
   }
 
   doc() {
     const { doc } = this.props;
     const data = (doc.data || { });
     const moments = (data.slides || { });
-    // const ids = Object.keys(moments);
-    const ids = [ 1, 2, 3, 4, 5, 6, 7, 8 ];
+    const ids = Object.keys(moments);
     const count = ids.length;
     return { ids, count, moments };
   }
@@ -110,7 +114,7 @@ export default class EditorStoryboard extends React.Component {
     let itemHeight = windowSize.height - 140.0;
     let itemRatio = itemWidth / 1024.0;
     if ( itemWidth >= 760 ) {
-      itemWidth = Math.ceil(itemWidth * 0.7);
+      itemWidth = Math.ceil(itemWidth * 0.5);
       itemRatio = itemWidth / 1024.0;
       let itemRatioHeight = Math.ceil(768 * itemRatio);
       itemHeight = itemHeight > itemRatioHeight ? itemRatioHeight : itemHeight;
@@ -121,13 +125,14 @@ export default class EditorStoryboard extends React.Component {
     if ( itemWidth > 1024 ) itemWidth = 1024;
     if ( itemHeight > 768 ) itemHeight = 768;
     const itemPadding = 20.0;
-    const listWidth = itemWidth * count + itemPadding * (count - 1) + (windowSize.width - itemWidth) / 2;
+    const listWidth = itemWidth * (count + 1) + itemPadding * count + (windowSize.width - itemWidth) / 2;
     const listPadding = (windowSize.width - itemWidth) / 2;
     const listHeight = itemHeight;
     return { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding };
   }
 
   render() {
+    const { onMomentCreate, onMomentChange } = this.props;
     const { ids, count, moments } = this.doc();
     const { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding } = this.getMomentStyle(ids.length);
     return <div className="base">
@@ -145,7 +150,8 @@ export default class EditorStoryboard extends React.Component {
         }
       `}</style>
       <div className="list" style={{ width: listWidth, minWidth: listWidth, height: listHeight, minHeight: listHeight, paddingLeft: listPadding }}>
-        { ids.map((id, i) => <MomentCard key={id} x={i * itemWidth + i * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />) }
+        <MomentCard cover={true} x={0} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />
+        { ids.map((id, i) => <MomentCard key={id} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} onChange={onMomentChange} />) }
       </div>
     </div>;
   }

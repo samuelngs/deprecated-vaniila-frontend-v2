@@ -8,7 +8,7 @@ function nullthrows(x) {
   if (x != null) {
     return x;
   }
-  throw new Error('Got unexpected null or undefined');
+  console.error('Got unexpected null or undefined');
 };
 
 /**
@@ -17,10 +17,11 @@ function nullthrows(x) {
 function getSelectionOffsetKeyFromNode(node) {
   if ( node instanceof Element ) {
     const offsetKey = node.getAttribute('data-offset-key');
-    if ( offsetKey ) return offsetKey;
+    const offsetGroup = node.getAttribute('data-offset-group');
+    if ( offsetKey ) return { offsetKey, offsetGroup };
     for ( let i = 0; i < node.childNodes.length; i++ ) {
-      const childOffsetKey = getSelectionOffsetKeyFromNode(node.childNodes[i]);
-      if ( childOffsetKey ) return childOffsetKey;
+      const childOffset = getSelectionOffsetKeyFromNode(node.childNodes[i]);
+      if ( childOffset ) return childOffset;
     }
   }
   return null;
@@ -32,8 +33,8 @@ function getSelectionOffsetKeyFromNode(node) {
 function findOffsetKey(node) {
   let _node = node;
   while (_node && _node !== document.documentElement) {
-    const key = getSelectionOffsetKeyFromNode(_node);
-    if ( key ) return key;
+    const offset = getSelectionOffsetKeyFromNode(_node);
+    if ( offset ) return offset;
     _node = _node.parentNode;
   }
   return null;
@@ -76,7 +77,9 @@ function getTextContentLength(node) {
 function getPointFromNonTextNode(root, startNode, childOffset) {
 
   let node = startNode;
-  let offsetKey = findOffsetKey(node);
+  let offset = findOffsetKey(node);
+  let offsetKey = offset && offset.offsetKey;
+  let offsetGroup = offset && offset.offsetGroup;
 
   // If the editorRoot is the selection, step downward into the content
   // wrapper.
@@ -93,16 +96,21 @@ function getPointFromNonTextNode(root, startNode, childOffset) {
   // key.
   if ( childOffset === 0 ) {
     let key = null;
+    let group = null;
     if ( offsetKey != null ) {
       key = offsetKey;
+      group = offsetGroup;
     } else {
-      key = nullthrows(getSelectionOffsetKeyFromNode(getFirstLeaf(node)));
+      const { offsetKey: selectionOffsetKey, offsetGroup: selectionOffsetGroup } = nullthrows(getSelectionOffsetKeyFromNode(getFirstLeaf(node)));
+      key = selectionOffsetKey;
+      group = selectionOffsetGroup;
     }
-    return { key, offset: 0 };
+    return { key, group, offset: 0 };
   }
 
   let nodeBeforeCursor = node.childNodes[childOffset - 1];
   let leafKey = null;
+  let leafGroup = null;
   let textLength = null;
 
   if ( !getSelectionOffsetKeyFromNode(nodeBeforeCursor) ) {
@@ -110,16 +118,19 @@ function getPointFromNonTextNode(root, startNode, childOffset) {
     // already where we want to be and can just use the child's length as
     // our offset.
     leafKey = nullthrows(offsetKey);
+    leafGroup = nullthrows(offsetGroup);
     textLength = getTextContentLength(nodeBeforeCursor);
   } else {
     // Otherwise, we'll look at the child to the left of the cursor and find
     // the last leaf node in its subtree.
     const lastLeaf = getLastLeaf(nodeBeforeCursor);
-    leafKey = nullthrows(getSelectionOffsetKeyFromNode(lastLeaf));
+    const { offsetKey: selectionOffsetKey, offsetGroup: selectionOffsetGroup } = nullthrows(getSelectionOffsetKeyFromNode(lastLeaf));
+    leafKey = selectionOffsetKey;
+    leafGroup = selectionOffsetGroup;
     textLength = getTextContentLength(lastLeaf);
   }
 
-  return { key: leafKey, offset: textLength };
+  return { key: leafKey, group: leafGroup, offset: textLength };
 }
 
 /**
@@ -140,20 +151,24 @@ export default function onSelect(e) {
     isCollapsed,
   } = window.getSelection();
 
+  if ( !anchorNode || !focusNode ) return;
+
   // check if anchor and focus nodes are text nodes
   const isAnchorTextNode = anchorNode.nodeType === Node.TEXT_NODE;
   const isFocusTextNode = focusNode.nodeType === Node.TEXT_NODE;
 
   if ( isAnchorTextNode && isFocusTextNode ) {
-    const anchorOffsetKey = nullthrows(findOffsetKey(anchorNode));
-    const focusOffsetKey = nullthrows(findOffsetKey(focusNode));
+    const { offsetKey: anchorOffsetKey, offsetGroup: anchorOffsetGroup } = nullthrows(findOffsetKey(anchorNode));
+    const { offsetKey: focusOffsetKey, offsetGroup: focusOffsetGroup } = nullthrows(findOffsetKey(focusNode));
     return this.dispatch({
       contentAnchorOffsetKey    : anchorOffsetKey,
+      contentAnchorOffsetGroup  : anchorOffsetGroup,
       contentAnchorOffset       : anchorOffset,
       contentFocusOffsetKey     : focusOffsetKey,
+      contentFocusOffsetGroup   : focusOffsetGroup,
       contentFocusOffset        : focusOffset,
       contentSelectionRecovery  : false,
-    });
+    }, _ => this.emit('selectionchange'));
   }
 
   let anchorPoint = null;
@@ -163,14 +178,16 @@ export default function onSelect(e) {
   const { target } = e;
 
   if ( isAnchorTextNode ) {
-    anchorPoint = { key: nullthrows(findOffsetKey(anchorNode)), offset: anchorOffset };
+    const { offsetKey: anchorOffsetKey, offsetGroup: anchorOffsetGroup } = nullthrows(findOffsetKey(anchorNode));
+    anchorPoint = { key: anchorOffsetKey, group: anchorOffsetGroup, offset: anchorOffset };
     focusPoint = getPointFromNonTextNode(target, focusNode, focusOffset);
   } else if ( isFocusTextNode ) {
-    focusPoint = { key: nullthrows(findOffsetKey(focusNode)), offset: focusOffset };
+    const { offsetKey: focusOffsetKey, offsetGroup: focusOffsetGroup } = nullthrows(findOffsetKey(focusNode));
+    focusPoint = { key: focusOffsetKey, group: focusOffsetGroup, offset: focusOffset };
     anchorPoint = getPointFromNonTextNode(target, anchorNode, anchorOffset);
   } else {
-    focusPoint = getPointFromNonTextNode(target, focusNode, focusOffset);
     anchorPoint = getPointFromNonTextNode(target, anchorNode, anchorOffset);
+    focusPoint = getPointFromNonTextNode(target, focusNode, focusOffset);
     if ( anchorNode === focusNode && anchorOffset === focusOffset ) {
       contentSelectionRecovery = !!anchorNode.firstChild && anchorNode.firstChild.nodeName !== 'DIV';
     }
@@ -178,10 +195,12 @@ export default function onSelect(e) {
 
   return this.dispatch({
     contentAnchorOffsetKey    : anchorPoint.key,
+    contentAnchorOffsetGroup  : anchorPoint.group,
     contentAnchorOffset       : anchorPoint.offset,
     contentFocusOffsetKey     : focusPoint.key,
+    contentFocusOffsetGroup   : focusPoint.group,
     contentFocusOffset        : focusPoint.offset,
     contentSelectionRecovery,
-  });
+  }, _ => this.emit('selectionchange'));
 }
 

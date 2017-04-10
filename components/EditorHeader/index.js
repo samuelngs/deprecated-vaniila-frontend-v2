@@ -13,13 +13,15 @@ export default class EditorHeader extends React.Component {
   }
 
   static propTypes = {
-    doc   : React.PropTypes.object,
-    peers : React.PropTypes.array,
+    doc           : React.PropTypes.object,
+    peers         : React.PropTypes.array,
+    onMomentCreate: React.PropTypes.func,
   }
 
   static defaultProps = {
-    doc   : null,
-    peers : [ ],
+    doc           : null,
+    peers         : [ ],
+    onMomentCreate: _ => null,
   }
 
   static cssVariables = {
@@ -29,7 +31,7 @@ export default class EditorHeader extends React.Component {
   }
 
   render() {
-    const { peers } = this.props;
+    const { peers, onMomentCreate } = this.props;
     const { store: { getState } } = this.context;
     const { authenticationToken } = getState();
     return <header className="header">
@@ -75,6 +77,7 @@ export default class EditorHeader extends React.Component {
           />
         </div>
         <div className="header-grid-column-4 header-grid-column-ac">
+          <button onClick={onMomentCreate}>Create Moment</button>
         </div>
         <div className="header-grid-column-4 header-grid-column-ar">
           <EditorPeersList

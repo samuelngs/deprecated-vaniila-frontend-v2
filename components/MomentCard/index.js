@@ -1,16 +1,15 @@
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 import MomentEditorHandler, { defaultState } from './handlers';
+import MomentEditorHook from './hooks';
 import MomentCardText from '../MomentCardText';
-
-const defaults = {
-  blocks: [ ],
-};
 
 export default class MomentCard extends React.Component {
 
   static propTypes = {
+    id      : React.PropTypes.string,
     x       : React.PropTypes.number,
     scale   : React.PropTypes.number,
     width   : React.PropTypes.number,
@@ -19,9 +18,11 @@ export default class MomentCard extends React.Component {
     editmode: React.PropTypes.bool,
     editable: React.PropTypes.bool,
     moment  : React.PropTypes.object,
+    onChange: React.PropTypes.func,
   }
 
   static defaultProps = {
+    id      : '',
     x       : 0,
     scale   : 1,
     width   : 0,
@@ -37,13 +38,16 @@ export default class MomentCard extends React.Component {
       order : 1,
       style : { },
     },
+    onChange: _ => null,
   }
 
   state = {
     contentFocused            : false,
     contentAnchorOffsetKey    : null,
+    contentAnchorOffsetGroup  : null,
     contentAnchorOffset       : 0,
     contentFocusOffsetKey     : null,
+    contentFocusOffsetGroup   : null,
     contentFocusOffset        : 0,
     contentSelectionRecovery  : false,
   }
@@ -104,6 +108,8 @@ export default class MomentCard extends React.Component {
     switch ( event ) {
       case 'beforeinput':
         return this.onContentInput(data);
+      case 'delete':
+        return this.onContentDelete();
     }
   }
 
@@ -111,19 +117,14 @@ export default class MomentCard extends React.Component {
    * trigger when input event within content area
    */
   onContentInput(character) {
-    const {
-      contentAnchorOffsetKey,
-      contentAnchorOffset,
-      contentFocusOffsetKey,
-      contentFocusOffset,
-    } = this.state;
-    console.log('input', {
-      character,
-      contentAnchorOffset,
-      contentAnchorOffsetKey,
-      contentFocusOffset,
-      contentFocusOffsetKey,
-    });
+    MomentEditorHook.onTextInsert.call(this, character);
+  }
+
+  /**
+   * trigger when delete event
+   */
+  onContentDelete() {
+    MomentEditorHook.onTextDelete.call(this);
   }
 
   /**
@@ -160,11 +161,38 @@ export default class MomentCard extends React.Component {
    * render block view
    */
   renderBlock(block, i) {
+
+    const {
+      contentFocused,
+      contentAnchorOffsetKey,
+      contentAnchorOffsetGroup,
+      contentAnchorOffset,
+      contentFocusOffsetKey,
+      contentFocusOffsetGroup,
+      contentFocusOffset,
+      contentSelectionRecovery,
+    } = this.state;
+
     const { scale, editmode, editable } = this.props;
-    const { key, type } = block;
+    const { key, type, data } = block;
+
     switch ( type ) {
       case 'text':
-        return <MomentCardText key={key} block={block} scale={scale} editmode={editmode} editable={editable} />
+        return <MomentCardText
+          key={key}
+          block={block}
+          scale={scale}
+          editmode={editmode}
+          editable={editable}
+          contentFocused={contentFocused}
+          contentAnchorOffsetKey={contentAnchorOffsetKey}
+          contentAnchorOffsetGroup={contentAnchorOffsetGroup}
+          contentAnchorOffset={contentAnchorOffset}
+          contentFocusOffsetKey={contentFocusOffsetKey}
+          contentFocusOffsetGroup={contentFocusOffsetGroup}
+          contentFocusOffset={contentFocusOffset}
+          contentSelectionRecovery={contentSelectionRecovery}
+        />
       default:
         return null;
     }
@@ -175,7 +203,7 @@ export default class MomentCard extends React.Component {
    */
   render() {
     const { scale, cover, editmode, editable, moment } = this.props;
-    const blocks = (moment && moment.data && moment.data.blocks) || defaults.blocks;
+    const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
     return <article aria-label="moment-card" className={ editmode ? "base base-editor" : "base"} style={cardStyle}>
@@ -210,6 +238,7 @@ export default class MomentCard extends React.Component {
           text-aligin: center;
         }
         .base-word {
+          white-space: pre-wrap;
           word-break: break-word;
           word-wrap: break-word;
         }

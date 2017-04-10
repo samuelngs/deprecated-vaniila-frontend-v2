@@ -3,6 +3,8 @@ import React from 'react';
 import UUID from 'uuid';
 
 import AppSync from '../AppSync';
+import deepClone from '../../utils/clone';
+import { api as Api } from '../../reducers/editor';
 
 export default class EditorSync extends React.Component {
 
@@ -17,6 +19,7 @@ export default class EditorSync extends React.Component {
     onClose       : React.PropTypes.func,
     onSubscribe   : React.PropTypes.func,
     onUnsubscribe : React.PropTypes.func,
+    onSync        : React.PropTypes.func,
     onSignal      : React.PropTypes.func,
   }
 
@@ -27,6 +30,7 @@ export default class EditorSync extends React.Component {
     onClose       : _ => null,
     onSubscribe   : ({ type, name }) => null,
     onUnsubscribe : ({ type, name }) => null,
+    onSync        : ({ type, name, data }) => null,
     onSignal      : ({ type, name, user, peers }) => null,
   }
 
@@ -126,7 +130,7 @@ export default class EditorSync extends React.Component {
   auto() {
     // flush pending messages if there is any
     const { messages } = this.state;
-    this.update();
+    this.latest();
     this.signal();
     this.flush(messages);
   }
@@ -134,7 +138,7 @@ export default class EditorSync extends React.Component {
   /**
    * emit synchronous request to server
    */
-  update() {
+  latest() {
     const { username, moment: plotname } = this.props;
     this.emit({ action: 'sync', username, plotname }, false);
   }
@@ -168,7 +172,10 @@ export default class EditorSync extends React.Component {
   /**
    * function to emit message to server
    */
-  emit(message, retry = true) {
+  emit(payload, retry = true) {
+    const { id } = this.state;
+    const message = payload && payload.action === 'update' ? { } : { _sid: id };
+    deepClone(message, payload);
     return new Promise((resolve, reject) => {
       const { messages, state } = this.state;
       if ( !this.websocket || state === EditorSync.CLOSED ) {
@@ -302,6 +309,7 @@ export default class EditorSync extends React.Component {
   onWebsocketChannelMessage(type, name, message) {
     if ( !message.attributes.message ) return;
     if ( !message.attributes.message.data || !message.attributes.message.event ) return;
+    const { id } = this.state;
     const data = JSON.parse(message.attributes.message.data);
     switch ( message.attributes.message.event ) {
       case 'sync':
@@ -309,6 +317,10 @@ export default class EditorSync extends React.Component {
         // debounce repeated message
         clearImmediate(this.editorSyncImmediate);
         return this.editorSyncImmediate = setImmediate(_ => this.onEditorSync(type, name, data));
+      case 'change':
+        if ( data._sid === id ) return;
+        if ( !data.changes ) return;
+        return this.onEditorChange(type, name, data);
       case 'update':
         if ( !data.elements || !data.slidekey ) return;
         return this.onEditorUpdate(type, name, data);
@@ -322,7 +334,20 @@ export default class EditorSync extends React.Component {
    * trigger when the receive message is a synchronous response
    */
   onEditorSync(type, name, data) {
-    console.log('on sync', type, name, data);
+    const { store } = this.context;
+    const { onSync } = this.props;
+    store.dispatch(Api.replaceState(name, data, true)).then(
+      data => onSync({ type, name, data }),
+    );
+  }
+
+  /**
+   * trigger when websocket receive peer to peer changes
+   */
+  onEditorChange(type, name, data) {
+    const { store } = this.context;
+    const { changes } = data;
+    store.dispatch(Api.patchState(name, changes));
   }
 
   /**

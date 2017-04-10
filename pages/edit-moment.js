@@ -4,12 +4,16 @@ import 'isomorphic-fetch';
 import React from 'react';
 import Head from 'next/head';
 
+import UUID from 'uuid';
+
 import WindowObserver from '../components/WindowObserver';
 import EditorSync from '../components/EditorSync';
 import EditorHeader from '../components/EditorHeader';
 import EditorLaunchFail from '../components/EditorLaunchFail';
 import EditorLaunchSuccess from '../components/EditorLaunchSuccess';
 import EditorStoryboard from '../components/EditorStoryboard';
+
+import deepClone from '../utils/clone';
 
 import { api as accountReducerApi } from '../reducers/account';
 import { api as momentReducerApi } from '../reducers/moment';
@@ -43,9 +47,13 @@ class EditMoment extends React.Component {
   }
 
   /**
-   * shortcut function for emit message to websocket server
+   * shortcut functions
+   *
+   *  - for emit message to websocket server
+   *  - for fetching updates from websocket server
    */
   emit(message) { return this.sync && this.sync.emit(message); }
+  latest() { return this.sync && this.sync.latest(); }
 
   /**
    * trigger when websocket is connected
@@ -60,8 +68,8 @@ class EditMoment extends React.Component {
   /**
    * trigger when websocket receive synchronous data
    */
-  onSync() {
-    console.log('sync');
+  onSync(data) {
+    // console.log('sync', data);
   }
 
   /**
@@ -71,6 +79,9 @@ class EditMoment extends React.Component {
     console.log('update');
   }
 
+  /**
+   * trigger when receive peer signal (other users) from websocket
+   */
   onSignal({ peers: res }) {
     const peers = [ ...res ]
       .sort((a, b) => a.initial > b.initial)
@@ -78,6 +89,9 @@ class EditMoment extends React.Component {
     return this.setState({ peers });
   }
 
+  /**
+   * retry handler for re-fetch account and moment data
+   */
   async onRetry() {
     const { id, dispatch } = this.props;
     {
@@ -93,6 +107,114 @@ class EditMoment extends React.Component {
       if ( err ) return this.setState({ err });
     }
     return this.setState({ err: null });
+  }
+
+  /**
+   * handler for moment redo
+   */
+  onMomentRedo() {
+    console.log('redo');
+  }
+
+  /**
+   * handler for moment undo
+   */
+  onMomentUndo() {
+    console.log('undo');
+  }
+
+  /**
+   * handler for moment edit change
+   */
+  onMomentChange(moment, state) {
+
+    if ( !window.getSelection ) return;
+
+    // retrieve moments document
+    const { id, username, moment: plotname, editorHistories, dispatch } = this.props;
+    if ( !editorHistories[id] ) return;
+    const { present: doc } = editorHistories[id] || { };
+    const clone = { };
+    deepClone(clone, doc);
+
+    // patch clone
+    clone.data || (clone.data = { });
+    clone.data.slides || (clone.data.slides = { });
+    clone.data.slides[moment] = state;
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+
+    // prepare websocket payload for 'update' event
+    const payload = {
+      action  : 'update',
+      username,
+      plotname,
+      time    : new Date(),
+      slides: {
+        [moment]: state,
+      },
+    };
+
+    dispatch(editorReducerApi.updateState(id, clone))
+      .then(changes => this.emit({ action: 'change', changes }))
+      .then(_ => this.emit(payload));
+
+  }
+
+  /**
+   * handler for create new moment
+   */
+  onMomentCreate() {
+    // retrieve moments from histories
+    const { id, username, moment: plotname, editorHistories } = this.props;
+    if ( !editorHistories[id] ) return;
+    const { present: doc } = editorHistories[id] || { };
+    const data = (doc.data || { });
+    const moments = (data.slides || { });
+    const ids = Object.keys(moments);
+
+    // generate moment id
+    const name = `${UUID.v4()}`;
+    const order = (() => {
+      let max = 0;
+      ids.forEach(id => {
+        const moment = (moments[id] || { });
+        const order = typeof moment.order === 'number'
+          ? moment.order
+          : 0;
+        if ( order > max ) max = order;
+      });
+      return max + 1;
+    })();
+
+    // prepare payload
+    const payload = {
+      action  : 'add',
+      time    : new Date(),
+      plotname,
+      username,
+      slides: {
+        [name]: {
+          hash  : `${Date.now()}`,
+          data  : {
+            blocks: [
+              {
+                key   : `${UUID.v4()}`,
+                type  : 'text',
+                data  : '',
+                styles: [ ],
+              }
+            ]
+          },
+          style : { },
+          order,
+        },
+      },
+    };
+
+    // create moment
+    this.emit(payload).then(_ => this.latest());
   }
 
   render () {
@@ -117,8 +239,16 @@ class EditMoment extends React.Component {
           onUpdate={::this.onUpdate}
           onSignal={::this.onSignal}
         />
-        <EditorHeader peers={peers} />
-        <EditorStoryboard windowSize={windowSize} doc={doc} />
+        <EditorHeader
+          peers={peers}
+          onMomentCreate={::this.onMomentCreate}
+        />
+        <EditorStoryboard
+          doc={doc}
+          windowSize={windowSize}
+          onMomentCreate={::this.onMomentCreate}
+          onMomentChange={::this.onMomentChange}
+        />
       </EditorLaunchSuccess>
     </div>
   }

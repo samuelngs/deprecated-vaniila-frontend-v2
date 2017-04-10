@@ -5,9 +5,9 @@ const patcher = new DiffPatcher({
   objectHash: function (obj, index) {
     return obj.key || '$$index:' + index;
   },
-  textDiff: {
-    minLength: 1,
-  },
+  // textDiff: {
+  //   minLength: 1,
+  // },
 });
 
 const defaults = {
@@ -38,9 +38,9 @@ function hookMomentsSort(moments) {
   const momentsOrdered = { };
   momentsNames.sort((a, b) => {
     const momentA = moments[a] || { };
-    const monentB = monents[b] || { };
-    if ( typeof monentA.order === 'number' && typeof monentB.order === 'number' ) {
-      return monentA.order - monentB.order;
+    const momentB = moments[b] || { };
+    if ( typeof momentA.order === 'number' && typeof momentB.order === 'number' ) {
+      return momentA.order - momentB.order;
     }
     return a - b;
   }).forEach((name, i) => {
@@ -81,6 +81,9 @@ function hookAppendChange(histories, { id, state }) {
 
   const { present, past, future } = histories[id];
   const diff = patcher.diff(present, state);
+  if ( !diff ) return histories;
+
+  histories[id].present = state;
 
   // record changes
   past.push(diff);
@@ -152,9 +155,68 @@ function hookReplayChange(histories, { id }) {
 }
 
 /**
+ * hook for patching history state with hash check
+ * only patch with the newer version
+ */
+function hookPatchWithHashState(histories, { id, state }) {
+
+  const { present } = histories[id];
+  const doc = patcher.clone(present);
+
+  doc.data = (doc.data || { });
+  doc.data.slides = (doc.data.slides || { });
+
+  const prevData = doc.data;
+  const prevSlides = prevData.slides;
+  const prevSlidesNames = Object.keys(prevSlides);
+
+  const nextData = (state.data || { });
+  const nextSlides = (nextData.slides || { });
+  const nextSlidesNames = Object.keys(nextSlides);
+
+  const removed = prevSlidesNames.filter( v => nextSlidesNames.indexOf(v) === -1 );
+
+  for ( const name in nextSlides ) {
+
+    const prevMoment = prevSlides[name];
+    const nextMoment = nextSlides[name];
+
+    // insert to storage if this is a new slide
+    if ( !prevMoment && nextMoment ) {
+      prevSlides[name] = nextMoment;
+      continue;
+    }
+
+    // compare two hash, only update if the receive state is newer
+    const { hash: prevHashString } = prevMoment;
+    const { hash: nextHashString } = nextMoment;
+
+    const prevHash = Number(prevHashString);
+    const nextHash = Number(nextHashString);
+
+    // skip patching if hash is invalid
+    if ( isNaN(prevHash) || isNaN(nextHash) ) continue;
+    // skip patching since the current state is newer
+    if (  nextHash < prevHash ) continue;
+
+    prevSlides[name] = nextMoment;
+
+  }
+
+  removed.forEach(name => {
+    delete prevSlides[name];
+  });
+
+  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
+  histories[id].present = doc;
+
+  return histories;
+}
+
+/**
  * hook for patching history state
  */
-function hookPatchState(histories, { id, diff, state }) {
+function hookPatchState(histories, { id, diff, state, checksHash }) {
 
   const { present } = histories[id];
 
@@ -170,8 +232,11 @@ function hookPatchState(histories, { id, diff, state }) {
 
   // full patch with document state
   if ( typeof state === 'object' || state !== null ) {
+    if ( checksHash ) {
+      return hookPatchWithHashState(histories, { id, state });
+    }
     {
-      const doc = { ...state };
+      const doc = patcher.clone(state);
       doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
       histories[id].present = doc;
     }
@@ -212,37 +277,37 @@ function editorHistories (histories = defaults.histories, action = defaults.acti
      * editor history initialization
      */
     case actions.InitialEditorHistory:
-      return hookInitialHistory(histories, action);
+      return patcher.clone(hookInitialHistory(histories, action));
 
     /**
      * record changes
      */
     case actions.AppendEditorChange:
-      return hookAppendChange(histories, action);
+      return patcher.clone(hookAppendChange(histories, action));
 
     /**
      * undo changes
      */
     case actions.RevertEditorChange:
-      return hookRevertChange(histories, action);
+      return patcher.clone(hookRevertChange(histories, action));
 
     /**
      * redo changes
      */
     case actions.ReplayEditorChange:
-      return hookReplayChange(histories, action);
+      return patcher.clone(hookReplayChange(histories, action));
 
     /**
      * patch editor state
      */
     case actions.PatchEditorState:
-      return hookPatchState(histories, action);
+      return patcher.clone(hookPatchState(histories, action));
 
     /**
      * clear changes store
      */
     case actions.RemoveEditorChanges:
-      return hookRemoveChanges(histories, action);
+      return patcher.clone(hookRemoveChanges(histories, action));
 
     default:
       return histories;
@@ -286,19 +351,19 @@ function patchState(id, diff) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.PatchEditorState, id, diff }));
     })
-    .then(histories => histories[id].present);
+    .then(_ => getState().editorHistories[id].present);
   }
 }
 
 /**
  * replace document state
  */
-function replaceState(id, state) {
+function replaceState(id, state, checksHash = false) {
   return function ( dispatch, getState ) {
     return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.PatchEditorState, id, state }));
+      return resolve(dispatch({ type: actions.PatchEditorState, id, state, checksHash }));
     })
-    .then(histories => histories[id].present);
+    .then(_ => getState().editorHistories[id].present);
   }
 }
 
@@ -310,8 +375,9 @@ function updateState(id, state) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.AppendEditorChange, id, state }));
     })
-    .then(histories => {
-      const { past } = histories[id];
+    .then(_ => {
+      const { editorHistories } = getState();
+      const { past } = editorHistories[id];
       return past[past.length - 1];
     });
   }
@@ -325,8 +391,9 @@ function undo(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.RevertEditorChange, id }));
     })
-    .then(histories => {
-      const { future } = histories[id];
+    .then(_ => {
+      const { editorHistories } = getState();
+      const { future } = editorHistories[id];
       const changes = future[future.length - 1];
       return patcher.reverse(changes);
     });
@@ -341,8 +408,9 @@ function redo(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.ReplayEditorChange, id }));
     })
-    .then(histories => {
-      const { past } = histories[id];
+    .then(_ => {
+      const { editorHistories } = getState();
+      const { past } = editorHistories[id];
       return past[past.length - 1];
     });
   }
@@ -356,7 +424,7 @@ function clearChanges(id) {
     return new Promise(resolve => {
       return resolve(dispatch({ type: actions.RemoveEditorChanges, id }));
     })
-    .then(histories => histories[id]);
+    .then(_ => getState().editorHistories[id]);
   }
 }
 

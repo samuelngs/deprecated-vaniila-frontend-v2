@@ -1,5 +1,6 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 
 import EditorHeaderBack from '../EditorHeaderBack';
@@ -9,13 +10,13 @@ import EditorPeersList from '../EditorPeersList';
 export default class EditorHeader extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   static propTypes = {
-    doc           : React.PropTypes.object,
-    peers         : React.PropTypes.array,
-    onMomentCreate: React.PropTypes.func,
+    doc           : PropTypes.object,
+    peers         : PropTypes.array,
+    onMomentCreate: PropTypes.func,
   }
 
   static defaultProps = {

@@ -1,16 +1,17 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { TransitionMotion, spring, presets } from 'react-motion';
 
 export default class EditorPeersList extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   static propTypes = {
-    headerHeight: React.PropTypes.number,
-    peers: React.PropTypes.array,
+    headerHeight: PropTypes.number,
+    peers: PropTypes.array,
   }
 
   static defaultProps = {

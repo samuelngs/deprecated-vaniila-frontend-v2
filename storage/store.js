@@ -1,7 +1,8 @@
 
-import { applyMiddleware, compose, combineReducers, createStore } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import { autoRehydrate } from 'redux-persist';
 import thunkMiddleware from 'redux-thunk';
+import combineSectionReducers from 'combine-section-reducers';
 import Cookies from 'js-cookie';
 
 import withRedux from './redux';
@@ -64,7 +65,7 @@ export const syncCookies = (() => {
 })();
 
 export const initStore = initialState => {
-  return createStore(combineReducers(reducers), initialState, compose(
+  return createStore(combineSectionReducers(reducers), initialState, compose(
     applyMiddleware(thunkMiddleware),
     autoRehydrate(),
     typeof window !== 'undefined' && window.devToolsExtension && process.env.NODE_ENV !== 'production' ? window.devToolsExtension() : f => f,

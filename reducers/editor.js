@@ -1,430 +1,331 @@
 
 import { DiffPatcher } from 'jsondiffpatch/src/diffpatcher';
 
-const patcher = new DiffPatcher({
-  objectHash: function (obj, index) {
-    return obj.key || '$$index:' + index;
-  },
-  // textDiff: {
-  //   minLength: 1,
-  // },
-});
+const patcher = new DiffPatcher();
 
 const defaults = {
-  history: {
-    past    : [ ],
-    future  : [ ],
-    present : { },
-  },
-  histories: { },
-};
 
-const MAX_CHANGES = 20;
+  // editor states storage
+  states: { },
+
+  // editor single state
+  state: {
+
+    // editor moment
+    editorMoment: null,
+
+    // selection start point (usually the anchor point)
+    editorStartKey: null,
+    editorStartGroup: null,
+    editorStartOffset: 0,
+
+    // selection anchor point
+    editorAnchorKey: null,
+    editorAnchorGroup: null,
+    editorAnchorOffset: 0,
+
+    // selection end point (usually the focus point)
+    editorEndKey: null,
+    editorEndGroup: null,
+    editorEndOffset: 0,
+
+    // selection focus point
+    editorFocusKey: null,
+    editorFocusGroup: null,
+    editorFocusOffset: 0,
+
+    // selection recovery
+    editorSelectionRecovery: false,
+
+    // If the anchor position is lower in the document than the focus position, the selection is backward
+    editorIsBackward: false,
+    editorIsCollapsed: false,
+
+    // whether the editor currently has focus
+    editorHasFocus: false,
+
+    // if the current state is composition mode (IME)
+    editorIsCompositionMode: false,
+    editorIsCompositionResolved: false,
+    editorIsComposing: false,
+    editorInputData: '',
+  },
+
+  options: {
+
+    id: undefined,
+
+    anchorKey: undefined,
+    anchorGroup: undefined,
+    anchorOffset: -1,
+
+    focusKey: undefined,
+    focusGroup: undefined,
+    focusOffset: -1,
+
+    selectionRecovery: undefined,
+
+    focus: undefined,
+
+    compositionMode: undefined,
+    compositionResolved: undefined,
+    composing: undefined,
+    inputData: undefined,
+  },
+
+};
 
 export const actions = {
-  InitialEditorHistory  : '@@editor/INITIAL_EDITOR_HISTORY',
-  AppendEditorChange    : '@@editor/APPEND_EDITOR_CHANGE',  // record
-  RevertEditorChange    : '@@editor/REVERT_EDITOR_CHANGE',  // undo
-  ReplayEditorChange    : '@@editor/REPLAY_EDITOR_CHANGE',  // redo
-  PatchEditorState      : '@@editor/PATCH_EDITOR_STATE',    // patch editor state
-  RemoveEditorChanges   : '@@editor/REMOVE_EDITOR_CHANGES', // remove all editor change records
+  SetEditorState: '@@editor/SET_EDITOR_STATE',
 };
 
-/**
- * hook to sort moments
- */
-function hookMomentsSort(moments) {
-  const momentsNames = Object.keys(moments);
-  const momentsOrdered = { };
-  momentsNames.sort((a, b) => {
-    const momentA = moments[a] || { };
-    const momentB = moments[b] || { };
-    if ( typeof momentA.order === 'number' && typeof momentB.order === 'number' ) {
-      return momentA.order - momentB.order;
+function hookInitialPlaceholder(states, { id }) {
+  if ( typeof states[id] !== 'object' || states[id] === null ) {
+    const clone = patcher.clone(states);
+    clone[id] = { ...defaults.state };
+    return clone;
+  }
+  return states;
+}
+
+function hookSetEditorState(states, { id, options: opts }, store) {
+
+  // clone current states
+  const clone = patcher.clone(states);
+
+  // retrieve specific editor state
+  const state = clone[id];
+  const { editorHistories } = store;
+  const { present } = editorHistories[id];
+
+  if ( !present ) return clone;
+
+  // update state
+  conditionReset(state, present, opts);
+  conditionUpdateAnchorPoint(state, present, opts);
+  conditionUpdateFocusPoint(state, present, opts);
+  conditionUpdateOrdering(state, present, opts);
+  conditionUpdateSelectionRecovery(state, present, opts);
+  conditionUpdateFocus(state, present, opts);
+  conditionUpdateCompositionMode(state, present, opts);
+  conditionUpdateCompositionResolved(state, present, opts);
+  conditionUpdateComposing(state, present, opts);
+  conditionUpdateInputData(state, present, opts);
+
+  return clone;
+}
+
+function conditionReset(state, doc, opts) {
+  const { id } = opts;
+  if ( typeof id !== 'string' ) return;
+  if ( state.editorMoment !== id ) {
+    for ( const i in defaults.state ) {
+      state[i] = defaults.state[i];
     }
-    return a - b;
-  }).forEach((name, i) => {
-    momentsOrdered[name] = moments[name];
-  });
-  return momentsOrdered;
+    state.editorMoment = id;
+  }
 }
 
-/**
- * hook for initial history placeholder
- */
-function hookInitialPlaceholder(histories, { id }) {
-  if (
-    (typeof histories[id] !== 'object' || histories[id] === null)
-    || (typeof histories[id].present !== 'object' ||  histories[id].present === null)
-    || !Array.isArray(histories[id].past)
-    || !Array.isArray(histories[id].future)
-  ) histories[id] = { ...defaults.history };
-  return histories;
+function conditionUpdateAnchorPoint(state, doc, opts) {
+  const { anchorKey, anchorGroup, anchorOffset } = opts;
+  if ( typeof anchorKey === 'undefined' || typeof anchorGroup === 'undefined' || anchorOffset === -1 ) return;
+  state.editorAnchorKey = anchorKey;
+  state.editorAnchorGroup = anchorGroup;
+  state.editorAnchorOffset = anchorOffset;
 }
 
-/**
- * hook for setup history store
- */
-function hookInitialHistory(histories, { id, state }) {
-  if ( typeof state !== 'object' || state === null ) return histories;
-  const doc = { ...state };
-  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-  histories[id].present = doc;
-  return histories;
+function conditionUpdateFocusPoint(state, doc, opts) {
+  const { focusKey, focusGroup, focusOffset } = opts;
+  if ( typeof focusKey === 'undefined' || typeof focusGroup === 'undefined' || focusOffset === -1 ) return;
+  state.editorFocusKey = focusKey;
+  state.editorFocusGroup = focusGroup;
+  state.editorFocusOffset = focusOffset;
 }
 
-/**
- * hook for append editor history
- */
-function hookAppendChange(histories, { id, state }) {
-  if ( typeof state !== 'object' || state === null ) return histories;
+function conditionUpdateOrdering(state, doc, opts) {
+  const {
+    editorMoment,
+    editorAnchorKey,
+    editorAnchorGroup,
+    editorAnchorOffset,
+    editorFocusKey,
+    editorFocusGroup,
+    editorFocusOffset,
+  } = state;
+  const oEditorAnchorGroup = Number(editorAnchorGroup);
+  const oEditorFocusGroup = Number(editorFocusGroup);
+  if ( isNaN(oEditorAnchorGroup) || isNaN(oEditorFocusGroup) ) return;
 
-  const { present, past, future } = histories[id];
-  const diff = patcher.diff(present, state);
-  if ( !diff ) return histories;
+  const data = (doc.data || { });
+  const moments = (data.slides || { });
+  const moment = moments[editorMoment];
+  if ( typeof moment !== 'object' || moment === null ) return;
 
-  histories[id].present = state;
+  const blocks = (moment && moment.data && moment.data.blocks) || [ ];
 
-  // record changes
-  past.push(diff);
-
-  // clear all future changes
-  future.splice(0, future.length);
-
-  // remove old changes if there is too many
-  if ( past.length > MAX_CHANGES ) {
-    past.splice(past.length - MAX_CHANGES, past.length);
+  let anchorBlockIdx = -1;
+  let focusBlockIdx = -1;
+  for ( let i = 0; i < blocks.length; i++ ) {
+    const { key } = blocks[i];
+    if ( key === editorAnchorKey ) anchorBlockIdx = i;
+    if ( key === editorFocusKey ) focusBlockIdx = i;
+    if ( anchorBlockIdx > -1 && focusBlockIdx > -1 ) break;
   }
 
-  return histories;
-}
+  if ( anchorBlockIdx === -1 || focusBlockIdx === -1 ) return;
 
-/**
- * hook for undo editor history
- */
-function hookRevertChange(histories, { id }) {
+  const equalBlock = (anchorBlockIdx === focusBlockIdx);
+  const equalGroup = equalBlock && editorAnchorGroup === editorFocusGroup;
+  const equalOffset = editorAnchorOffset === editorFocusOffset;
 
-  const { present, past, future } = histories[id];
+  state.editorIsCollapsed = equalBlock && equalGroup && equalOffset;
 
-  // nothing to revert
-  if ( past.length === 0 ) {
-    return histories;
-  }
-
-  // retrieve last change
-  const diff = past[past.length - 1];
-
-  // unpatch last change
-  const doc = patcher.unpatch(present, diff);
-  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-  histories[id].present = doc;
-
-  // move changes to the future stack
-  future.push(diff);
-  past.pop();
-
-  return histories;
-}
-
-/**
- * hook for redo editor history
- */
-function hookReplayChange(histories, { id }) {
-
-  const { present, past, future } = histories[id];
-
-  // nothing to replay
-  if ( future.length === 0 ) {
-    return histories;
-  }
-
-  // retrieve last change
-  const diff = future[future.length - 1];
-
-  // patch last change
-  const doc = patcher.patch(present, diff);
-  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-  histories[id].present = doc;
-
-
-  // move changes to past stack
-  past.push(diff);
-  future.pop();
-
-  return histories;
-}
-
-/**
- * hook for patching history state with hash check
- * only patch with the newer version
- */
-function hookPatchWithHashState(histories, { id, state }) {
-
-  const { present } = histories[id];
-  const doc = patcher.clone(present);
-
-  doc.data = (doc.data || { });
-  doc.data.slides = (doc.data.slides || { });
-
-  const prevData = doc.data;
-  const prevSlides = prevData.slides;
-  const prevSlidesNames = Object.keys(prevSlides);
-
-  const nextData = (state.data || { });
-  const nextSlides = (nextData.slides || { });
-  const nextSlidesNames = Object.keys(nextSlides);
-
-  const removed = prevSlidesNames.filter( v => nextSlidesNames.indexOf(v) === -1 );
-
-  for ( const name in nextSlides ) {
-
-    const prevMoment = prevSlides[name];
-    const nextMoment = nextSlides[name];
-
-    // insert to storage if this is a new slide
-    if ( !prevMoment && nextMoment ) {
-      prevSlides[name] = nextMoment;
-      continue;
+  if ( !equalBlock ) {
+    if ( anchorBlockIdx < focusBlockIdx ) {
+      state.editorStartKey = editorAnchorKey;
+      state.editorStartGroup = editorAnchorGroup;
+      state.editorStartOffset = editorAnchorOffset;
+      state.editorEndKey = editorFocusKey;
+      state.editorEndGroup = editorFocusGroup;
+      state.editorEndOffset = editorFocusOffset;
+      state.editorIsBackward = false;
+    } else {
+      state.editorStartKey = editorFocusKey;
+      state.editorStartGroup = editorFocusGroup;
+      state.editorStartOffset = editorFocusOffset;
+      state.editorEndKey = editorAnchorKey;
+      state.editorEndGroup = editorAnchorGroup;
+      state.editorEndOffset = editorAnchorOffset;
+      state.editorIsBackward = true;
     }
-
-    // compare two hash, only update if the receive state is newer
-    const { hash: prevHashString } = prevMoment;
-    const { hash: nextHashString } = nextMoment;
-
-    const prevHash = Number(prevHashString);
-    const nextHash = Number(nextHashString);
-
-    // skip patching if hash is invalid
-    if ( isNaN(prevHash) || isNaN(nextHash) ) continue;
-    // skip patching since the current state is newer
-    if (  nextHash < prevHash ) continue;
-
-    prevSlides[name] = nextMoment;
-
+    return;
   }
 
-  removed.forEach(name => {
-    delete prevSlides[name];
-  });
+  if ( !equalGroup ) {
+    if ( oEditorAnchorGroup < oEditorFocusGroup ) {
+      state.editorStartKey = editorAnchorKey;
+      state.editorStartGroup = editorAnchorGroup;
+      state.editorStartOffset = editorAnchorOffset;
+      state.editorEndKey = editorFocusKey;
+      state.editorEndGroup = editorFocusGroup;
+      state.editorEndOffset = editorFocusOffset;
+      state.editorIsBackward = false;
+    } else {
+      state.editorStartKey = editorFocusKey;
+      state.editorStartGroup = editorFocusGroup;
+      state.editorStartOffset = editorFocusOffset;
+      state.editorEndKey = editorAnchorKey;
+      state.editorEndGroup = editorAnchorGroup;
+      state.editorEndOffset = editorAnchorOffset;
+      state.editorIsBackward = true;
+    }
+    return;
+  }
 
-  doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-  histories[id].present = doc;
+  if ( !equalOffset ) {
+    if ( editorAnchorOffset < editorFocusOffset ) {
+      state.editorStartKey = editorAnchorKey;
+      state.editorStartGroup = editorAnchorGroup;
+      state.editorStartOffset = editorAnchorOffset;
+      state.editorEndKey = editorFocusKey;
+      state.editorEndGroup = editorFocusGroup;
+      state.editorEndOffset = editorFocusOffset;
+      state.editorIsBackward = false;
+    } else {
+      state.editorStartKey = editorFocusKey;
+      state.editorStartGroup = editorFocusGroup;
+      state.editorStartOffset = editorFocusOffset;
+      state.editorEndKey = editorAnchorKey;
+      state.editorEndGroup = editorAnchorGroup;
+      state.editorEndOffset = editorAnchorOffset;
+      state.editorIsBackward = true;
+    }
+    return;
+  }
 
-  return histories;
+  state.editorStartKey = editorAnchorKey;
+  state.editorStartGroup = editorAnchorGroup;
+  state.editorStartOffset = editorAnchorOffset;
+  state.editorEndKey = editorFocusKey;
+  state.editorEndGroup = editorFocusGroup;
+  state.editorEndOffset = editorFocusOffset;
+  state.editorIsBackward = false;
+}
+
+function conditionUpdateSelectionRecovery(state, doc, opts) {
+  const { selectionRecovery } = opts;
+  if ( typeof selectionRecovery !== 'boolean' ) return;
+  state.editorSelectionRecovery = selectionRecovery;
+}
+
+function conditionUpdateFocus(state, doc, opts) {
+  const { focus } = opts;
+  if ( typeof focus !== 'boolean' ) return;
+  state.editorHasFocus = focus;
+}
+
+function conditionUpdateCompositionMode(state, doc, opts) {
+  const { compositionMode } = opts;
+  if ( typeof compositionMode !== 'boolean' ) return;
+  state.editorIsCompositionMode = compositionMode;
+}
+
+function conditionUpdateCompositionResolved(state, doc, opts) {
+  const { compositionResolved } = opts;
+  if ( typeof compositionResolved != 'boolean' ) return;
+  state.editorIsCompositionResolved = compositionResolved;
+}
+
+function conditionUpdateComposing(state, doc, opts) {
+  const { composing } = opts;
+  if ( typeof composing !== 'boolean' ) return;
+  state.editorIsComposing = composing;
+}
+
+function conditionUpdateInputData(state, doc, opts) {
+  const { inputData } = opts;
+  if ( typeof inputData !== 'string' ) return;
+  state.editorInputData = inputData;
 }
 
 /**
- * hook for patching history state
+ * editor state
  */
-function hookPatchState(histories, { id, diff, state, checksHash }) {
-
-  const { present } = histories[id];
-
-  // patch state with diff object
-  if ( typeof diff !== 'undefined' ) {
-    {
-      const doc = patcher.patch(present, diff);
-      doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-      histories[id].present = doc;
-    }
-    return histories;
-  }
-
-  // full patch with document state
-  if ( typeof state === 'object' || state !== null ) {
-    if ( checksHash ) {
-      return hookPatchWithHashState(histories, { id, state });
-    }
-    {
-      const doc = patcher.clone(state);
-      doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
-      histories[id].present = doc;
-    }
-    return histories;
-  }
-
-  return histories;
-}
-
-/**
- * hook to remove all changes records
- */
-function hookRemoveChanges(histories, { id }) {
-
-  const { past, future } = histories[id];
-
-  // clear all future changes
-  past.splice(0, past.length);
-  future.splice(0, future.length);
-
-  return histories;
-}
-
-/**
- * editor histories storage
- */
-function editorHistories (histories = defaults.histories, action = defaults.action) {
+function editorStates (states = defaults.states, action = defaults.action, store) {
 
   // do not do anything if id is missing
-  if ( typeof action.id !== 'string' || ( typeof action.id === 'string' && action.id.trim().length === 0 ) ) return histories;
+  if ( typeof action.id !== 'string' || ( typeof action.id === 'string' && action.id.trim().length === 0 ) ) return states;
 
-  // initialize history if it does not exist
-  histories = hookInitialPlaceholder(histories, action);
+  // initialize state if it does not exist
+  states = hookInitialPlaceholder(states, action);
 
   switch ( action.type ) {
 
     /**
      * editor history initialization
      */
-    case actions.InitialEditorHistory:
-      return patcher.clone(hookInitialHistory(histories, action));
+    case actions.SetEditorState:
+      return hookSetEditorState(states, action, store);
 
     /**
-     * record changes
+     * getter
      */
-    case actions.AppendEditorChange:
-      return patcher.clone(hookAppendChange(histories, action));
-
-    /**
-     * undo changes
-     */
-    case actions.RevertEditorChange:
-      return patcher.clone(hookRevertChange(histories, action));
-
-    /**
-     * redo changes
-     */
-    case actions.ReplayEditorChange:
-      return patcher.clone(hookReplayChange(histories, action));
-
-    /**
-     * patch editor state
-     */
-    case actions.PatchEditorState:
-      return patcher.clone(hookPatchState(histories, action));
-
-    /**
-     * clear changes store
-     */
-    case actions.RemoveEditorChanges:
-      return patcher.clone(hookRemoveChanges(histories, action));
-
     default:
-      return histories;
+      return states;
+
   }
 }
 
 /**
- * retrieve moment editable document api
+ * set editor state
  */
-function retrieveEditableState(id, cache = false) {
-  return function ( dispatch, getState ) {
-    const { authenticationToken, momentDocuments } = getState();
-    if ( cache ) {
-      const state = momentDocuments[id];
-      if ( typeof state === 'object' && state !== null ) {
-        return new Promise(resolve => {
-          return resolve(dispatch({ type: actions.InitialEditorHistory, id, state: (state.document || { }) }));
-        });
-      }
-    }
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
-    return fetch(`${BACKEND_URL}/i/plot/${id}`, {
-      method      : 'get',
-      credentials : 'include',
-      headers,
-    })
-    .then(res => res.json())
-    .then(doc => (doc.error ? Promise.reject(doc.error) : (doc.document || { })))
-    .then(
-      state => dispatch({ type: actions.InitialEditorHistory, id, state }),
-      err  => ({ err }),
-    )
-  }
-}
-
-/**
- * patch document state with diff object
- */
-function patchState(id, diff) {
+function setEditorState(id, opts) {
+  const options = { ...defaults.state, ...opts };
   return function ( dispatch, getState ) {
     return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.PatchEditorState, id, diff }));
+      return resolve(dispatch({ type: actions.SetEditorState, id, options }));
     })
-    .then(_ => getState().editorHistories[id].present);
-  }
-}
-
-/**
- * replace document state
- */
-function replaceState(id, state, checksHash = false) {
-  return function ( dispatch, getState ) {
-    return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.PatchEditorState, id, state, checksHash }));
-    })
-    .then(_ => getState().editorHistories[id].present);
-  }
-}
-
-/**
- * update document state
- */
-function updateState(id, state) {
-  return function ( dispatch, getState ) {
-    return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.AppendEditorChange, id, state }));
-    })
-    .then(_ => {
-      const { editorHistories } = getState();
-      const { past } = editorHistories[id];
-      return past[past.length - 1];
-    });
-  }
-}
-
-/**
- * undo state changes
- */
-function undo(id) {
-  return function ( dispatch, getState ) {
-    return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.RevertEditorChange, id }));
-    })
-    .then(_ => {
-      const { editorHistories } = getState();
-      const { future } = editorHistories[id];
-      const changes = future[future.length - 1];
-      return patcher.reverse(changes);
-    });
-  }
-}
-
-/**
- * redo state changes
- */
-function redo(id) {
-  return function ( dispatch, getState ) {
-    return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.ReplayEditorChange, id }));
-    })
-    .then(_ => {
-      const { editorHistories } = getState();
-      const { past } = editorHistories[id];
-      return past[past.length - 1];
-    });
-  }
-}
-
-/**
- * clear past and future changes
- */
-function clearChanges(id) {
-  return function ( dispatch, getState ) {
-    return new Promise(resolve => {
-      return resolve(dispatch({ type: actions.RemoveEditorChanges, id }));
-    })
-    .then(_ => getState().editorHistories[id]);
+    .then(_ => getState().editorStates[id]);
   }
 }
 
@@ -432,16 +333,9 @@ function clearChanges(id) {
  * export store api
  */
 export const api = {
-  retrieveEditableState,
-  patchState,
-  replaceState,
-  updateState,
-  undo,
-  redo,
-  clearChanges,
-};
+  setEditorState,
+}
 
 export default {
-  editorHistories,
+  editorStates,
 };
-

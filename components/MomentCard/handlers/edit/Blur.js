@@ -1,5 +1,6 @@
 
-import Codes from './codes';
+import Codes from '../shared/Codes.js';
+import { api } from '../../../../reducers/editor';
 
 function isWebkit() {
   return !!('WebkitAppearance' in document.documentElement.style);
@@ -21,6 +22,13 @@ export default function onBlur(e) {
     window.getSelection().removeAllRanges();
   }
 
-  this.dispatch({ contentFocused: false });
-  this.emit('blur');
+  const { root, store: { dispatch, getState } } = this;
+  const { editorHasFocus } = getState().editorStates[root];
+
+  if ( !editorHasFocus ) return;
+
+  dispatch(api.setEditorState(root, { focus: false })).then(state => {
+    this.emit('edit', 'blur', state);
+  });
+
 }

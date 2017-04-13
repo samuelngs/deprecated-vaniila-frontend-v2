@@ -1,15 +1,15 @@
 
 export default function resolveComposition(type, e) {
 
-  // retrieve composing state and data
-  const { contentCompositionIsComposing, contentCompositionInputData } = this.get();
+  const { root, store: { dispatch } } = this;
+  const { editorIsComposing, editorInputData } = getState().editorStates[root];
 
-  // cancel resolving composition if it has already ended
-  if ( contentCompositionIsComposing ) return;
+  if ( editorIsComposing ) return;
 
-  // composition has resolved
-  this.set({ contentCompositionHasResolved: true, contentCompositionIsActive: false, contentCompositionInputData: '' });
-  this.emit('resolve', contentCompositionInputData);
+  const data = editorInputData;
+  this.emit('composition', 'resolve', data);
+
+  dispatch(api.setEditorState(root, { compositionMode: false, compositionResolved: false, inputData: '' }));
 
 }
 

@@ -1,5 +1,6 @@
 
-import Codes from './codes';
+import Codes from '../shared/Codes.js';
+import { api } from '../../../../reducers/editor';
 
 /**
  * throw error if value is null
@@ -153,6 +154,8 @@ export default function onSelect(e) {
 
   if ( !anchorNode || !focusNode ) return;
 
+  const { root, store: { dispatch } } = this;
+
   // check if anchor and focus nodes are text nodes
   const isAnchorTextNode = anchorNode.nodeType === Node.TEXT_NODE;
   const isFocusTextNode = focusNode.nodeType === Node.TEXT_NODE;
@@ -160,20 +163,21 @@ export default function onSelect(e) {
   if ( isAnchorTextNode && isFocusTextNode ) {
     const { offsetKey: anchorOffsetKey, offsetGroup: anchorOffsetGroup } = nullthrows(findOffsetKey(anchorNode));
     const { offsetKey: focusOffsetKey, offsetGroup: focusOffsetGroup } = nullthrows(findOffsetKey(focusNode));
-    return this.dispatch({
-      contentAnchorOffsetKey    : anchorOffsetKey,
-      contentAnchorOffsetGroup  : anchorOffsetGroup,
-      contentAnchorOffset       : anchorOffset,
-      contentFocusOffsetKey     : focusOffsetKey,
-      contentFocusOffsetGroup   : focusOffsetGroup,
-      contentFocusOffset        : focusOffset,
-      contentSelectionRecovery  : false,
-    }, _ => this.emit('selectionchange'));
+    return dispatch(api.setEditorState(root, {
+      anchorKey         : anchorOffsetKey,
+      anchorGroup       : anchorOffsetGroup,
+      anchorOffset      : anchorOffset,
+      focusKey          : focusOffsetKey,
+      focusGroup        : focusOffsetGroup,
+      focusOffset       : focusOffset,
+      selectionRecovery : false,
+    })).then(state => {
+      this.emit('edit', 'selectionchange', state);
+    });
   }
 
   let anchorPoint = null;
   let focusPoint = null;
-  let contentSelectionRecovery = false;
 
   const { target } = e;
 
@@ -188,19 +192,18 @@ export default function onSelect(e) {
   } else {
     anchorPoint = getPointFromNonTextNode(target, anchorNode, anchorOffset);
     focusPoint = getPointFromNonTextNode(target, focusNode, focusOffset);
-    if ( anchorNode === focusNode && anchorOffset === focusOffset ) {
-      contentSelectionRecovery = !!anchorNode.firstChild && anchorNode.firstChild.nodeName !== 'DIV';
-    }
   }
 
-  return this.dispatch({
-    contentAnchorOffsetKey    : anchorPoint.key,
-    contentAnchorOffsetGroup  : anchorPoint.group,
-    contentAnchorOffset       : anchorPoint.offset,
-    contentFocusOffsetKey     : focusPoint.key,
-    contentFocusOffsetGroup   : focusPoint.group,
-    contentFocusOffset        : focusPoint.offset,
-    contentSelectionRecovery,
-  }, _ => this.emit('selectionchange'));
+  return dispatch(api.setEditorState(root, {
+    anchorKey         : anchorPoint.key,
+    anchorGroup       : anchorPoint.group || '0',
+    anchorOffset      : anchorPoint.offset,
+    focusKey          : focusPoint.key,
+    focusGroup        : focusPoint.group || '0',
+    focusOffset       : focusPoint.offset,
+    selectionRecovery : false,
+  })).then(state => {
+    this.emit('edit', 'selectionchange', state);
+  });
 }
 

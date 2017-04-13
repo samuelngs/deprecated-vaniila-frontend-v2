@@ -1,5 +1,5 @@
 
-import Codes from './codes';
+import Codes from '../shared/Codes.js';
 
 /**
  * trigger when some content has been paste into content area

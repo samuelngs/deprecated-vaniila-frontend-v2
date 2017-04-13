@@ -4,12 +4,15 @@
  */
 export default function onBeforeInput(e) {
   e.persist && e.persist();
-  e.preventDefault();
 
-  const { contentCompositionInputData: prevInput } = this.get();
-  const contentCompositionInputData = (prevInput || '') + e.data;
+  const { root, store: { dispatch, getState } } = this;
+  const { editorInputData } = getState().editorStates[root];
 
-  this.set({ contentCompositionInputData });
-  this.emit('beforeinput', contentCompositionInputData);
+  const data = (editorInputData || '') + e.data;
+
+  dispatch(api.setEditorState(root, { inputData: data })).then(state => {
+    this.emit('composition', 'beforeinput');
+  });
+
 }
 

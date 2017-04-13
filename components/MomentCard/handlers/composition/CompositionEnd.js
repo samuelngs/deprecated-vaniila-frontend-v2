@@ -1,5 +1,6 @@
 
 import onCompositionResolve from './CompositionResolve';
+import { api } from '../../../../reducers/editor';
 
 const RESOLVE_DELAY = 20;
 
@@ -8,10 +9,16 @@ const RESOLVE_DELAY = 20;
  */
 export default function onCompositionEnd(e) {
   e.persist && e.persist();
-  this.set({ contentCompositionIsComposing: false, contentCompositionHasResolved: false });
-  setTimeout(() => {
-    const { contentCompositionHasResolved } = this.get();
-    if ( !contentCompositionHasResolved ) onCompositionResolve.call(this, 'onCompositionEnd', e);
-  }, RESOLVE_DELAY);
-  this.emit('compositionend');
+
+  this.emit('composition', 'compositionend');
+
+  const { root, store: { dispatch, getState } } = this;
+
+  dispatch(api.setEditorState(root, { compositionResolved: false, composing: false })).then(state => {
+    setTimeout(_ => {
+      const { editorIsCompositionResolved } = getState().editorStates[root];
+      if ( !editorIsCompositionResolved ) onCompositionResolve.call(this, 'onCompositionEnd', e);
+    }, RESOLVE_DELAY);
+  });
+
 }

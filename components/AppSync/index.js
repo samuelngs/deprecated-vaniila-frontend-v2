@@ -1,21 +1,22 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import Sphere from './sphere';
 
 export default class AppSync extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   static propTypes = {
-    onWebsocketOpen           : React.PropTypes.func,
-    onWebsocketClose          : React.PropTypes.func,
-    onWebsocketMessage        : React.PropTypes.func,
-    onWebsocketSubscribe      : React.PropTypes.func,
-    onWebsocketUnsubscribe    : React.PropTypes.func,
-    onWebsocketChannelMessage : React.PropTypes.func,
-    channels                  : React.PropTypes.arrayOf(React.PropTypes.string),
+    onWebsocketOpen           : PropTypes.func,
+    onWebsocketClose          : PropTypes.func,
+    onWebsocketMessage        : PropTypes.func,
+    onWebsocketSubscribe      : PropTypes.func,
+    onWebsocketUnsubscribe    : PropTypes.func,
+    onWebsocketChannelMessage : PropTypes.func,
+    channels                  : PropTypes.arrayOf(PropTypes.string),
   }
 
   static defaultProps = {

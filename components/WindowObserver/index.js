@@ -1,12 +1,13 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { actions } from '../../reducers/window';
 
 export default class WindowObserver extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   componentDidMount() {

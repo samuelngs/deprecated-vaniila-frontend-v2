@@ -1,11 +1,12 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 
 export default class AppHeader extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   static cssVariables = {

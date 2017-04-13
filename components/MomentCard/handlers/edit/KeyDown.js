@@ -13,7 +13,7 @@ export default function onKeyDown(e) {
 
     case Codes.ENTER:
       e.preventDefault && e.preventDefault();
-      break;
+      return this.emit('edit', 'insert-newline');
 
     case Codes.ESC:
       e.preventDefault && e.preventDefault();

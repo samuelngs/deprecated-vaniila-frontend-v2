@@ -14,7 +14,7 @@ export default function onCompositionEnd(e) {
 
   const { root, store: { dispatch, getState } } = this;
 
-  dispatch(api.setEditorState(root, { compositionResolved: false, composing: false })).then(state => {
+  dispatch(api.setEditorState(root, { compositionMode: false, compositionResolved: false, composing: false })).then(state => {
     setTimeout(_ => {
       const { editorIsCompositionResolved } = getState().editorStates[root];
       if ( !editorIsCompositionResolved ) onCompositionResolve.call(this, 'onCompositionEnd', e);

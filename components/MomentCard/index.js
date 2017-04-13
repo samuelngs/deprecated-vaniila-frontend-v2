@@ -95,6 +95,15 @@ export default class MomentCard extends React.Component {
         return MomentEditorHook.onTextInsert.call(this, data);
       case 'delete-character':
         return MomentEditorHook.onTextDelete.call(this);
+      case 'insert-newline':
+        return MomentEditorHook.onNewLine.call(this);
+    }
+  }
+
+  contextReceiveComposition(event, data) {
+    switch ( event ) {
+      case 'insert-character':
+        return MomentEditorHook.onTextInsert.call(this, data);
     }
   }
 

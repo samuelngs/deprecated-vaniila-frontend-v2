@@ -11,24 +11,25 @@ export function onTextInsert(character) {
     id,
     moment,
     onChange,
+    editorState,
   } = this.props;
 
   const {
-    contentAnchorOffsetKey,
-    contentAnchorOffsetGroup,
-    contentAnchorOffset,
-    contentFocusOffsetKey,
-    contentFocusOffsetGroup,
-    contentFocusOffset,
-  } = this.state;
+    editorStartKey,
+    editorStartGroup,
+    editorStartOffset,
+    editorEndKey,
+    editorEndGroup,
+    editorEndOffset,
+  } = editorState;
 
   // retrieve anchor and focus offset group id
   // valid offset group should be number
-  let anchorOffsetGroup = Number(contentAnchorOffsetGroup);
-  let focusOffsetGroup = Number(contentFocusOffsetGroup);
+  let startOffsetGroup = Number(editorStartGroup);
+  let endOffsetGroup = Number(editorEndGroup);
 
-  if ( isNaN(anchorOffsetGroup) ) anchorOffsetGroup = 0;
-  if ( isNaN(focusOffsetGroup) ) focusOffsetGroup = 0;
+  if ( isNaN(startOffsetGroup) ) startOffsetGroup = 0;
+  if ( isNaN(endOffsetGroup) ) endOffsetGroup = 0;
 
   const clone = { };
   deepClone(clone, moment);
@@ -36,12 +37,12 @@ export function onTextInsert(character) {
   let anchorBlock, anchorBlockIdx, anchorGroups, focusBlock, focusBlockIdx, focusGroups, singleBlock, singleSelection;
 
   for ( const [ i, b ] of blocks.entries() ) {
-    if ( b.key === contentAnchorOffsetKey ) {
+    if ( b.key === editorStartKey ) {
       anchorBlock = b;
       anchorBlockIdx = i;
       anchorGroups = analyze(b);
     }
-    if ( b.key === contentFocusOffsetKey ) {
+    if ( b.key === editorEndKey ) {
       focusBlock = b;
       focusBlockIdx = i;
       focusGroups = analyze(b);
@@ -49,19 +50,19 @@ export function onTextInsert(character) {
     if ( anchorBlock && focusBlock ) break;
   }
   singleBlock = anchorBlock === focusBlock;
-  singleSelection = singleBlock && contentAnchorOffset === contentFocusOffset;
+  singleSelection = singleBlock && editorStartOffset === editorEndOffset;
 
   // valid anchor and focus block
   if ( !anchorBlock || !focusBlock ) return;
-  if ( typeof anchorGroups[anchorOffsetGroup] !== 'string' || typeof focusGroups[focusOffsetGroup] !== 'string' ) return;
+  if ( typeof anchorGroups[startOffsetGroup] !== 'string' || typeof focusGroups[endOffsetGroup] !== 'string' ) return;
 
-  const anchorGroup = anchorGroups[anchorOffsetGroup];
+  const anchorGroup = anchorGroups[startOffsetGroup];
   const anchorOffset = (() => {
-    for ( let i = 0, c = 0; i < anchorOffsetGroup && i < anchorGroups.length; i++ ) {
+    for ( let i = 0, c = 0; i < startOffsetGroup && i < anchorGroups.length; i++ ) {
       c += (anchorGroups[i] || '').length;
-      if ( i + 1 === anchorOffsetGroup ) return c + contentAnchorOffset;
+      if ( i + 1 === startOffsetGroup ) return c + editorStartOffset;
     }
-    return contentAnchorOffset;
+    return editorStartOffset;
   })();
 
   // single selection
@@ -76,13 +77,13 @@ export function onTextInsert(character) {
     return onChange(id, clone);
   }
 
-  const focusGroup = focusGroups[focusOffsetGroup];
+  const focusGroup = focusGroups[endOffsetGroup];
   const focusOffset = (() => {
-    for ( let i = 0, c = 0; i < focusOffsetGroup && i < focusGroups.length; i++ ) {
+    for ( let i = 0, c = 0; i < endOffsetGroup && i < focusGroups.length; i++ ) {
       c += (focusGroups[i] || '').length;
-      if ( i + 1 === focusOffsetGroup ) return c + contentFocusOffset;
+      if ( i + 1 === endOffsetGroup ) return c + editorEndOffset;
     }
-    return contentFocusOffset;
+    return editorEndOffset;
   })();
 
   // replace word here

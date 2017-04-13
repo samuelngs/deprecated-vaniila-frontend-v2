@@ -1,55 +1,53 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-import MomentEditorHandler, { defaultState } from './handlers';
+import { MomentEditHandler, MomentCompositionHandler, defaultState } from './handlers';
 import MomentEditorHook from './hooks';
 import MomentCardText from '../MomentCardText';
 
 export default class MomentCard extends React.Component {
 
+  static contextTypes = {
+    store: PropTypes.object,
+  }
+
   static propTypes = {
-    id      : React.PropTypes.string,
-    x       : React.PropTypes.number,
-    scale   : React.PropTypes.number,
-    width   : React.PropTypes.number,
-    height  : React.PropTypes.number,
-    cover   : React.PropTypes.bool,
-    editmode: React.PropTypes.bool,
-    editable: React.PropTypes.bool,
-    moment  : React.PropTypes.object,
-    onChange: React.PropTypes.func,
+    root        : PropTypes.string,
+    id          : PropTypes.string,
+    x           : PropTypes.number,
+    scale       : PropTypes.number,
+    width       : PropTypes.number,
+    height      : PropTypes.number,
+    cover       : PropTypes.bool,
+    editmode    : PropTypes.bool,
+    editable    : PropTypes.bool,
+    moment      : PropTypes.object,
+    editorState : PropTypes.object,
+    onChange    : PropTypes.func,
   }
 
   static defaultProps = {
-    id      : '',
-    x       : 0,
-    scale   : 1,
-    width   : 0,
-    height  : 0,
-    cover   : false,
-    editmode: false,
-    editable: false,
-    moment  : {
-      data  : {
-        blocks: [ ],
+    root        : '',
+    id          : '',
+    x           : 0,
+    scale       : 1,
+    width       : 0,
+    height      : 0,
+    cover       : false,
+    editmode    : false,
+    editable    : false,
+    moment      : {
+      data      : {
+        blocks  : [ ],
       },
-      hash  : 0,
-      order : 1,
-      style : { },
+      hash      : 0,
+      order     : 1,
+      style     : { },
     },
-    onChange: _ => null,
-  }
-
-  state = {
-    contentFocused            : false,
-    contentAnchorOffsetKey    : null,
-    contentAnchorOffsetGroup  : null,
-    contentAnchorOffset       : 0,
-    contentFocusOffsetKey     : null,
-    contentFocusOffsetGroup   : null,
-    contentFocusOffset        : 0,
-    contentSelectionRecovery  : false,
+    editorState : { },
+    onChange    : _ => null,
   }
 
   componentDidMount() {
@@ -69,62 +67,43 @@ export default class MomentCard extends React.Component {
   }
 
   bind() {
-    const {
-      setState,
-      contextReceiveProps: props,
-      contextReceiveState: state,
-      contextReceiveEvent: emit,
-      contextReceiveSelection: getSelection,
-    } = this;
-    const store = { ...defaultState };
-    this.handlers = MomentEditorHandler({
-      set         : o => o && Object.keys(o).forEach(k => store[k] = o[k]),
-      get         : o => store,
-      dispatch    : setState.bind(this),
-      emit        : emit.bind(this),
-      props       : props.bind(this),
-      state       : state.bind(this),
-      getSelection: getSelection.bind(this),
-    });
+    const { contextReceiveEvent, props: { root, id }, context: { store } } = this;
+    const context = { root, id, store, emit: contextReceiveEvent.bind(this) };
+    this.editHandler = new MomentEditHandler(context);
+    this.compositionHandler = new MomentCompositionHandler(context);
   }
 
   /**
-   * function to receive props and state
+   * trigger when receiving event from handlers
    */
-  contextReceiveProps() { return this.props; }
-  contextReceiveState() { return this.state; }
-
-  /**
-   * function to receive selection
-   */
-  contextReceiveSelection() {
-    return { };
-  }
-
-  /**
-   * trigger when receiving callback from handlers
-   */
-  contextReceiveEvent(event, data) {
-    switch ( event ) {
-      case 'beforeinput':
-        return this.onContentInput(data);
-      case 'delete':
-        return this.onContentDelete();
+  contextReceiveEvent(type, event, data) {
+    switch ( type ) {
+      case 'edit':
+        return this.contextReceiveEdit(event, data);
+      case 'composition':
+        return this.contextReceiveComposition(event, data);
     }
   }
 
   /**
-   * trigger when input event within content area
+   * trigger when receiving event from edit handler
    */
-  onContentInput(character) {
-    MomentEditorHook.onTextInsert.call(this, character);
+  contextReceiveEdit(event, data) {
+    const { editorState } = this.props;
+    switch ( event ) {
+      case 'insert-character':
+        return MomentEditorHook.onTextInsert.call(this, data);
+      case 'delete-character':
+        return MomentEditorHook.onTextDelete.call(this);
+    }
   }
 
   /**
-   * trigger when delete event
+   * get editor state
    */
-  onContentDelete() {
-    MomentEditorHook.onTextDelete.call(this);
+  getEditorState() {
+    const { editorState } = this.props;
+    return editorState;
   }
 
   /**
@@ -162,36 +141,19 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(block, i) {
 
-    const {
-      contentFocused,
-      contentAnchorOffsetKey,
-      contentAnchorOffsetGroup,
-      contentAnchorOffset,
-      contentFocusOffsetKey,
-      contentFocusOffsetGroup,
-      contentFocusOffset,
-      contentSelectionRecovery,
-    } = this.state;
-
-    const { scale, editmode, editable } = this.props;
+    const { scale, editmode, editable, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
       case 'text':
         return <MomentCardText
           key={key}
+          position={i}
           block={block}
           scale={scale}
           editmode={editmode}
           editable={editable}
-          contentFocused={contentFocused}
-          contentAnchorOffsetKey={contentAnchorOffsetKey}
-          contentAnchorOffsetGroup={contentAnchorOffsetGroup}
-          contentAnchorOffset={contentAnchorOffset}
-          contentFocusOffsetKey={contentFocusOffsetKey}
-          contentFocusOffsetGroup={contentFocusOffsetGroup}
-          contentFocusOffset={contentFocusOffset}
-          contentSelectionRecovery={contentSelectionRecovery}
+          editorState={editorState}
         />
       default:
         return null;
@@ -202,10 +164,14 @@ export default class MomentCard extends React.Component {
    * render component view
    */
   render() {
-    const { scale, cover, editmode, editable, moment } = this.props;
+    const { id, scale, cover, editmode, editable, moment, editorState } = this.props;
+    const { editorMoment, editorIsCompositionMode } = editorState;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
+    const handlers = (id === editorMoment && editorIsCompositionMode)
+      ? this.compositionHandler
+      : this.editHandler;
     return <article aria-label="moment-card" className={ editmode ? "base base-editor" : "base"} style={cardStyle}>
       <style jsx>{`
         .base {
@@ -244,7 +210,7 @@ export default class MomentCard extends React.Component {
         }
       `}</style>
       <div
-        { ...this.handlers }
+        { ...handlers }
         className={cover ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
         aria-label="moment-content"
         autoComplete="off"

@@ -1,5 +1,7 @@
 
 import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 import { collection } from './utils';
 import MomentCardTextSpan from '../MomentCardTextSpan';
@@ -7,44 +9,34 @@ import MomentCardTextSpan from '../MomentCardTextSpan';
 export default class MomentCardText extends React.Component {
 
   static propTypes = {
-    contentFocused            : React.PropTypes.bool,
-    contentAnchorOffsetKey    : React.PropTypes.string,
-    contentAnchorOffsetGroup  : React.PropTypes.string,
-    contentAnchorOffset       : React.PropTypes.number,
-    contentFocusOffsetKey     : React.PropTypes.string,
-    contentFocusOffsetGroup   : React.PropTypes.string,
-    contentFocusOffset        : React.PropTypes.number,
-    contentSelectionRecovery  : React.PropTypes.bool,
-    block                     : React.PropTypes.shape({
-      type                    : React.PropTypes.string,
-      key                     : React.PropTypes.string,
-      data                    : React.PropTypes.string,
-      styles                  : React.PropTypes.array,
+    position    : PropTypes.number,
+    block       : PropTypes.shape({
+      type      : PropTypes.string,
+      key       : PropTypes.string,
+      data      : PropTypes.string,
+      styles    : PropTypes.array,
     }),
-    scale                     : React.PropTypes.number,
-    editmode                  : React.PropTypes.bool,
-    editable                  : React.PropTypes.bool,
+    scale       : PropTypes.number,
+    editmode    : PropTypes.bool,
+    editable    : PropTypes.bool,
+    editorState : PropTypes.object,
   }
 
   static defaultProps = {
-    contentFocused            : false,
-    contentAnchorOffsetKey    : null,
-    contentAnchorOffsetGroup  : null,
-    contentAnchorOffset       : 0,
-    contentFocusOffsetKey     : null,
-    contentFocusOffsetGroup   : null,
-    contentFocusOffset        : 0,
-    contentSelectionRecovery  : false,
-    block                     : {
-      type                    : '',
-      key                     : '',
-      data                    : '',
-      styles                  : [ ],
+    position    : 0,
+    block       : {
+      type      : '',
+      key       : '',
+      data      : '',
+      styles    : [ ],
     },
-    scale                     : 1,
-    editmode                  : false,
-    editable                  : false,
+    scale       : 1,
+    editmode    : false,
+    editable    : false,
+    editorState : { },
   }
+
+  _forceFlag = false;
 
   getStyle() {
     const { scale } = this.props;
@@ -56,18 +48,29 @@ export default class MomentCardText extends React.Component {
     };
   }
 
+  componentWillUpdate(nextProps) {
+    const node = ReactDOM.findDOMNode(this);
+    let forceRedraw = false;
+    for ( let i = 0; i < node.childNodes.length; i++ ) {
+      const el = node.childNodes[i];
+      if ( el.nodeType === Node.TEXT_NODE ) {
+        forceRedraw = true;
+        break;
+      }
+    }
+    if ( forceRedraw ) {
+      // By flipping this flag, we also keep flipping keys which forces
+      // React to remount this node every time it rerenders.
+      this._forceFlag = !this._forceFlag;
+    }
+  }
+
   render() {
 
     const {
+      position,
       block,
-      contentFocused,
-      contentAnchorOffsetKey,
-      contentAnchorOffsetGroup,
-      contentAnchorOffset,
-      contentFocusOffsetKey,
-      contentFocusOffsetGroup,
-      contentFocusOffset,
-      contentSelectionRecovery,
+      editorState,
     } = this.props;
 
     const { key, data, styles } = block;
@@ -75,7 +78,7 @@ export default class MomentCardText extends React.Component {
     const style = this.getStyle();
     const groups = collection(block);
 
-    return <div aria-label="moment-card-block" data-offset-key={key} className="base" style={style}>
+    return <div key={this._forceFlag ? 'A' : 'B'} aria-label="moment-card-block" data-offset-key={key} data-offset-position={position} className="base" style={style}>
       <style jsx>{`
         .base {
           font-size: .9em;
@@ -85,17 +88,11 @@ export default class MomentCardText extends React.Component {
       { groups.map(({ text, style }, i) => <MomentCardTextSpan
         key={i}
         id={key}
+        position={position}
         group={i}
         text={text}
         style={style}
-        contentFocused={contentFocused}
-        contentAnchorOffsetKey={contentAnchorOffsetKey}
-        contentAnchorOffsetGroup={contentAnchorOffsetGroup}
-        contentAnchorOffset={contentAnchorOffset}
-        contentFocusOffsetKey={contentFocusOffsetKey}
-        contentFocusOffsetGroup={contentFocusOffsetGroup}
-        contentFocusOffset={contentFocusOffset}
-        contentSelectionRecovery={contentSelectionRecovery}
+        editorState={editorState}
       />) }
     </div>;
   }

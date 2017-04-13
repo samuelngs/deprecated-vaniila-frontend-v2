@@ -1,26 +1,27 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import UUID from 'uuid';
 
 import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
-import { api as Api } from '../../reducers/editor';
+import { api as Api } from '../../reducers/histories';
 
 export default class EditorSync extends React.Component {
 
   static contextTypes = {
-    store: React.PropTypes.object,
+    store: PropTypes.object,
   }
 
   static propTypes = {
-    username      : React.PropTypes.string,
-    moment        : React.PropTypes.string,
-    onOpen        : React.PropTypes.func,
-    onClose       : React.PropTypes.func,
-    onSubscribe   : React.PropTypes.func,
-    onUnsubscribe : React.PropTypes.func,
-    onSync        : React.PropTypes.func,
-    onSignal      : React.PropTypes.func,
+    username      : PropTypes.string,
+    moment        : PropTypes.string,
+    onOpen        : PropTypes.func,
+    onClose       : PropTypes.func,
+    onSubscribe   : PropTypes.func,
+    onUnsubscribe : PropTypes.func,
+    onSync        : PropTypes.func,
+    onSignal      : PropTypes.func,
   }
 
   static defaultProps = {

@@ -4,6 +4,8 @@ function insertMigrateTextStyle(character, pos, prevStyles) {
   if ( !prevStyles ) return prevStyles;
   if ( !Array.isArray(prevStyles) ) return undefined;
 
+  const extendHead = pos === 0;
+
   const styles = [ ];
   for ( const { length, offset, style } of prevStyles ) {
     const start = offset;
@@ -12,7 +14,11 @@ function insertMigrateTextStyle(character, pos, prevStyles) {
     if ( pos > start && pos <= end ) {
       next.length += character.length;
     } else if ( pos <= start ) {
-      next.offset += character.length;
+      if ( extendHead && offset === 0 ) {
+        next.length += character.length;
+      } else {
+        next.offset += character.length;
+      }
     }
     styles.push(next);
   }
@@ -25,19 +31,18 @@ function removeMigrateTextStyle(start, end, prevStyles) {
   if ( !Array.isArray(prevStyles) ) return undefined;
 
   const styles = [ ];
-  const len = end - start + 1;
+  const len = start === end ? 1 : end - start;
   for ( const { length, offset, style } of prevStyles ) {
     const from = offset;
     const to = from + length;
     const next = { length, offset, style };
-    if ( start < from && end >= to ) {
-      continue;
-    }
     if ( start > from && end <= to ) {
+      // console.log(style, 'len start <= from', next.length, len);
       next.length -= len;
     } else if ( start <= from ) {
       next.offset -= len;
     }
+    // console.log(`${style} => ${start} - ${from}, remove ${len} character(s), offset => ${next.offset}, len => ${next.length}`);
     if ( next.length > 0 ) {
       styles.push(next);
     }

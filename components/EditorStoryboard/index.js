@@ -1,25 +1,30 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import MomentCard from '../MomentCard';
 
 export default class EditorStoryboard extends React.Component {
 
   static propTypes = {
-    doc       : React.PropTypes.object,
-    windowSize: React.PropTypes.shape({
-      width : React.PropTypes.number,
-      height: React.PropTypes.number,
+    id            : PropTypes.string,
+    doc           : PropTypes.object,
+    editorState   : PropTypes.object,
+    windowSize    : PropTypes.shape({
+      width       : PropTypes.number,
+      height      : PropTypes.number,
     }),
-    onMomentCreate: React.PropTypes.func,
-    onMomentChange: React.PropTypes.func,
+    onMomentCreate: PropTypes.func,
+    onMomentChange: PropTypes.func,
   }
 
   static defaultProps = {
-    doc       : { data: { slides: { } } },
-    windowSize: {
-      width : typeof window !== 'undefined' ? window.innerWidth : 0,
-      height: typeof window !== 'undefined' ? window.innerHeight : 0,
+    id            : '',
+    doc           : { data: { slides: { } } },
+    editorState   : { },
+    windowSize    : {
+      width       : typeof window !== 'undefined' ? window.innerWidth : 0,
+      height      : typeof window !== 'undefined' ? window.innerHeight : 0,
     },
     onMomentCreate: _ => null,
     onMomentChange: _ => null,
@@ -132,7 +137,7 @@ export default class EditorStoryboard extends React.Component {
   }
 
   render() {
-    const { onMomentCreate, onMomentChange } = this.props;
+    const { id: root, editorState, onMomentCreate, onMomentChange } = this.props;
     const { ids, count, moments } = this.doc();
     const { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding } = this.getMomentStyle(ids.length);
     return <div className="base">
@@ -151,7 +156,7 @@ export default class EditorStoryboard extends React.Component {
       `}</style>
       <div className="list" style={{ width: listWidth, minWidth: listWidth, height: listHeight, minHeight: listHeight, paddingLeft: listPadding }}>
         <MomentCard cover={true} x={0} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />
-        { ids.map((id, i) => <MomentCard key={id} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} onChange={onMomentChange} />) }
+        { ids.map((id, i) => <MomentCard key={id} root={root} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} editorState={editorState} onChange={onMomentChange} />) }
       </div>
     </div>;
   }

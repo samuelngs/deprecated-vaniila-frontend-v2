@@ -1,44 +1,46 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 export default class MomentCardTextSpan extends React.Component {
 
   static propTypes = {
-    contentFocused            : React.PropTypes.bool,
-    contentAnchorOffsetKey    : React.PropTypes.string,
-    contentAnchorOffsetGroup  : React.PropTypes.string,
-    contentAnchorOffset       : React.PropTypes.number,
-    contentFocusOffsetKey     : React.PropTypes.string,
-    contentFocusOffsetGroup   : React.PropTypes.string,
-    contentFocusOffset        : React.PropTypes.number,
-    contentSelectionRecovery  : React.PropTypes.bool,
-    id                        : React.PropTypes.string,
-    group                     : React.PropTypes.number,
-    text                      : React.PropTypes.string,
-    style                     : React.PropTypes.object,
+    id          : PropTypes.string,
+    position    : PropTypes.number,
+    group       : PropTypes.number,
+    text        : PropTypes.string,
+    style       : PropTypes.object,
+    editorState : PropTypes.object,
   }
 
   static defaultProps = {
-    contentFocused            : false,
-    contentAnchorOffsetKey    : null,
-    contentAnchorOffsetGroup  : null,
-    contentAnchorOffset       : 0,
-    contentFocusOffsetKey     : null,
-    contentFocusOffsetGroup   : null,
-    contentFocusOffset        : 0,
-    contentSelectionRecovery  : false,
-    id                        : '',
-    group                     : 0,
-    text                      : '',
-    style                     : { },
+    id          : '',
+    position    : 0,
+    group       : 0,
+    text        : '',
+    style       : { },
+    editorState : { },
   }
 
   _forceFlag = false;
 
   shouldComponentUpdate(nextProps) {
+
     const node = ReactDOM.findDOMNode(this);
-    return node.textContent !== nextProps.text;
+    const contentChanged = node.textContent !== nextProps.text;
+
+    const { editorState: { editorStartGroup: prevStartGroup, editorEndGroup: prevEndGroup } } = this.props;
+    const { id, group, editorState: { editorStartKey, editorStartGroup, editorEndKey, editorEndGroup } } = nextProps;
+    const groupName = String(group);
+
+    const selectionChanged = (
+      ( id === editorStartKey || editorEndKey ) &&
+      ( groupName === editorStartGroup || groupName === editorEndGroup ) &&
+      ( prevStartGroup !== editorStartGroup || prevEndGroup !== editorEndGroup )
+    );
+
+    return contentChanged || selectionChanged;
   }
 
   componentWillUpdate(nextProps) {
@@ -54,28 +56,37 @@ export default class MomentCardTextSpan extends React.Component {
       id,
       group,
       text,
-      contentFocused,
-      contentAnchorOffsetKey,
-      contentAnchorOffsetGroup,
-      contentAnchorOffset,
-      contentFocusOffsetKey,
-      contentFocusOffsetGroup,
-      contentFocusOffset,
-      contentSelectionRecovery,
+      editorState,
     } = this.props;
 
-    if ( id !== contentAnchorOffsetKey && id !== contentFocusOffsetKey ) return;
+    const {
+      editorHasFocus,
+      editorStartKey,
+      editorStartGroup,
+      editorStartOffset,
+      editorEndKey,
+      editorEndGroup,
+      editorEndOffset,
+      editorSelectionRecovery,
+    } = editorState;
 
-    const contentGroup = `${group}`;
-    if ( contentGroup !== contentAnchorOffsetGroup && contentGroup !== contentFocusOffsetGroup ) return;
+    if ( id !== editorStartKey && id !== editorEndKey ) return;
 
-    if ( !contentFocused ) return;
+    const contentGroup = String(group);
+    if ( contentGroup !== editorStartGroup && contentGroup !== editorEndGroup ) return;
+
+    if ( !editorHasFocus ) return;
     if ( !window.getSelection ) return;
 
-    const textNode = ReactDOM.findDOMNode(this).firstChild;
-    if ( !textNode ) return;
+    let textNode = ReactDOM.findDOMNode(this).firstChild;
+    if ( !textNode ) textNode = ReactDOM.findDOMNode(this);
 
-    const offset = contentAnchorOffset + (text.length - prevText.length);
+    let offset = editorSelectionRecovery
+      ? editorStartOffset
+      : editorStartOffset + (text.length - prevText.length);
+    if ( group === 0 && editorSelectionRecovery && !prevText && text ) offset = text.length;
+    if ( offset > text.length ) offset = text.length;
+    if ( textNode.textContent && offset > textNode.textContent.length ) offset = textNode.textContent.length;
 
     const selection = window.getSelection();
     const range = document.createRange();
@@ -87,8 +98,8 @@ export default class MomentCardTextSpan extends React.Component {
   }
 
   render() {
-    const { id, group, text, style } = this.props;
-    return <span key={this._forceFlag ? 'A' : 'B'} data-offset-key={id} data-offset-group={group} data-moment-text="true" style={style}>{ text }</span>;
+    const { id, position, group, text, style } = this.props;
+    return <span key={this._forceFlag ? 'A' : 'B'} data-offset-key={id} data-offset-position={position} data-offset-group={group} data-moment-text="true" style={style}>{ text }</span>;
   }
 
 }

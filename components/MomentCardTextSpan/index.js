@@ -28,19 +28,72 @@ export default class MomentCardTextSpan extends React.Component {
   shouldComponentUpdate(nextProps) {
 
     const node = ReactDOM.findDOMNode(this);
-    const contentChanged = node.textContent !== nextProps.text;
 
-    const { editorState: { editorStartGroup: prevStartGroup, editorEndGroup: prevEndGroup } } = this.props;
-    const { id, group, editorState: { editorStartKey, editorStartGroup, editorEndKey, editorEndGroup } } = nextProps;
+    const { editorState: {
+      editorStartKey          : prevStartKey,
+      editorStartGroup        : prevStartGroup,
+      editorStartOffset       : prevStartOffset,
+      editorEndKey            : prevEndKey,
+      editorEndGroup          : prevEndGroup,
+      editorEndOffset         : prevEndOffset,
+      editorSelectionRecovery : prevSelectionRecovery,
+      editorIsCompositionMode : prevIsCompositionMode,
+      editorIsCollapsed       : prevIsCollapsed,
+    } } = this.props;
+
+    const { editorState: {
+      editorStartKey,
+      editorStartGroup,
+      editorStartOffset,
+      editorEndKey,
+      editorEndGroup,
+      editorEndOffset,
+      editorSelectionRecovery,
+      editorIsCompositionMode,
+      editorIsCollapsed
+    }, id, group } = nextProps;
+
     const groupName = String(group);
 
-    const selectionChanged = (
-      ( id === editorStartKey || editorEndKey ) &&
-      ( groupName === editorStartGroup || groupName === editorEndGroup ) &&
-      ( prevStartGroup !== editorStartGroup || prevEndGroup !== editorEndGroup )
+    // checks if text content changed
+    const contentChanged = (
+      ( !editorIsCompositionMode ) &&
+      ( node.textContent !== nextProps.text )
     );
 
-    return contentChanged || selectionChanged;
+    // checks if selection state has been changed
+    const selectionChanged = (
+      (
+        (
+          editorEndKey ||
+          ( id === editorStartKey )
+        ) &&
+        (
+          ( groupName === editorStartGroup ) ||
+          ( groupName === editorEndGroup )
+        ) &&
+        (
+          ( prevStartGroup !== editorStartGroup ) ||
+          ( prevEndGroup !== editorEndGroup )
+        )
+      ) ||
+      (
+        !editorIsCollapsed &&
+        ( prevIsCollapsed !== editorIsCollapsed )
+      )
+    );
+
+    // checks if selection needs to redraw
+    const selectionRecovery = (
+      ( prevIsCompositionMode && !editorIsCompositionMode ) ||
+      ( prevSelectionRecovery !== editorSelectionRecovery && editorSelectionRecovery )
+    );
+
+    return (
+      contentChanged
+      || selectionChanged
+      || selectionRecovery
+    );
   }
 
   componentWillUpdate(nextProps) {
@@ -67,6 +120,7 @@ export default class MomentCardTextSpan extends React.Component {
       editorEndKey,
       editorEndGroup,
       editorEndOffset,
+      editorIsCollapsed,
       editorSelectionRecovery,
     } = editorState;
 
@@ -81,17 +135,39 @@ export default class MomentCardTextSpan extends React.Component {
     let textNode = ReactDOM.findDOMNode(this).firstChild;
     if ( !textNode ) textNode = ReactDOM.findDOMNode(this);
 
-    let offset = editorSelectionRecovery
-      ? editorStartOffset
-      : editorStartOffset + (text.length - prevText.length);
-    if ( group === 0 && editorSelectionRecovery && !prevText && text ) offset = text.length;
-    if ( offset > text.length ) offset = text.length;
-    if ( textNode.textContent && offset > textNode.textContent.length ) offset = textNode.textContent.length;
-
     const selection = window.getSelection();
     const range = document.createRange();
-    range.setStart(textNode, offset);
-    range.setEnd(textNode, offset);
+
+    let start, end;
+    if ( editorIsCollapsed ) {
+
+      start = editorSelectionRecovery
+            ? editorStartOffset
+            : editorStartOffset + (text.length - prevText.length)
+      if ( group === 0 && editorSelectionRecovery && !prevText && text ) start = text.length;
+      if ( start > text.length ) start = text.length;
+      if ( textNode.textContent && start > textNode.textContent.length ) start = textNode.textContent.length;
+      end = start;
+      range.setStart(textNode, start);
+      range.setEnd(textNode, end);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      return;
+    }
+
+    // only execute selection on the start group node, prevent selection happens twice (!on both nodes)
+    // if both are in the same group, this will only execute once
+    if ( id !== editorStartKey || contentGroup !== editorStartGroup ) return;
+
+    let startEl = document.querySelector(`span[data-offset-key="${editorStartKey}"][data-offset-group="${editorStartGroup}"]`);
+    let endEl   = document.querySelector(`span[data-offset-key="${editorEndKey}"][data-offset-group="${editorEndGroup}"]`);
+
+    if ( startEl && startEl.firstChild && startEl.firstChild.nodeType === Node.TEXT_NODE ) startEl = startEl.firstChild;
+    if ( endEl && endEl.firstChild && endEl.firstChild.nodeType === Node.TEXT_NODE ) endEl = endEl.firstChild;
+
+    range.setStart(startEl, editorStartOffset);
+    range.setEnd(endEl, editorEndOffset);
     selection.removeAllRanges();
     selection.addRange(range);
 

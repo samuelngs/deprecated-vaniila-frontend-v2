@@ -17,7 +17,7 @@ import deepClone from '../utils/clone';
 
 import { api as accountReducerApi } from '../reducers/account';
 import { api as momentReducerApi } from '../reducers/moment';
-import { api as editorReducerApi } from '../reducers/editor';
+import { api as historiesReducerApi } from '../reducers/histories';
 
 import withRedux from '../storage';
 
@@ -30,14 +30,14 @@ class EditMoment extends React.Component {
       if ( err ) return { id, username, moment, err };
     }
     {
-      const { err } = await store.dispatch(editorReducerApi.retrieveEditableState(id, true));
+      const { err } = await store.dispatch(historiesReducerApi.retrieveEditableState(id, true));
       if ( err ) return { id, username, moment, err };
     }
     return { id, username, moment };
   }
 
-  static observe ({ authenticationToken, momentDocuments, editorHistories, windowSize }) {
-    return { authenticationToken, momentDocuments, editorHistories, windowSize };
+  static observe ({ authenticationToken, momentDocuments, editorHistories, editorStates, windowSize }) {
+    return { authenticationToken, momentDocuments, editorHistories, editorStates, windowSize };
   }
 
   state = {
@@ -103,7 +103,7 @@ class EditMoment extends React.Component {
       if ( err ) return this.setState({ err });
     }
     {
-      const { err } = await store.dispatch(editorReducerApi.retrieveEditableState(id, true));
+      const { err } = await store.dispatch(historiesReducerApi.retrieveEditableState(id, true));
       if ( err ) return this.setState({ err });
     }
     return this.setState({ err: null });
@@ -142,9 +142,6 @@ class EditMoment extends React.Component {
     clone.data.slides || (clone.data.slides = { });
     clone.data.slides[moment] = state;
 
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-
     // prepare websocket payload for 'update' event
     const payload = {
       action  : 'update',
@@ -156,7 +153,7 @@ class EditMoment extends React.Component {
       },
     };
 
-    dispatch(editorReducerApi.updateState(id, clone))
+    dispatch(historiesReducerApi.updateState(id, clone))
       .then(changes => this.emit({ action: 'change', changes }))
       .then(_ => this.emit(payload));
 
@@ -218,9 +215,10 @@ class EditMoment extends React.Component {
   }
 
   render () {
-    const { id, username, moment, editorHistories, windowSize } = this.props;
+    const { id, username, moment, editorHistories, editorStates, windowSize } = this.props;
     const { err, peers } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
+    const editorState = editorStates[id] || { };
     return <div>
       <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F5F8F9; }`}</style>
       <Head>
@@ -244,7 +242,9 @@ class EditMoment extends React.Component {
           onMomentCreate={::this.onMomentCreate}
         />
         <EditorStoryboard
+          id={id}
           doc={doc}
+          editorState={editorState}
           windowSize={windowSize}
           onMomentCreate={::this.onMomentCreate}
           onMomentChange={::this.onMomentChange}

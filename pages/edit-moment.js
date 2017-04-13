@@ -153,10 +153,15 @@ class EditMoment extends React.Component {
       },
     };
 
-    dispatch(historiesReducerApi.updateState(id, clone))
+    if ( process.env.NODE_ENV !== 'production' ) {
+      return dispatch(historiesReducerApi.updateState(id, clone))
+        .then(changes => { this.emit({ action: 'change', changes }) })
+        .then(_ => { this.emit(payload) });
+    }
+
+    return dispatch(historiesReducerApi.updateState(id, clone))
       .then(changes => this.emit({ action: 'change', changes }))
       .then(_ => this.emit(payload));
-
   }
 
   /**

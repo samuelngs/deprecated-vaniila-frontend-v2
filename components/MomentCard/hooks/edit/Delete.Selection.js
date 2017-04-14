@@ -20,7 +20,7 @@ function findActualOffset(group, groups, offset) {
   return offset;
 }
 
-export default function onNewLineReplace() {
+export default function onTextDeleteSelection() {
 
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch } } = this.context;
@@ -89,9 +89,10 @@ export default function onNewLineReplace() {
   const actualStartOffset = findActualOffset(startOffsetGroup, startStyleGroups, editorStartOffset);
   const actualEndOffset = findActualOffset(endOffsetGroup, endStyleGroups, editorEndOffset);
 
-  let textA, textB;
-  let newStartBlock, newEndBlock, newTextBlock;
-  const stylesA = [ ], stylesB = [ ];
+  let textA, textB, mergeText;
+  let newStartBlock, newBlockStyleGroups;
+  let recoveryGroup, recoveryOffset;
+  let styles = [ ];
 
   // handle anything happens within the same block
   if ( isBlocksEqual ) {
@@ -100,45 +101,48 @@ export default function onNewLineReplace() {
     textB = startBlock.data.substr(actualEndOffset, startBlock.data.length);
 
     if ( Array.isArray(startBlock.styles) ) {
+      const extendHead = actualStartOffset === 0;
+      const distance = actualEndOffset - actualStartOffset;
       for ( const { offset, length, style } of startBlock.styles ) {
         const start = offset;
         const end = offset + length;
         if ( start >= actualEndOffset ) {
-          stylesB.push({ offset: 0, length, style });
+          styles.push({ offset: offset - distance, length, style });
         } else if ( start < actualStartOffset ) {
-          let len = actualStartOffset - offset;
+          let len = actualStartOffset - start;
           if ( len > length ) len = length;
-          stylesA.push({ offset, length: len, style });
+          styles.push({ offset, length: len, style });
         }
       }
     }
 
-    if ( textA.length === 0 && textB.length === 0 ) {
+    mergeText = `${textA}${textB}`;
 
-      newStartBlock = { ...blockTemplate, key: startBlock.key };
-      newTextBlock = { ...blockTemplate, key: UUID.v4() };
-
-    } else {
-
-      newStartBlock = { ...blockTemplate, key: startBlock.key, data: textA, styles: stylesA };
-      newTextBlock = { ...blockTemplate, key: UUID.v4(), data: textB, styles: stylesB };
-
-    }
-
+    newStartBlock = { ...blockTemplate, key: startBlock.key, data: mergeText, styles };
     newStartBlock.styles = simplifiy(newStartBlock);
-    newTextBlock.styles = simplifiy(newTextBlock);
-
     blocks[startBlockIndex] = newStartBlock;
-    blocks.splice(startBlockIndex + 1, 0, newTextBlock);
+
+    newBlockStyleGroups = analyze(newStartBlock);
+    for ( let i = 0, t = 0; i < newBlockStyleGroups.length; i++ ) {
+      const text = newBlockStyleGroups[i];
+      const start = t;
+      const end = t + text.length;
+      if ( actualStartOffset > start && actualStartOffset <= end ) {
+        recoveryGroup = i;
+        recoveryOffset = actualStartOffset - start;
+        break;
+      }
+      t = end;
+    }
 
     return Promise.resolve(onChange(id, clone)).then(_ => {
       return dispatch(api.setEditorState(root, {
-        anchorKey         : newTextBlock.key,
-        anchorGroup       : '0',
-        anchorOffset      : 0,
-        focusKey          : newTextBlock.key,
-        focusGroup        : '0',
-        focusOffset       : 0,
+        anchorKey         : newStartBlock.key,
+        anchorGroup       : `${recoveryGroup}`,
+        anchorOffset      : recoveryOffset,
+        focusKey          : newStartBlock.key,
+        focusGroup        : `${recoveryGroup}`,
+        focusOffset       : recoveryOffset,
         selectionRecovery : true,
       }));
     });
@@ -150,6 +154,8 @@ export default function onNewLineReplace() {
   textA = startBlock.data.substr(0, actualStartOffset);
   textB = endBlock.data.substr(actualEndOffset, endBlock.data.length);
 
+  mergeText = `${textA}${textB}`;
+
   if ( Array.isArray(startBlock.styles) ) {
     for ( const { offset, length, style } of startBlock.styles ) {
       const start = offset;
@@ -157,7 +163,7 @@ export default function onNewLineReplace() {
       if ( start < actualStartOffset ) {
         let len = actualStartOffset - offset;
         if ( len > length ) len = length;
-        stylesA.push({ offset, length: len, style });
+        styles.push({ offset, length: len, style });
       }
     }
   }
@@ -167,29 +173,44 @@ export default function onNewLineReplace() {
       const start = offset;
       const end = offset + length;
       if ( start >= actualEndOffset ) {
-        stylesB.push({ offset: 0, length, style });
+        styles.push({ offset: actualStartOffset, length, style });
+      } else if ( start < actualStartOffset && end >= actualEndOffset ) {
+        styles.push({ offset: actualStartOffset, length: end - actualEndOffset, style });
       }
     }
   }
 
-  newStartBlock = { ...startBlock, data: textA, styles: stylesA };
+
+  newStartBlock = { ...startBlock, data: mergeText, styles: styles };
   newStartBlock.styles = simplifiy(newStartBlock);
-  newEndBlock = { ...endBlock, data: textB, styles: stylesB };
-  newEndBlock.styles = simplifiy(newEndBlock);
 
   blocks[startBlockIndex] = newStartBlock;
-  blocks[endBlockIndex] = newEndBlock;
-  if ( affactedBlocksCount > 0 ) blocks.splice(startBlockIndex + 1, affactedBlocksCount);
+
+  blocks.splice(startBlockIndex + 1, affactedBlocksCount + 1);
+
+  newBlockStyleGroups = analyze(newStartBlock);
+  for ( let i = 0, t = 0; i < newBlockStyleGroups.length; i++ ) {
+    const text = newBlockStyleGroups[i];
+    const start = t;
+    const end = t + text.length;
+    if ( actualStartOffset > start && actualStartOffset <= end ) {
+      recoveryGroup = i;
+      recoveryOffset = actualStartOffset - start;
+      break;
+    }
+    t = end;
+  }
 
   return Promise.resolve(onChange(id, clone)).then(_ => {
     return dispatch(api.setEditorState(root, {
-      anchorKey         : endBlock.key,
-      anchorGroup       : '0',
-      anchorOffset      : 0,
-      focusKey          : endBlock.key,
-      focusGroup        : '0',
-      focusOffset       : 0,
+      anchorKey         : newStartBlock.key,
+      anchorGroup       : `${recoveryGroup}`,
+      anchorOffset      : recoveryOffset,
+      focusKey          : newStartBlock.key,
+      focusGroup        : `${recoveryGroup}`,
+      focusOffset       : recoveryOffset,
       selectionRecovery : true,
     }));
   });
+
 }

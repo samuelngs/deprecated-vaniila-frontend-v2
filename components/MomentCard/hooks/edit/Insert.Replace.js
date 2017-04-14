@@ -1,7 +1,7 @@
 
 import UUID from 'uuid';
 
-import { analyze } from '../../../MomentCardText/utils';
+import { analyze, simplifiy } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
@@ -122,6 +122,7 @@ export default function onTextInsertReplace(character) {
     mergeText = `${textA}${character}${textB}`;
 
     newStartBlock = { ...blockTemplate, key: startBlock.key, data: mergeText, styles };
+    newStartBlock.styles = simplifiy(newStartBlock);
     blocks[startBlockIndex] = newStartBlock;
 
     newBlockStyleGroups = analyze(newStartBlock);
@@ -185,6 +186,7 @@ export default function onTextInsertReplace(character) {
   }
 
   newStartBlock = { ...startBlock, data: mergeText, styles: styles };
+  newStartBlock.styles = simplifiy(newStartBlock);
   blocks[startBlockIndex] = newStartBlock;
 
   blocks.splice(startBlockIndex + 1, affactedBlocksCount + 1);

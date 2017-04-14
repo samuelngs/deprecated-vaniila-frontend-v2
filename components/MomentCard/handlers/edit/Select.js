@@ -144,13 +144,17 @@ export default function onSelect(e) {
   /**
    * retrieve anchor and focus node and their offsets
    */
+  const selection = window.getSelection();
+
   const {
     anchorNode,
     anchorOffset,
     focusNode,
     focusOffset,
     isCollapsed,
-  } = window.getSelection();
+  } = selection;
+
+  const rect = selection.getRangeAt(0).getBoundingClientRect() || { };
 
   if ( !anchorNode || !focusNode ) return;
 
@@ -170,6 +174,12 @@ export default function onSelect(e) {
       focusKey          : focusOffsetKey,
       focusGroup        : focusOffsetGroup,
       focusOffset       : focusOffset,
+      selectionTop      : rect.top,
+      selectionLeft     : rect.left,
+      selectionBottom   : rect.bottom,
+      selectionRight    : rect.right,
+      selectionHeight   : rect.height,
+      selectionWidth    : rect.width,
       selectionRecovery : false,
     })).then(state => {
       this.emit('edit', 'selectionchange', state);
@@ -201,6 +211,12 @@ export default function onSelect(e) {
     focusKey          : focusPoint.key,
     focusGroup        : focusPoint.group || '0',
     focusOffset       : focusPoint.offset,
+    selectionTop      : rect.top,
+    selectionLeft     : rect.left,
+    selectionBottom   : rect.bottom,
+    selectionRight    : rect.right,
+    selectionHeight   : rect.height,
+    selectionWidth    : rect.width,
     selectionRecovery : false,
   })).then(state => {
     this.emit('edit', 'selectionchange', state);

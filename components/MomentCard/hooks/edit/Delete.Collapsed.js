@@ -1,5 +1,5 @@
 
-import { analyze } from '../../../MomentCardText/utils';
+import { analyze, simplify } from '../../../MomentCardText/utils';
 import { api } from '../../../../reducers/editor';
 import deepClone from '../../../../utils/clone';
 
@@ -65,8 +65,58 @@ export default function onTextDeleteCollapsed() {
   const shiftLeft = editorStartOffset === 1 && textLength === 1 && startOffsetGroup > 0;
   const shiftHead = editorStartOffset === 1 && textLength === 1 && startOffsetGroup === 0;
 
-  const text = `${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
-  const styles = [ ];
+  let text;
+  let styles = [ ];
+
+  if ( affactedLength === 0 && blockIndex > 0 ) {
+
+    const targetBlock = clone.data.blocks[blockIndex - 1];
+    const targetStartOffset = targetBlock.data.length;
+
+    const mergeText = `${targetBlock.data}${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
+
+    targetBlock.styles = (targetBlock.styles || [ ]);
+    if ( Array.isArray(block.styles) ) {
+      for ( const { offset, length, style } of block.styles ) {
+        targetBlock.styles.push({ offset: offset + targetBlock.data.length, length, style });
+      }
+    }
+
+    targetBlock.data = mergeText;
+    targetBlock.styles = simplify(targetBlock);
+
+    const targetBlockStyleGroups = analyze(targetBlock);
+    let recoveryGroup, recoveryOffset;
+    for ( let i = 0, t = 0; i < targetBlockStyleGroups.length; i++ ) {
+      const text = targetBlockStyleGroups[i];
+      const start = t;
+      const end = t + text.length;
+      if ( targetStartOffset > start && targetStartOffset <= end ) {
+        recoveryGroup = i;
+        recoveryOffset = targetStartOffset - start;
+        break;
+      }
+      t = end;
+    }
+
+    blocks[blockIndex - 1] = targetBlock;
+    blocks.splice(blockIndex, 1);
+
+    return Promise.resolve(onChange(id, clone)).then(_ => {
+      return dispatch(api.setEditorState(root, {
+        anchorKey         : targetBlock.key,
+        anchorGroup       : `${recoveryGroup}`,
+        anchorOffset      : recoveryOffset,
+        focusKey          : targetBlock.key,
+        focusGroup        : `${recoveryGroup}`,
+        focusOffset       : recoveryOffset,
+        selectionRecovery : true,
+      }));
+    });
+  }
+
+  text = `${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
+  styles = [ ];
 
   if ( Array.isArray(block.styles) ) {
     for ( const { length, offset, style } of block.styles ) {

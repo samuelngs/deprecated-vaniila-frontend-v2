@@ -134,11 +134,10 @@ export default class MomentCard extends React.Component {
     const { scale, width, height } = this.props;
     const padding = 20.0;
     return {
-      padding,
-      width: width - padding * 2,
-      height: height - padding * 2,
-      maxWidth: width - padding * 2,
-      maxHeight: height - padding * 2,
+      width: width,
+      height: height,
+      maxWidth: width,
+      maxHeight: height,
       fontSize: `${3.6 * scale + .1 / scale}em`,
       fontWeight: 300,
       lineHeight: 1.2,
@@ -148,7 +147,7 @@ export default class MomentCard extends React.Component {
   /**
    * render block view
    */
-  renderBlock(block, i) {
+  renderBlock(blocks, block, i) {
 
     const { scale, editmode, editable, editorState } = this.props;
     const { key, type, data } = block;
@@ -159,6 +158,7 @@ export default class MomentCard extends React.Component {
           key={key}
           position={i}
           block={block}
+          total={blocks.length}
           scale={scale}
           editmode={editmode}
           editable={editable}
@@ -174,19 +174,21 @@ export default class MomentCard extends React.Component {
    */
   render() {
     const { id, scale, cover, editmode, editable, moment, editorState } = this.props;
-    const { editorMoment, editorIsCompositionMode } = editorState;
+    const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
-    const handlers = (id === editorMoment && editorIsCompositionMode)
-      ? this.compositionHandler
-      : this.editHandler;
-    return <article aria-label="moment-card" className={ editmode ? "base base-editor" : "base"} style={cardStyle}>
+    const handlers = id
+      ? (id === editorMoment && editorIsCompositionMode)
+        ? this.compositionHandler
+        : this.editHandler
+      : null;
+    return <article aria-label="moment-card" className={[ 'base', editmode && 'base-editor', id === editorMoment && 'base-editor-focus' ].filter(n => n).join(' ')} style={cardStyle}>
       <style jsx>{`
         .base {
           background-color: #fff;
-          border-radius: 5px;
-          box-shadow: inset rgba(181, 189, 198, 0.27451) 0px 0px 0px 1px, rgba(31, 45, 61, .05) 0 1px 8px 0;
+          border-radius: 4px;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
           transition: box-shadow ease .2s;
           position: absolute;
           display: flex;
@@ -195,8 +197,9 @@ export default class MomentCard extends React.Component {
         .base-dragging {
           box-shadow: rgba(0, 0, 0, 0.2) 0px 16px 32px 0px;
         }
+        .base-editor-focus,
         .base-editor:hover {
-          box-shadow: inset rgba(181, 189, 198, 0.37451) 0px 0px 0px 1px, rgba(31, 45, 61, .12) 0 1px 12px 0;
+          box-shadow: 0 1px 9px rgba(0, 0, 0, 0.09);
         }
         .base-content {
           display: flex;
@@ -204,6 +207,7 @@ export default class MomentCard extends React.Component {
           flex-direction: column;
           overflow: auto;
           outline: none;
+          -webkit-user-modify: read-write-plaintext-only;
         }
         .base-vcenter {
           justify-content: center;
@@ -230,7 +234,7 @@ export default class MomentCard extends React.Component {
         suppressContentEditableWarning={true}
         style={contentStyle}
       >
-        { blocks.map((block, i) => this.renderBlock(block, i)) }
+        { blocks.map((block, i) => this.renderBlock(blocks, block, i)) }
       </div>
     </article>;
   }

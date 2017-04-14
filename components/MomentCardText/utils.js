@@ -1,52 +1,50 @@
 
-function insertMigrateTextStyle(character, pos, prevStyles) {
+function getSimplifiedStyle(block) {
 
-  if ( !prevStyles ) return prevStyles;
-  if ( !Array.isArray(prevStyles) ) return undefined;
+  const clone = Array.isArray(block.styles) ? [ ...block.styles ] : [ ];
+  clone.sort((a, b) => a.offset - b.offset);
 
-  const extendHead = pos === 0;
+  let styles = [ ];
+  const refs = { };
 
-  const styles = [ ];
-  for ( const { length, offset, style } of prevStyles ) {
-    const start = offset;
-    const end = start + length;
-    const next = { length, offset, style };
-    if ( pos > start && pos <= end ) {
-      next.length += character.length;
-    } else if ( pos <= start ) {
-      if ( extendHead && offset === 0 ) {
-        next.length += character.length;
-      } else {
-        next.offset += character.length;
+  if ( Array.isArray(clone) ) {
+    for ( const [ i, { style } ] of clone.entries() ) {
+      refs[style] = (refs[style] || [ ]);
+      refs[style].push(i);
+    }
+  }
+
+  for ( const ref in refs ) {
+    const idxs = refs[ref];
+
+    // handle unique styles
+    if ( idxs.length === 1 ) {
+      styles.push(clone[idxs[0]]);
+      continue;
+    }
+
+    // handle repeated styles
+
+    let min = 0;
+    const ranges = [ ];
+
+    for ( const ref of idxs ) {
+      const { offset, length, style } = clone[ref];
+      const start = offset;
+      const end = offset + length;
+      if ( start > min ) {
+        ranges.push({ offset, length, style });
+      } else if ( start <= min ) {
+        ranges[ranges.length - 1].length += length;
       }
+      min = end;
     }
-    styles.push(next);
+
+    styles = styles.concat(ranges);
   }
-  return styles;
-}
 
-function removeMigrateTextStyle(start, end, prevStyles) {
+  styles.sort((a, b) => a.offset - b.offset);
 
-  if ( !prevStyles ) return prevStyles;
-  if ( !Array.isArray(prevStyles) ) return undefined;
-
-  const styles = [ ];
-  const len = start === end ? 1 : end - start;
-  for ( const { length, offset, style } of prevStyles ) {
-    const from = offset;
-    const to = from + length;
-    const next = { length, offset, style };
-    if ( start > from && end <= to ) {
-      // console.log(style, 'len start <= from', next.length, len);
-      next.length -= len;
-    } else if ( start <= from ) {
-      next.offset -= len;
-    }
-    // console.log(`${style} => ${start} - ${from}, remove ${len} character(s), offset => ${next.offset}, len => ${next.length}`);
-    if ( next.length > 0 ) {
-      styles.push(next);
-    }
-  }
   return styles;
 }
 
@@ -189,11 +187,7 @@ export function analyze(block) {
   return getTextGroups(block);
 }
 
-export function migrateInsertStyle(character, offset, style) {
-  return insertMigrateTextStyle(character, offset, style);
-}
-
-export function migrateRemoveStyle(start, end, style) {
-  return removeMigrateTextStyle(start, end, style);
+export function simplify(block) {
+  return getSimplifiedStyle(block);
 }
 

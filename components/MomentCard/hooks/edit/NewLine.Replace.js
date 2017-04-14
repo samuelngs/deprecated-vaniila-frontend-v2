@@ -1,7 +1,7 @@
 
 import UUID from 'uuid';
 
-import { analyze, simplifiy } from '../../../MomentCardText/utils';
+import { analyze, simplify } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
@@ -125,8 +125,8 @@ export default function onNewLineReplace() {
 
     }
 
-    newStartBlock.styles = simplifiy(newStartBlock);
-    newTextBlock.styles = simplifiy(newTextBlock);
+    newStartBlock.styles = simplify(newStartBlock);
+    newTextBlock.styles = simplify(newTextBlock);
 
     blocks[startBlockIndex] = newStartBlock;
     blocks.splice(startBlockIndex + 1, 0, newTextBlock);
@@ -173,9 +173,9 @@ export default function onNewLineReplace() {
   }
 
   newStartBlock = { ...startBlock, data: textA, styles: stylesA };
-  newStartBlock.styles = simplifiy(newStartBlock);
+  newStartBlock.styles = simplify(newStartBlock);
   newEndBlock = { ...endBlock, data: textB, styles: stylesB };
-  newEndBlock.styles = simplifiy(newEndBlock);
+  newEndBlock.styles = simplify(newEndBlock);
 
   blocks[startBlockIndex] = newStartBlock;
   blocks[endBlockIndex] = newEndBlock;

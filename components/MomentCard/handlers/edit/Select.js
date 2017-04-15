@@ -154,7 +154,10 @@ export default function onSelect(e) {
     isCollapsed,
   } = selection;
 
-  const rect = selection.getRangeAt(0).getBoundingClientRect() || { };
+  let rect = { };
+  if ( selection.rangeCount > 0 ) {
+    rect = selection.getRangeAt(0).getBoundingClientRect() || { };
+  }
 
   if ( !anchorNode || !focusNode ) return;
 

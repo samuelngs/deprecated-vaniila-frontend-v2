@@ -97,6 +97,8 @@ export default class MomentCard extends React.Component {
         return MomentEditorHook.onTextDelete.call(this);
       case 'insert-newline':
         return MomentEditorHook.onNewLine.call(this);
+      case 'style':
+        return MomentEditorHook.onStyle.call(this, data);
     }
   }
 
@@ -153,7 +155,9 @@ export default class MomentCard extends React.Component {
     const { key, type, data } = block;
 
     switch ( type ) {
-      case 'text':
+      case 'unstyled':
+      case 'unordered-list-item':
+      case 'ordered-list-item':
         return <MomentCardText
           key={key}
           position={i}

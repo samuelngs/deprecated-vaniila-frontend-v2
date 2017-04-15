@@ -84,9 +84,10 @@ export default function onTextDeleteCollapsed() {
 
     targetBlock.data = mergeText;
     targetBlock.styles = simplify(targetBlock);
+    if ( mergeText.length === 0 && targetBlock.type !== 'unstyled' ) targetBlock.type = 'unstyled';
 
     const targetBlockStyleGroups = analyze(targetBlock);
-    let recoveryGroup, recoveryOffset;
+    let recoveryGroup = 0, recoveryOffset = 0;
     for ( let i = 0, t = 0; i < targetBlockStyleGroups.length; i++ ) {
       const text = targetBlockStyleGroups[i];
       const start = t;
@@ -136,6 +137,7 @@ export default function onTextDeleteCollapsed() {
 
   block.data = text;
   block.styles = styles;
+  if ( text.length === 0 && block.type !== 'unstyled' ) block.type = 'unstyled';
 
   shiftLeft && dispatch(api.setEditorState(root, {
     anchorKey         : editorStartKey,

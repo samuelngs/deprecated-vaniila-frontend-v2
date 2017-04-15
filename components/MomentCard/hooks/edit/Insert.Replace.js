@@ -7,7 +7,7 @@ import { api } from '../../../../reducers/editor';
 
 const blockTemplate = {
   key   : '',
-  type  : 'text',
+  type  : 'unstyled',
   data  : '',
   styles: [ ],
 };
@@ -92,7 +92,7 @@ export default function onTextInsertReplace(character) {
 
   let textA, textB, mergeText;
   let newStartBlock, newBlockStyleGroups;
-  let recoveryGroup, recoveryOffset;
+  let recoveryGroup = 0, recoveryOffset = 0;
   const styles = [ ];
 
   // handle anything happens within the same block

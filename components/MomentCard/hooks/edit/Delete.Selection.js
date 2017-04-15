@@ -7,7 +7,7 @@ import { api } from '../../../../reducers/editor';
 
 const blockTemplate = {
   key   : '',
-  type  : 'text',
+  type  : 'unstyled',
   data  : '',
   styles: [ ],
 };
@@ -91,7 +91,7 @@ export default function onTextDeleteSelection() {
 
   let textA, textB, mergeText;
   let newStartBlock, newBlockStyleGroups;
-  let recoveryGroup, recoveryOffset;
+  let recoveryGroup = 0, recoveryOffset = 0;
   let styles = [ ];
 
   // handle anything happens within the same block
@@ -120,6 +120,7 @@ export default function onTextDeleteSelection() {
 
     newStartBlock = { ...blockTemplate, key: startBlock.key, data: mergeText, styles };
     newStartBlock.styles = simplify(newStartBlock);
+    if ( mergeText.length === 0 && newStartBlock.type !== 'unstyled' ) newStartBlock.type = 'unstyled';
     blocks[startBlockIndex] = newStartBlock;
 
     newBlockStyleGroups = analyze(newStartBlock);
@@ -183,6 +184,7 @@ export default function onTextDeleteSelection() {
 
   newStartBlock = { ...startBlock, data: mergeText, styles: styles };
   newStartBlock.styles = simplify(newStartBlock);
+  if ( mergeText.length === 0 && newStartBlock.type !== 'unstyled' ) newStartBlock.type = 'unstyled';
 
   blocks[startBlockIndex] = newStartBlock;
 

@@ -7,7 +7,7 @@ import { api } from '../../../../reducers/editor';
 
 const blockTemplate = {
   key   : '',
-  type  : 'text',
+  type  : 'unstyled',
   data  : '',
   styles: [ ],
 };

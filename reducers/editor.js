@@ -34,12 +34,20 @@ const defaults = {
     editorFocusGroup: null,
     editorFocusOffset: 0,
 
+    // selection position
+    editorSelectionTop: 0,
+    editorSelectionLeft: 0,
+    editorSelectionBottom: 0,
+    editorSelectionRight: 0,
+    editorSelectionHeight: 0,
+    editorSelectionWidth: 0,
+
     // selection recovery
     editorSelectionRecovery: false,
 
     // If the anchor position is lower in the document than the focus position, the selection is backward
     editorIsBackward: false,
-    editorIsCollapsed: false,
+    editorIsCollapsed: true,
 
     // whether the editor currently has focus
     editorHasFocus: false,
@@ -62,6 +70,13 @@ const defaults = {
     focusKey: undefined,
     focusGroup: undefined,
     focusOffset: -1,
+
+    selectionTop: undefined,
+    selectionLeft: undefined,
+    selectionBottom: undefined,
+    selectionRight: undefined,
+    selectionHeight: undefined,
+    selectionWidth: undefined,
 
     selectionRecovery: undefined,
 
@@ -105,6 +120,7 @@ function hookSetEditorState(states, { id, options: opts }, store) {
   conditionUpdateAnchorPoint(state, present, opts);
   conditionUpdateFocusPoint(state, present, opts);
   conditionUpdateOrdering(state, present, opts);
+  conditionUpdateSelectionPosition(state, present, opts);
   conditionUpdateSelectionRecovery(state, present, opts);
   conditionUpdateFocus(state, present, opts);
   conditionUpdateCompositionMode(state, present, opts);
@@ -250,6 +266,32 @@ function conditionUpdateOrdering(state, doc, opts) {
   state.editorEndGroup = editorFocusGroup;
   state.editorEndOffset = editorFocusOffset;
   state.editorIsBackward = false;
+}
+
+function conditionUpdateSelectionPosition(state, doc, opts) {
+  const {
+    selectionTop,
+    selectionLeft,
+    selectionBottom,
+    selectionRight,
+    selectionHeight,
+    selectionWidth,
+  } = opts;
+  if (
+    typeof selectionTop === 'number'
+    && typeof selectionLeft === 'number'
+    && typeof selectionBottom === 'number'
+    && typeof selectionRight === 'number'
+    && typeof selectionHeight === 'number'
+    && typeof selectionWidth === 'number'
+  ) {
+    state.editorSelectionTop = selectionTop;
+    state.editorSelectionLeft = selectionLeft;
+    state.editorSelectionBottom = selectionBottom;
+    state.editorSelectionRight = selectionRight;
+    state.editorSelectionHeight = selectionHeight;
+    state.editorSelectionWidth = selectionWidth;
+  }
 }
 
 function conditionUpdateSelectionRecovery(state, doc, opts) {

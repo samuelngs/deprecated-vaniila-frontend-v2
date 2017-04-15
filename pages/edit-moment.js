@@ -203,7 +203,7 @@ class EditMoment extends React.Component {
             blocks: [
               {
                 key   : `${UUID.v4()}`,
-                type  : 'text',
+                type  : 'unstyled',
                 data  : '',
                 styles: [ ],
               }
@@ -225,7 +225,7 @@ class EditMoment extends React.Component {
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
     return <div>
-      <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F5F8F9; }`}</style>
+      <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F8F8F8; }`}</style>
       <Head>
         <title>Moment</title>
       </Head>

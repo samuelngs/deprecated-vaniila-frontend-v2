@@ -30,10 +30,12 @@ export default class _Document extends Document {
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_extrabolditweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_extrabolditweb.woff') format('woff'); font-weight: 800; font-style: italic; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_blackweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_blackweb.woff') format('woff'); font-weight: 900; font-style: normal; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_blackitweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_blackitweb.woff') format('woff'); font-weight: 900; font-style: italic; font-display: fallback; }
-          body { margin: 0; padding: 0; font-family: 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-weight: 400; }
+          body { margin: 0; padding: 0; font-family: 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-weight: 400; color-profile: sRGB; rendering-intent: auto; }
           input, textarea, select, button { font-family: 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
           h1, h2, h3, h4, h5, h6, ul, ol, li, div, p, span { margin: 0; padding: 0; }
           .no-select { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+          .placeholder:before { content: attr(data-placeholder); display: block; color: #ccc; font-weight: 300; text-align: center; }
+          ::selection { background-color: #60ffb4; color: #004f2a; }
         `}</style>
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="MobileOptimized" content="320" />

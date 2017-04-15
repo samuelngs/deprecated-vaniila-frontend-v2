@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 
+import EditorHeaderLogo from '../EditorHeaderLogo';
 import EditorHeaderBack from '../EditorHeaderBack';
 import EditorHeaderDetails from '../EditorHeaderDetails';
 import EditorPeersList from '../EditorPeersList';
@@ -26,7 +27,7 @@ export default class EditorHeader extends React.Component {
   }
 
   static cssVariables = {
-    headerHeight: 60,
+    headerHeight: 46,
     headerBackgroundColor: '#fff',
     headerIconColor: '#7799a4',
   }
@@ -51,7 +52,7 @@ export default class EditorHeader extends React.Component {
           position: fixed;
           display: flex;
           background-color: ${EditorHeader.cssVariables.headerBackgroundColor};
-          box-shadow: rgba(181, 189, 198, 0.27451) 0px 1px;
+          box-shadow: rgba(0, 0, 0, 0.05) 0px 1px;
         }
         .header-nav {
           flex: 1;
@@ -78,7 +79,8 @@ export default class EditorHeader extends React.Component {
           />
         </div>
         <div className="header-grid-column-4 header-grid-column-ac">
-          <button onClick={onMomentCreate}>Create Moment</button>
+          <EditorHeaderLogo headerHeight={EditorHeader.cssVariables.headerHeight} />
+          { false && <button onClick={onMomentCreate}>Create Moment</button> }
         </div>
         <div className="header-grid-column-4 header-grid-column-ar">
           <EditorPeersList

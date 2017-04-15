@@ -76,9 +76,9 @@ export default class EditorPeersList extends React.Component {
           padding-right: 0;
           list-style: none;
           display: flex;
-          width: 32px;
-          height: 32px;
-          border-radius: 18px;
+          width: 22px;
+          height: 22px;
+          border-radius: 11px;
           border: 2px solid #fff;
           background-color: #fff;
           position: relative;
@@ -110,15 +110,15 @@ export default class EditorPeersList extends React.Component {
         .peer:nth-child(4) .container { background-color: #4deb88; }
         .peer:nth-child(5) .container { background-color: #4dfa75; }
         .name {
-          font-size: 12px;
+          font-size: 8px;
           font-weight: 600;
           letter-spacing: 1px;
           color: #ffffff;
         }
         .avatar {
-          height: 32px;
-          width: 32px;
-          border-radius: 18px;
+          height: 22px;
+          width: 22px;
+          border-radius: 11px;
         }
       `}</style>
       <div className={['container', !background && 'container-active'].filter(n => n).join(' ')}>

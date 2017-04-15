@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { scrollToLeft } from '../Scroller';
 import MomentCard from '../MomentCard';
 import EditorContextualToolBar from '../EditorContextualToolbar';
 
@@ -62,6 +63,25 @@ export default class EditorStoryboard extends React.Component {
 
   componentWillUnmount() {
     this.removeEventListener();
+  }
+
+  componentDidUpdate({ editorState: { editorMoment: prevMoment } }) {
+    const { editorState: { editorMoment } } = this.props;
+    if ( this.n && editorMoment !== prevMoment && editorMoment ) {
+      this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
+      this.onMomentsRelocation = setTimeout(_ => {
+        const { ids } = this.doc();
+        const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
+        const idx = ids.indexOf(editorMoment);
+        if ( idx === -1 && this.scrollLock ) return;
+        const widths = ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding);
+        const offset = widths[idx];
+        this.scrollLock = true;
+        scrollToLeft(this.n, offset, {
+          callback: _ => this.scrollLock = false,
+        });
+      }, 200);
+    }
   }
 
   bind() {
@@ -148,6 +168,24 @@ export default class EditorStoryboard extends React.Component {
         }));
       });
     }
+    this.handleRelocation();
+  }
+
+  handleRelocation() {
+    if ( this.scrollLock ) return;
+    if ( !this.n ) return;
+    this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
+    this.onMomentsRelocation = setTimeout(_ => {
+      const { ids, count, moments } = this.doc();
+      const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
+      const { scrollLeft } = this.n;
+      const widths = [ 0, ...ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding) ];
+      const offset = widths.reduce((prev, curr) => (Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft) ? curr : prev));
+      this.scrollLock = true;
+      this.n && scrollToLeft(this.n, offset, {
+        callback: _ => this.scrollLock = false,
+      });
+    }, 750);
   }
 
   getListStyle(numOfMoments) {
@@ -182,7 +220,7 @@ export default class EditorStoryboard extends React.Component {
     const { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } = editorState;
     const { ids, count, moments } = this.doc();
     const { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding } = this.getMomentStyle(ids.length);
-    return <div className="base" onScroll={this.handleScroll}>
+    return <div ref={n => this.n = n} className="base" data-moments={true} onScroll={this.handleScroll}>
       <style jsx>{`
         .base {
           margin-top: 46px;

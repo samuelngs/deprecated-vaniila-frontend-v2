@@ -110,7 +110,7 @@ export default class EditorPeersList extends React.Component {
         .peer:nth-child(4) .container { background-color: #4deb88; }
         .peer:nth-child(5) .container { background-color: #4dfa75; }
         .name {
-          font-size: 8px;
+          font-size: 10px;
           font-weight: 600;
           letter-spacing: 1px;
           color: #ffffff;

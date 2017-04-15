@@ -35,7 +35,8 @@ function getSimplifiedStyle(block) {
       if ( start > min ) {
         ranges.push({ offset, length, style });
       } else if ( start <= min ) {
-        ranges[ranges.length - 1].length += length;
+        let latest = ranges[ranges.length - 1];
+        latest && (latest.length += length);
       }
       min = end;
     }

@@ -16,6 +16,7 @@ export default class MomentCardText extends React.Component {
       data      : PropTypes.string,
       styles    : PropTypes.array,
     }),
+    total       : PropTypes.number,
     scale       : PropTypes.number,
     editmode    : PropTypes.bool,
     editable    : PropTypes.bool,
@@ -30,6 +31,7 @@ export default class MomentCardText extends React.Component {
       data      : '',
       styles    : [ ],
     },
+    total       : 0,
     scale       : 1,
     editmode    : false,
     editable    : false,
@@ -44,7 +46,6 @@ export default class MomentCardText extends React.Component {
       fontWeight: 300,
       lineHeight: 1.2,
       minHeight : '1.2em',
-      display   : 'inline-block',
     };
   }
 
@@ -70,26 +71,51 @@ export default class MomentCardText extends React.Component {
     const {
       position,
       block,
+      total,
       editorState,
     } = this.props;
 
-    const { key, data, styles } = block;
+    const { key, type, data, styles } = block;
 
     const style = this.getStyle();
     const groups = collection(block);
 
-    return <div key={this._forceFlag ? 'A' : 'B'} aria-label="moment-card-block" data-offset-key={key} data-offset-position={position} className="base" style={style}>
+    const className = [ 'base' ];
+    switch ( type ) {
+      case 'unordered-list-item':
+        className.push('base-unordered-item');
+        break;
+      case 'ordered-list-item':
+        className.push('base-ordered-item');
+        break;
+    }
+
+    return <div key={this._forceFlag ? 'A' : 'B'} aria-label="moment-card-block" data-offset-key={key} data-offset-position={position} className={className.join(' ')} style={style}>
       <style jsx>{`
         .base {
           font-size: .9em;
+          padding-left: 20px;
+          padding-right: 20px;
+          display: inline-block;
         }
-        .base + .base { margin-top: 20px; }
+        .base-unordered-item {
+          display: list-item;
+          list-style-type: disc;
+          list-style-position: inside;
+        }
+        .base-ordered-item {
+          display: list-item;
+          list-style-type: decimal;
+          list-style-position: inside;
+        }
       `}</style>
       { groups.map(({ text, style }, i) => <MomentCardTextSpan
         key={i}
         id={key}
         position={position}
         group={i}
+        total={total}
+        spans={groups.length}
         text={text}
         style={style}
         editorState={editorState}

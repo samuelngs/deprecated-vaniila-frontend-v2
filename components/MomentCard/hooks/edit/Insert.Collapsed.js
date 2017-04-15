@@ -13,7 +13,9 @@ function findActualOffset(group, groups, offset) {
 /**
  * trigger when input event within content area
  */
-export default function onTextInsertCollapsed(character) {
+export default function onTextInsertCollapsed(data) {
+
+  const character = data.replace(/(\r\n|\n|\r)/gm, '');
 
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch, getState } } = this.context;

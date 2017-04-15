@@ -7,6 +7,7 @@ import { api } from '../../../../reducers/editor';
 
 import onStyleBulletText from './Style.Text.Bullet';
 import onStyleNumberText from './Style.Text.Number';
+import onStyleBoldText from './Style.Text.Bold';
 
 function findActualOffset(group, groups, offset) {
   for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
@@ -107,9 +108,22 @@ export default function onTextStyle(type) {
     case 'ordered-list':
       onStyleNumberText.call(this, calculated);
       break;
+    case 'bold':
+      onStyleBoldText.call(this, calculated);
+      break;
   }
 
-  onChange(id, clone);
+  return Promise.resolve(onChange(id, clone)).then(_ => {
+    return dispatch(api.setEditorState(root, {
+      // anchorKey         : targetBlock.key,
+      // anchorGroup       : `${recoveryGroup}`,
+      // anchorOffset      : recoveryOffset,
+      // focusKey          : targetBlock.key,
+      // focusGroup        : `${recoveryGroup}`,
+      // focusOffset       : recoveryOffset,
+      selectionRecovery : true,
+    }));
+  });
 
 }
 

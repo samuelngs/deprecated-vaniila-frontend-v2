@@ -74,14 +74,14 @@ export default function onNewLineCollapsed() {
   // if part A text length is 0, push everything to new block
   if ( textA.length === 0 ) {
 
-    originalBlock = { ...blockTemplate, key: block.key };
+    originalBlock = { ...blockTemplate, key: block.key, type: block.type };
     newBlock = { ...blockTemplate, ...block, key: UUID.v4() };
 
   // if part B text length is 0, keep original block and initialize new block
   } else if ( textB.length === 0 ) {
 
     originalBlock = { ...blockTemplate, ...block };
-    newBlock = { ...blockTemplate, key: UUID.v4() };
+    newBlock = { ...blockTemplate, type: block.type, key: UUID.v4() };
 
   } else {
 
@@ -104,7 +104,7 @@ export default function onNewLineCollapsed() {
     }
 
     originalBlock = { ...blockTemplate, ...block, data: textA, styles: stylesA };
-    newBlock = { ...blockTemplate, key: UUID.v4(), data: textB, styles: stylesB };
+    newBlock = { ...blockTemplate, type: block.type, key: UUID.v4(), data: textB, styles: stylesB };
 
   }
 

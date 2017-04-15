@@ -9,6 +9,7 @@ function getSimplifiedStyle(block) {
 
   if ( Array.isArray(clone) ) {
     for ( const [ i, { style } ] of clone.entries() ) {
+      if ( !style ) continue;
       refs[style] = (refs[style] || [ ]);
       refs[style].push(i);
     }
@@ -25,7 +26,7 @@ function getSimplifiedStyle(block) {
 
     // handle repeated styles
 
-    let min = 0;
+    let min = -10000;
     const ranges = [ ];
 
     for ( const ref of idxs ) {
@@ -36,7 +37,9 @@ function getSimplifiedStyle(block) {
         ranges.push({ offset, length, style });
       } else if ( start <= min ) {
         let latest = ranges[ranges.length - 1];
-        latest && (latest.length += length);
+        if ( latest && end > ( latest.offset + latest.length ) ) {
+          latest.length += ( end - ( latest.offset + latest.length ) );
+        }
       }
       min = end;
     }
@@ -68,6 +71,9 @@ function getTextStyle(style) {
         break;
       case 'COLOR':
         o['color'] = parts[1];
+        break;
+      case 'BOLD':
+        o['fontWeight'] = 500;
         break;
     }
   });

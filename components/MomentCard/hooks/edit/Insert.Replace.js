@@ -20,7 +20,9 @@ function findActualOffset(group, groups, offset) {
   return offset;
 }
 
-export default function onTextInsertReplace(character) {
+export default function onTextInsertReplace(data) {
+
+  const character = data.replace(/(\r\n|\n|\r)/gm, '');
 
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch } } = this.context;

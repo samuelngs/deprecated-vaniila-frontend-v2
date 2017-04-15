@@ -46,6 +46,7 @@ export default class MomentCardTextSpan extends React.Component {
       total                   : prevTotal,
       spans                   : prevSpans,
       text                    : prevText,
+      style                   : prevStyle,
     } } = this.props;
 
     const { editorState: {
@@ -58,7 +59,7 @@ export default class MomentCardTextSpan extends React.Component {
       editorSelectionRecovery,
       editorIsCompositionMode,
       editorIsCollapsed
-    }, id, group, total, spans, text } = nextProps;
+    }, id, group, total, spans, text, style } = nextProps;
 
     const groupName = String(group);
 

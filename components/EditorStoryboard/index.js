@@ -3,8 +3,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import MomentCard from '../MomentCard';
+import EditorContextualToolBar from '../EditorContextualToolbar';
+
+import { api } from '../../reducers/editor';
 
 export default class EditorStoryboard extends React.Component {
+
+  static contextTypes = {
+    store: PropTypes.object,
+  }
 
   static propTypes = {
     id            : PropTypes.string,
@@ -30,6 +37,15 @@ export default class EditorStoryboard extends React.Component {
     onMomentChange: _ => null,
   }
 
+  state = {
+    isPressed: false,
+    topDeltaX: 0,
+    mouseX: 0,
+    originalPosOfLastPressed: 0,
+  }
+
+  cards = { }
+
   doc() {
     const { doc } = this.props;
     const data = (doc.data || { });
@@ -37,13 +53,6 @@ export default class EditorStoryboard extends React.Component {
     const ids = Object.keys(moments);
     const count = ids.length;
     return { ids, count, moments };
-  }
-
-  state = {
-    isPressed: false,
-    topDeltaX: 0,
-    mouseX: 0,
-    originalPosOfLastPressed: 0,
   }
 
   componentDidMount() {
@@ -63,12 +72,14 @@ export default class EditorStoryboard extends React.Component {
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   addEventListener() {
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('touchend', this.handleTouchUp);
     window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('mousedown', this.handleMouseDown);
     window.addEventListener('mouseup', this.handleMouseUp);
   }
 
@@ -76,7 +87,17 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleTouchUp);
     window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('mousedown', this.handleMouseDown);
     window.removeEventListener('mouseup', this.handleMouseUp);
+  }
+
+  onContextualMenuPress(type) {
+    const { editorState: { editorMoment } } = this.props;
+    this.cards[editorMoment] && this.cards[editorMoment].contextReceiveEvent && this.cards[editorMoment].contextReceiveEvent('edit', 'style', type);
+  }
+
+  onContextualMenuOverride(e) {
+    e.target.hasAttribute('data-contextual-menu') && e.preventDefault && e.preventDefault();
   }
 
   handleTouchUp(e) {
@@ -95,7 +116,8 @@ export default class EditorStoryboard extends React.Component {
     this.setState({ isPressed: false, topDeltaX: 0 });
   }
 
-  handleMouseDown() {
+  handleMouseDown(e) {
+    this.onContextualMenuOverride(e);
   }
 
   handleMouseMove({ pageX }) {
@@ -107,6 +129,25 @@ export default class EditorStoryboard extends React.Component {
 
     const mouseX = pageX - topDeltaX;
 
+  }
+
+  handleScroll() {
+    const { id, editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } } = this.props;
+    if ( !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 ) {
+      this.onContextualMenuRelocation && clearImmediate(this.onContextualMenuRelocation);
+      this.onContextualMenuRelocation = setImmediate(_ => {
+        const rect = window.getSelection().getRangeAt(0).getBoundingClientRect() || { };
+        const { store: { dispatch } } = this.context;
+        dispatch(api.setEditorState(id, {
+          selectionTop      : rect.top,
+          selectionLeft     : rect.left,
+          selectionBottom   : rect.bottom,
+          selectionRight    : rect.right,
+          selectionHeight   : rect.height,
+          selectionWidth    : rect.width,
+        }));
+      });
+    }
   }
 
   getListStyle(numOfMoments) {
@@ -129,7 +170,7 @@ export default class EditorStoryboard extends React.Component {
     }
     if ( itemWidth > 1024 ) itemWidth = 1024;
     if ( itemHeight > 768 ) itemHeight = 768;
-    const itemPadding = 20.0;
+    const itemPadding = 40.0;
     const listWidth = itemWidth * (count + 1) + itemPadding * count + (windowSize.width - itemWidth) / 2;
     const listPadding = (windowSize.width - itemWidth) / 2;
     const listHeight = itemHeight;
@@ -137,13 +178,14 @@ export default class EditorStoryboard extends React.Component {
   }
 
   render() {
-    const { id: root, editorState, onMomentCreate, onMomentChange } = this.props;
+    const { id: root, editorState, windowSize, onMomentCreate, onMomentChange } = this.props;
+    const { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } = editorState;
     const { ids, count, moments } = this.doc();
     const { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding } = this.getMomentStyle(ids.length);
-    return <div className="base">
+    return <div className="base" onScroll={this.handleScroll}>
       <style jsx>{`
         .base {
-          margin-top: 60px;
+          margin-top: 46px;
           flex: 1;
           display: flex;
           overflow-x: auto!important;
@@ -154,9 +196,10 @@ export default class EditorStoryboard extends React.Component {
           position: relative;
         }
       `}</style>
+      <EditorContextualToolBar root={root} editorState={editorState} windowSize={windowSize} onPress={::this.onContextualMenuPress} />
       <div className="list" style={{ width: listWidth, minWidth: listWidth, height: listHeight, minHeight: listHeight, paddingLeft: listPadding }}>
         <MomentCard cover={true} x={0} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />
-        { ids.map((id, i) => <MomentCard key={id} root={root} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} editorState={editorState} onChange={onMomentChange} />) }
+        { ids.map((id, i) => <MomentCard ref={n => this.cards[id] = n} key={id} root={root} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} editorState={editorState} onChange={onMomentChange} />) }
       </div>
     </div>;
   }

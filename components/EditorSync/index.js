@@ -165,8 +165,8 @@ export default class EditorSync extends React.Component {
       identity  : accountUsername,
       fullname  : accountFullname,
       shortname : accountFullnameParts.length >= 2
-        ? ( `${accountFullnameParts[0].substring(0, 1)}${accountFullnameParts[1].substring(0, 1)}` ).toUpperCase()
-        : ( accountUsername.substring(0, 2) ).toUpperCase(),
+        ? ( accountFullnameParts[0].substring(0, 1) ).toUpperCase()
+        : ( accountUsername.substring(0, 1) ).toUpperCase(),
     }, false);
   }
 

@@ -59,6 +59,7 @@ export default class EditorStoryboard extends React.Component {
   componentDidMount() {
     this.bind();
     this.addEventListener();
+    this.defaultLayout();
   }
 
   componentWillUnmount() {
@@ -81,6 +82,12 @@ export default class EditorStoryboard extends React.Component {
           callback: _ => this.scrollLock = false,
         });
       }, 200);
+    }
+  }
+
+  defaultLayout() {
+    if ( this.n && this.n.lastChild ) {
+      this.n.scrollLeft = this.n.lastChild.offsetWidth;
     }
   }
 
@@ -109,6 +116,20 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mousedown', this.handleMouseDown);
     window.removeEventListener('mouseup', this.handleMouseUp);
+  }
+
+  onMomentShortcut(type) {
+    const { onMomentCreate } = this.props;
+    switch ( type ) {
+      case 'append-moment':
+        return onMomentCreate().then(({ name, block }) => {
+          const { id } = this.props;
+          const { store: { dispatch } } = this.context;
+          return dispatch(api.setEditorState(id, {
+            nextId: name,
+          }));
+        });
+    }
   }
 
   onContextualMenuPress(type) {
@@ -237,7 +258,23 @@ export default class EditorStoryboard extends React.Component {
       <EditorContextualToolBar root={root} editorState={editorState} windowSize={windowSize} onPress={::this.onContextualMenuPress} />
       <div className="list" style={{ width: listWidth, minWidth: listWidth, height: listHeight, minHeight: listHeight, paddingLeft: listPadding }}>
         <MomentCard cover={true} x={0} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />
-        { ids.map((id, i) => <MomentCard ref={n => this.cards[id] = n} key={id} root={root} id={id} x={(i + 1) * itemWidth + (i + 1) * itemPadding} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} moment={moments[id]} editorState={editorState} onChange={onMomentChange} />) }
+        { ids.map((id, i) =>
+          <MomentCard
+            ref={n => this.cards[id] = n}
+            key={id}
+            root={root}
+            id={id}
+            x={(i + 1) * itemWidth + (i + 1) * itemPadding}
+            scale={itemRatio}
+            width={itemWidth}
+            height={itemHeight}
+            editmode={true}
+            moment={moments[id]}
+            editorState={editorState}
+            onShortcut={::this.onMomentShortcut}
+            onChange={onMomentChange}
+          />
+        ) }
       </div>
     </div>;
   }

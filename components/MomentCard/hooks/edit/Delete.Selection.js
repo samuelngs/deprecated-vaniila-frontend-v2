@@ -118,9 +118,8 @@ export default function onTextDeleteSelection() {
 
     mergeText = `${textA}${textB}`;
 
-    newStartBlock = { ...blockTemplate, key: startBlock.key, data: mergeText, styles };
+    newStartBlock = { ...blockTemplate, key: startBlock.key, type: startBlock.type, data: mergeText, styles };
     newStartBlock.styles = simplify(newStartBlock);
-    if ( mergeText.length === 0 && newStartBlock.type !== 'unstyled' ) newStartBlock.type = 'unstyled';
     blocks[startBlockIndex] = newStartBlock;
 
     newBlockStyleGroups = analyze(newStartBlock);

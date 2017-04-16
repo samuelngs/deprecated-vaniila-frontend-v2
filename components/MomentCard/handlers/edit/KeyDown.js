@@ -13,6 +13,9 @@ export default function onKeyDown(e) {
 
     case Codes.ENTER:
       e.preventDefault && e.preventDefault();
+      if ( e.ctrlKey || e.metaKey ) {
+        return this.emit('edit', 'append-moment');
+      }
       return this.emit('edit', 'insert-newline');
 
     case Codes.ESC:

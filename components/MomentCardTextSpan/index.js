@@ -137,7 +137,6 @@ export default class MomentCardTextSpan extends React.Component {
     const contentGroup = String(group);
     if ( contentGroup !== editorStartGroup && contentGroup !== editorEndGroup ) return;
 
-    if ( !editorHasFocus ) return;
     if ( !window.getSelection ) return;
 
     let textNode = ReactDOM.findDOMNode(this).firstChild;

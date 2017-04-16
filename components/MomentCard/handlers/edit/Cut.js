@@ -10,8 +10,10 @@ export default function onCut(e) {
   const { root, store: { dispatch, getState } } = this;
   const { editorIsCollapsed } = getState().editorStates[root];
 
+  return e.preventDefault && e.preventDefault();
+
   // single selection, ignore copy action
-  if ( !editorIsCollapsed ) {
+  if ( editorIsCollapsed ) {
     e.preventDefault && e.preventDefault();
     return;
   }

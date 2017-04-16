@@ -40,12 +40,22 @@ export default class MomentCardText extends React.Component {
 
   _forceFlag = false;
 
-  getStyle() {
+  getStyle(type) {
     const { scale } = this.props;
+    const isListItem = (
+      type === 'unordered-list-item' ||
+      type === 'ordered-list-item'
+    );
     return {
+      fontSize: '.65em',
       fontWeight: 300,
-      lineHeight: 1.2,
+      lineHeight: 1.4,
       minHeight : '1.2em',
+      paddingLeft: 40,
+      paddingRight: 40,
+      display:isListItem
+        ? 'list-item'
+        : 'inline-block',
     };
   }
 
@@ -66,61 +76,47 @@ export default class MomentCardText extends React.Component {
     }
   }
 
+  renderGroups(key, groups) {
+    const { position, total, editorState } = this.props;
+    return groups.map(({ text, style }, i) => <MomentCardTextSpan
+      key={i}
+      id={key}
+      position={position}
+      group={i}
+      total={total}
+      spans={groups.length}
+      text={text}
+      style={style}
+      editorState={editorState}
+    />)
+  }
+
   render() {
 
-    const {
-      position,
-      block,
-      total,
-      editorState,
-    } = this.props;
-
+    const { position, block } = this.props;
     const { key, type, data, styles } = block;
 
-    const style = this.getStyle();
+    const style = this.getStyle(type);
     const groups = collection(block);
 
-    const className = [ 'base' ];
+    const props = {
+      key: this._forceFlag
+        ? 'A'
+        : 'B',
+      style,
+      'aria-label': 'moment-card-block',
+      'data-offset-key': key,
+      'data-offset-position': position,
+    };
+
     switch ( type ) {
       case 'unordered-list-item':
-        className.push('base-unordered-item');
-        break;
       case 'ordered-list-item':
-        className.push('base-ordered-item');
-        break;
+        return <li { ...props }><p style={{ display: 'inline-block', verticalAlign: 'top' }}>{ this.renderGroups(key, groups) }</p></li>;
+      default:
+        return <div { ...props }>{ this.renderGroups(key, groups) }</div>;
     }
 
-    return <div key={this._forceFlag ? 'A' : 'B'} aria-label="moment-card-block" data-offset-key={key} data-offset-position={position} className={className.join(' ')} style={style}>
-      <style jsx>{`
-        .base {
-          font-size: .9em;
-          padding-left: 20px;
-          padding-right: 20px;
-          display: inline-block;
-        }
-        .base-unordered-item {
-          display: list-item;
-          list-style-type: disc;
-          list-style-position: inside;
-        }
-        .base-ordered-item {
-          display: list-item;
-          list-style-type: decimal;
-          list-style-position: inside;
-        }
-      `}</style>
-      { groups.map(({ text, style }, i) => <MomentCardTextSpan
-        key={i}
-        id={key}
-        position={position}
-        group={i}
-        total={total}
-        spans={groups.length}
-        text={text}
-        style={style}
-        editorState={editorState}
-      />) }
-    </div>;
   }
 
 }

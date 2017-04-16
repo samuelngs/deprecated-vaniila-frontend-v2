@@ -68,7 +68,56 @@ export default function onTextDeleteCollapsed() {
   let text;
   let styles = [ ];
 
+  if ( textLength === 0 && blockIndex === 0 ) {
+
+    if ( block.type !== 'unstyled' ) {
+      block.type = 'unstyled';
+      return Promise.resolve(onChange(id, clone)).then(_ => {
+        return dispatch(api.setEditorState(root, {
+          anchorKey         : editorStartKey,
+          anchorGroup       : editorStartGroup,
+          anchorOffset      : editorStartOffset,
+          focusKey          : editorStartKey,
+          focusGroup        : editorStartGroup,
+          focusOffset       : editorStartOffset,
+          selectionRecovery : true,
+        }));
+      });
+    }
+
+    const { editorHistories } = getState();
+    const { present: doc } = editorHistories[root] || { };
+    const moments = doc && doc.data && doc.data.slides || { };
+    const ids = Object.keys(moments);
+    if ( ids.length > 1 ) {
+      ids.sort((a, b) => moments[a].order - moments[b].order);
+      const idx = ids.indexOf(id);
+      const key = ids[idx + ( idx === 0 ? 1 : -1 )];
+      if ( !key ) return;
+      dispatch(api.setEditorState(root, {
+        nextId: key,
+      }));
+      return onChange(id, undefined);
+    }
+    return;
+  }
+
   if ( affactedLength === 0 && blockIndex > 0 ) {
+
+    if ( block.type !== 'unstyled' ) {
+      block.type = 'unstyled';
+      return Promise.resolve(onChange(id, clone)).then(_ => {
+        return dispatch(api.setEditorState(root, {
+          anchorKey         : editorStartKey,
+          anchorGroup       : editorStartGroup,
+          anchorOffset      : editorStartOffset,
+          focusKey          : editorStartKey,
+          focusGroup        : editorStartGroup,
+          focusOffset       : editorStartOffset,
+          selectionRecovery : true,
+        }));
+      });
+    }
 
     const targetBlock = clone.data.blocks[blockIndex - 1];
     const targetStartOffset = targetBlock.data.length;
@@ -116,6 +165,7 @@ export default function onTextDeleteCollapsed() {
     });
   }
 
+
   text = `${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
   styles = [ ];
 
@@ -137,7 +187,6 @@ export default function onTextDeleteCollapsed() {
 
   block.data = text;
   block.styles = styles;
-  if ( text.length === 0 && block.type !== 'unstyled' ) block.type = 'unstyled';
 
   shiftLeft && dispatch(api.setEditorState(root, {
     anchorKey         : editorStartKey,

@@ -11,11 +11,11 @@ export default function onCopy(e) {
   const { editorIsCollapsed } = getState().editorStates[root];
 
   // single selection, ignore copy action
-  if ( !editorIsCollapsed ) {
+  if ( editorIsCollapsed ) {
     e.preventDefault && e.preventDefault();
     return;
   }
 
-  this.emit('edit', 'copy', state);
+  this.emit('edit', 'copy');
 
 }

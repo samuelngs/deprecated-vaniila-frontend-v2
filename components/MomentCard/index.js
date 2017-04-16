@@ -7,6 +7,9 @@ import { MomentEditHandler, MomentCompositionHandler, defaultState } from './han
 import MomentEditorHook from './hooks';
 import MomentCardText from '../MomentCardText';
 
+import { analyze } from '../MomentCardText/utils';
+import { api } from '../../reducers/editor';
+
 export default class MomentCard extends React.Component {
 
   static contextTypes = {
@@ -25,6 +28,7 @@ export default class MomentCard extends React.Component {
     editable    : PropTypes.bool,
     moment      : PropTypes.object,
     editorState : PropTypes.object,
+    onShortcut  : PropTypes.func,
     onChange    : PropTypes.func,
   }
 
@@ -47,12 +51,52 @@ export default class MomentCard extends React.Component {
       style     : { },
     },
     editorState : { },
+    onShortcut  : _ => null,
     onChange    : _ => null,
   }
 
   componentDidMount() {
     this.override();
     this.bind();
+    this.shouldAutoFocus();
+  }
+
+  componentDidUpdate() {
+    this.shouldAutoFocus();
+  }
+
+  shouldAutoFocus() {
+    const {
+      props   : { root, id, moment, editorState: { editorNextMoment } },
+      context : { store: { dispatch } },
+    } = this;
+    if ( editorNextMoment && id === editorNextMoment ) {
+      const blocks = (moment && moment.data && moment.data.blocks) || [ ];
+      const update = {
+        id,
+        nextId: null,
+      };
+      const block = blocks[blocks.length - 1];
+      const groups = analyze(block);
+      if ( block ) {
+        update.anchorKey         = block.key;
+        update.anchorGroup       = `${groups.length - 1}`;
+        update.anchorOffset      = groups[groups.length - 1].length;
+        update.focusKey          = block.key;
+        update.focusGroup        = `${groups.length - 1}`;
+        update.focusOffset       = groups[groups.length - 1].length;
+        update.selectionRecovery = true;
+      }
+      this
+        .focus()
+        .then(_ => dispatch(api.setEditorState(root, update)))
+    }
+  }
+
+  focus() {
+    return new Promise(resolve => {
+      return resolve(this.n && this.n.focus());
+    });
   }
 
   override() {
@@ -89,16 +133,18 @@ export default class MomentCard extends React.Component {
    * trigger when receiving event from edit handler
    */
   contextReceiveEdit(event, data) {
-    const { editorState } = this.props;
+    const { editorState, onShortcut } = this.props;
     switch ( event ) {
       case 'insert-character':
         return MomentEditorHook.onTextInsert.call(this, data);
-      case 'delete-character':
-        return MomentEditorHook.onTextDelete.call(this);
       case 'insert-newline':
         return MomentEditorHook.onNewLine.call(this);
+      case 'delete-character':
+        return MomentEditorHook.onTextDelete.call(this);
       case 'style':
         return MomentEditorHook.onStyle.call(this, data);
+      case 'append-moment':
+        return onShortcut('append-moment');
     }
   }
 
@@ -144,6 +190,53 @@ export default class MomentCard extends React.Component {
       fontWeight: 300,
       lineHeight: 1.2,
     };
+  }
+
+  /**
+   *
+   */
+  renderBlocks(blocks) {
+
+    const { scale, editmode, editable, editorState } = this.props;
+
+    const groups = [ ];
+    for ( let i = 0; i < blocks.length; i++ ) {
+      const block = blocks[i];
+      const { key, type } = block;
+
+      switch ( type ) {
+        case 'unstyled':
+          groups.push(
+            this.renderBlock(blocks, blocks[i], i)
+          );
+          break;
+        case 'unordered-list-item':
+          const unorderedList = [ ];
+          while ( i < blocks.length && blocks[i].type === 'unordered-list-item' ) {
+            unorderedList.push(
+              this.renderBlock(blocks, blocks[i], i)
+            );
+            i++;
+          }
+          groups.push(<ul key={groups.length - 1} style={{ paddingLeft: 50 }}>{ unorderedList }</ul>);
+          i--;
+          break;
+        case 'ordered-list-item':
+          const orderedList = [ ];
+          while ( i < blocks.length && blocks[i].type === 'ordered-list-item' ) {
+            orderedList.push(
+              this.renderBlock(blocks, blocks[i], i)
+            );
+            i++;
+          }
+          groups.push(<ol key={groups.length - 1} style={{ paddingLeft: '2.1em' }}>{ orderedList }</ol>);
+          i--;
+          break;
+      }
+    }
+
+    return groups;
+
   }
 
   /**
@@ -228,17 +321,20 @@ export default class MomentCard extends React.Component {
       `}</style>
       <div
         { ...handlers }
+        ref={n => this.n = n}
         className={cover ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
         aria-label="moment-content"
+        data-moment-contenteditable={id}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
         contentEditable={editmode}
+        autoFocus={editmode}
         suppressContentEditableWarning={true}
         style={contentStyle}
       >
-        { blocks.map((block, i) => this.renderBlock(blocks, block, i)) }
+        { this.renderBlocks(blocks) }
       </div>
     </article>;
   }

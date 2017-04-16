@@ -81,6 +81,7 @@ export default function onTextDeleteCollapsed() {
           focusGroup        : editorStartGroup,
           focusOffset       : editorStartOffset,
           selectionRecovery : true,
+          selectionCollapsed: false,
         }));
       });
     }
@@ -115,6 +116,7 @@ export default function onTextDeleteCollapsed() {
           focusGroup        : editorStartGroup,
           focusOffset       : editorStartOffset,
           selectionRecovery : true,
+          selectionCollapsed: false,
         }));
       });
     }
@@ -161,6 +163,7 @@ export default function onTextDeleteCollapsed() {
         focusGroup        : `${recoveryGroup}`,
         focusOffset       : recoveryOffset,
         selectionRecovery : true,
+        selectionCollapsed: false,
       }));
     });
   }
@@ -196,6 +199,7 @@ export default function onTextDeleteCollapsed() {
     focusGroup        : `${startOffsetGroup - 1}`,
     focusOffset       : blockStyleGroups[startOffsetGroup - 1].length,
     selectionRecovery : true,
+    selectionCollapsed: false,
   }));
 
   shiftHead && dispatch(api.setEditorState(root, {
@@ -206,6 +210,7 @@ export default function onTextDeleteCollapsed() {
     focusGroup        : '0',
     focusOffset       : 0,
     selectionRecovery : true,
+    selectionCollapsed: false,
   }));
 
   return onChange(id, clone);

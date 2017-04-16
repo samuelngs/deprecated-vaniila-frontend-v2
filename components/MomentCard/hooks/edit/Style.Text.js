@@ -7,7 +7,7 @@ import { api } from '../../../../reducers/editor';
 
 import onStyleBulletText from './Style.Text.Bullet';
 import onStyleNumberText from './Style.Text.Number';
-import onStyleBoldText from './Style.Text.Bold';
+import onStyleSimpleText from './Style.Text.Simple';
 
 function findActualOffset(group, groups, offset) {
   for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
@@ -101,26 +101,46 @@ export default function onTextStyle(type) {
     actualEndOffset,
   };
 
+  const defaultRecoveryPoint = {
+    recoveryStartKey: editorStartKey,
+    recoveryStartGroup: editorStartGroup,
+    recoveryStartOffset: editorStartOffset,
+    recoveryEndKey: editorEndKey,
+    recoveryEndGroup: editorEndGroup,
+    recoveryEndOffset: editorEndOffset,
+  };
+
+  let recoveryPoint;
+
   switch ( type ) {
     case 'unordered-list':
-      onStyleBulletText.call(this, calculated);
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleBulletText.call(this, calculated) }
       break;
     case 'ordered-list':
-      onStyleNumberText.call(this, calculated);
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleNumberText.call(this, calculated) }
       break;
     case 'bold':
-      onStyleBoldText.call(this, calculated);
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleText.call(this, calculated, 'BOLD') }
+      break;
+    case 'italic':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleText.call(this, calculated, 'ITALIC') }
+      break;
+    case 'strikethrough':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleText.call(this, calculated, 'STRIKETHROUGH') }
+      break;
+    default:
+      recoveryPoint = defaultRecoveryPoint;
       break;
   }
 
   return Promise.resolve(onChange(id, clone)).then(_ => {
     return dispatch(api.setEditorState(root, {
-      // anchorKey         : targetBlock.key,
-      // anchorGroup       : `${recoveryGroup}`,
-      // anchorOffset      : recoveryOffset,
-      // focusKey          : targetBlock.key,
-      // focusGroup        : `${recoveryGroup}`,
-      // focusOffset       : recoveryOffset,
+      anchorKey         : recoveryPoint.recoveryStartKey,
+      anchorGroup       : `${recoveryPoint.recoveryStartGroup}`,
+      anchorOffset      : recoveryPoint.recoveryStartOffset,
+      focusKey          : recoveryPoint.recoveryEndKey,
+      focusGroup        : `${recoveryPoint.recoveryEndGroup}`,
+      focusOffset       : recoveryPoint.recoveryEndOffset,
       selectionRecovery : true,
     }));
   });

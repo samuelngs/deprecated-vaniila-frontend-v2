@@ -83,6 +83,7 @@ const defaults = {
     selectionWidth: undefined,
 
     selectionRecovery: undefined,
+    selectionCollapsed: undefined,
 
     focus: undefined,
 
@@ -127,6 +128,7 @@ function hookSetEditorState(states, { id, options: opts }, store) {
   conditionUpdateOrdering(state, present, opts);
   conditionUpdateSelectionPosition(state, present, opts);
   conditionUpdateSelectionRecovery(state, present, opts);
+  conditionUpdateSelectionCollapsed(state, present, opts);
   conditionUpdateFocus(state, present, opts);
   conditionUpdateCompositionMode(state, present, opts);
   conditionUpdateCompositionResolved(state, present, opts);
@@ -309,6 +311,12 @@ function conditionUpdateSelectionRecovery(state, doc, opts) {
   const { selectionRecovery } = opts;
   if ( typeof selectionRecovery !== 'boolean' ) return;
   state.editorSelectionRecovery = selectionRecovery;
+}
+
+function conditionUpdateSelectionCollapsed(state, doc, opts) {
+  const { selectionCollapsed } = opts;
+  if ( typeof selectionCollapsed !== 'boolean' ) return;
+  state.editorIsCollapsed = selectionCollapsed;
 }
 
 function conditionUpdateFocus(state, doc, opts) {

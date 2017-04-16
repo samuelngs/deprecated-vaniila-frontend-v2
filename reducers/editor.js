@@ -14,6 +14,9 @@ const defaults = {
     // editor moment
     editorMoment: null,
 
+    // editor next moment
+    editorNextMoment: null,
+
     // selection start point (usually the anchor point)
     editorStartKey: null,
     editorStartGroup: null,
@@ -62,6 +65,7 @@ const defaults = {
   options: {
 
     id: undefined,
+    nextId: undefined,
 
     anchorKey: undefined,
     anchorGroup: undefined,
@@ -117,6 +121,7 @@ function hookSetEditorState(states, { id, options: opts }, store) {
 
   // update state
   conditionReset(state, present, opts);
+  conditionUpdateNext(state, present, opts);
   conditionUpdateAnchorPoint(state, present, opts);
   conditionUpdateFocusPoint(state, present, opts);
   conditionUpdateOrdering(state, present, opts);
@@ -140,6 +145,12 @@ function conditionReset(state, doc, opts) {
     }
     state.editorMoment = id;
   }
+}
+
+function conditionUpdateNext(state, doc, opts) {
+  const { nextId } = opts;
+  if ( typeof nextId !== 'string' ) return;
+  state.editorNextMoment = nextId;
 }
 
 function conditionUpdateAnchorPoint(state, doc, opts) {

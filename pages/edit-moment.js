@@ -140,11 +140,18 @@ class EditMoment extends React.Component {
     // patch clone
     clone.data || (clone.data = { });
     clone.data.slides || (clone.data.slides = { });
-    clone.data.slides[moment] = state;
+
+    const remove = typeof state === 'undefined';
+
+    if ( remove ) {
+      delete clone.data.slides[moment];
+    } else {
+      clone.data.slides[moment] = state;
+    }
 
     // prepare websocket payload for 'update' event
     const payload = {
-      action  : 'update',
+      action  : remove ? 'delete' : 'update',
       username,
       plotname,
       time    : new Date(),
@@ -152,6 +159,14 @@ class EditMoment extends React.Component {
         [moment]: state,
       },
     };
+
+    if ( remove ) {
+      payload.slidekey = moment;
+    } else {
+      payload.slides = {
+        [moment]: state,
+      };
+    }
 
     if ( process.env.NODE_ENV !== 'production' ) {
       return dispatch(historiesReducerApi.updateState(id, clone))
@@ -178,6 +193,7 @@ class EditMoment extends React.Component {
 
     // generate moment id
     const name = `${UUID.v4()}`;
+    const block = `${UUID.v4()}`;
     const order = (() => {
       let max = 0;
       ids.forEach(id => {
@@ -202,7 +218,7 @@ class EditMoment extends React.Component {
           data  : {
             blocks: [
               {
-                key   : `${UUID.v4()}`,
+                key   : block,
                 type  : 'unstyled',
                 data  : '',
                 styles: [ ],
@@ -216,7 +232,10 @@ class EditMoment extends React.Component {
     };
 
     // create moment
-    this.emit(payload).then(_ => this.latest());
+    return this.emit(payload).then(_ => {
+      this.latest();
+      return { name, block };
+    });
   }
 
   render () {

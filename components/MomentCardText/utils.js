@@ -1,15 +1,28 @@
 
+const blockTypeWhiteList = [
+  'unordered-list-item',
+  'ordered-list-item',
+  'unstyled',
+];
+
 function getSimplifiedStyle(block) {
 
   const clone = Array.isArray(block.styles) ? [ ...block.styles ] : [ ];
+  const data = block.data || '';
   clone.sort((a, b) => a.offset - b.offset);
 
   let styles = [ ];
   const refs = { };
 
+  if ( blockTypeWhiteList.indexOf(block.type) === -1 ) {
+    return styles;
+  }
+
   if ( Array.isArray(clone) ) {
-    for ( const [ i, { style } ] of clone.entries() ) {
+    for ( const [ i, { offset, length, style } ] of clone.entries() ) {
       if ( !style ) continue;
+      if ( length < 0 || offset + length > data.length ) continue;
+      if ( offset < 0 || offset > data.length ) continue;
       refs[style] = (refs[style] || [ ]);
       refs[style].push(i);
     }

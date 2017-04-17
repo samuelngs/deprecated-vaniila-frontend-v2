@@ -3,7 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { scrollToLeft } from '../Scroller';
-import MomentCard from '../MomentCard';
+
+import EditorMomentCards from '../EditorMomentCards';
 import EditorContextualToolBar from '../EditorContextualToolbar';
 
 import { api } from '../../reducers/editor';
@@ -44,8 +45,6 @@ export default class EditorStoryboard extends React.Component {
     mouseX: 0,
     originalPosOfLastPressed: 0,
   }
-
-  cards = { }
 
   doc() {
     const { doc } = this.props;
@@ -118,27 +117,16 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('mouseup', this.handleMouseUp);
   }
 
-  onMomentShortcut(type) {
-    const { onMomentCreate } = this.props;
-    switch ( type ) {
-      case 'append-moment':
-        return onMomentCreate().then(({ name, block }) => {
-          const { id } = this.props;
-          const { store: { dispatch } } = this.context;
-          return dispatch(api.setEditorState(id, {
-            nextId: name,
-          }));
-        });
-    }
-  }
-
-  onContextualMenuPress(type) {
+  onContextualMenuPress(action) {
     const { editorState: { editorMoment } } = this.props;
-    this.cards[editorMoment] && this.cards[editorMoment].contextReceiveEvent && this.cards[editorMoment].contextReceiveEvent('edit', 'style', type);
+    this.cards && this.cards.emit(editorMoment, 'edit', 'style', action);
   }
 
   onContextualMenuOverride(e) {
-    e.target.hasAttribute('data-contextual-menu') && e.preventDefault && e.preventDefault();
+    (
+     e.target.hasAttribute('data-contextual-menu') ||
+     e.target.hasAttribute('data-controls')
+    ) && e.preventDefault && e.preventDefault();
   }
 
   handleTouchUp(e) {
@@ -209,10 +197,6 @@ export default class EditorStoryboard extends React.Component {
     }, 750);
   }
 
-  getListStyle(numOfMoments) {
-    return { }
-  }
-
   getMomentStyle(count) {
     const { windowSize } = this.props;
     let itemWidth = windowSize.width - 40.0;
@@ -237,10 +221,31 @@ export default class EditorStoryboard extends React.Component {
   }
 
   render() {
-    const { id: root, editorState, windowSize, onMomentCreate, onMomentChange } = this.props;
-    const { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } = editorState;
-    const { ids, count, moments } = this.doc();
-    const { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding } = this.getMomentStyle(ids.length);
+
+    const {
+      id,
+      editorState,
+      windowSize,
+      onMomentCreate,
+      onMomentChange,
+    } = this.props;
+
+    const {
+      ids,
+      count,
+      moments,
+    } = this.doc();
+
+    const {
+      itemWidth,
+      itemHeight,
+      itemPadding,
+      itemRatio,
+      listWidth,
+      listHeight,
+      listPadding,
+    } = this.getMomentStyle(ids.length);
+
     return <div ref={n => this.n = n} className="base" data-moments={true} onScroll={this.handleScroll}>
       <style jsx>{`
         .base {
@@ -251,31 +256,28 @@ export default class EditorStoryboard extends React.Component {
           overflow-y: hidden!important;
           align-items: center;
         }
-        .list {
-          position: relative;
-        }
       `}</style>
-      <EditorContextualToolBar root={root} editorState={editorState} windowSize={windowSize} onPress={::this.onContextualMenuPress} />
-      <div className="list" style={{ width: listWidth, minWidth: listWidth, height: listHeight, minHeight: listHeight, paddingLeft: listPadding }}>
-        <MomentCard cover={true} x={0} scale={itemRatio} width={itemWidth} height={itemHeight} editmode={true} />
-        { ids.map((id, i) =>
-          <MomentCard
-            ref={n => this.cards[id] = n}
-            key={id}
-            root={root}
-            id={id}
-            x={(i + 1) * itemWidth + (i + 1) * itemPadding}
-            scale={itemRatio}
-            width={itemWidth}
-            height={itemHeight}
-            editmode={true}
-            moment={moments[id]}
-            editorState={editorState}
-            onShortcut={::this.onMomentShortcut}
-            onChange={onMomentChange}
-          />
-        ) }
-      </div>
+      <EditorContextualToolBar
+        root={id}
+        editorState={editorState}
+        windowSize={windowSize}
+        onPress={::this.onContextualMenuPress}
+      />
+      <EditorMomentCards
+        ref={n => this.cards = n}
+        id={id}
+        ids={ids}
+        count={count}
+        moments={moments}
+        size={{
+          list  : { width: listWidth, height: listHeight, padding: listPadding },
+          card  : { width: itemWidth, height: itemHeight, padding: itemPadding, ratio: itemRatio },
+          screen: { width: windowSize.width, height: windowSize.height },
+        }}
+        state={editorState}
+        onCreate={onMomentCreate}
+        onChange={onMomentChange}
+      />
     </div>;
   }
 

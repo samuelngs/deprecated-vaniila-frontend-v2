@@ -27,7 +27,7 @@ export default function onBlur(e) {
 
   if ( !editorHasFocus ) return;
 
-  dispatch(api.setEditorState(root, { id: '', focus: false })).then(state => {
+  dispatch(api.setEditorState(root, { focus: false })).then(state => {
     this.emit('edit', 'blur', state);
   });
 

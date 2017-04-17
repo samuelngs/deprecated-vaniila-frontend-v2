@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 import { MomentEditHandler, MomentCompositionHandler, defaultState } from './handlers';
 import MomentEditorHook from './hooks';
+import MomentCardControls from '../MomentCardControls';
 import MomentCardText from '../MomentCardText';
 
 import { analyze } from '../MomentCardText/utils';
@@ -20,6 +21,10 @@ export default class MomentCard extends React.Component {
     root        : PropTypes.string,
     id          : PropTypes.string,
     x           : PropTypes.number,
+    y           : PropTypes.number,
+    no          : PropTypes.number,
+    total       : PropTypes.number,
+    opacity     : PropTypes.number,
     scale       : PropTypes.number,
     width       : PropTypes.number,
     height      : PropTypes.number,
@@ -28,7 +33,7 @@ export default class MomentCard extends React.Component {
     editable    : PropTypes.bool,
     moment      : PropTypes.object,
     editorState : PropTypes.object,
-    onShortcut  : PropTypes.func,
+    onCreate    : PropTypes.func,
     onChange    : PropTypes.func,
   }
 
@@ -36,6 +41,10 @@ export default class MomentCard extends React.Component {
     root        : '',
     id          : '',
     x           : 0,
+    y           : 0,
+    no          : 0,
+    total       : 0,
+    opacity     : 1,
     scale       : 1,
     width       : 0,
     height      : 0,
@@ -51,7 +60,7 @@ export default class MomentCard extends React.Component {
       style     : { },
     },
     editorState : { },
-    onShortcut  : _ => null,
+    onCreate    : _ => null,
     onChange    : _ => null,
   }
 
@@ -133,8 +142,10 @@ export default class MomentCard extends React.Component {
    * trigger when receiving event from edit handler
    */
   contextReceiveEdit(event, data) {
-    const { editorState, onShortcut } = this.props;
+    const { editorState, onCreate } = this.props;
     switch ( event ) {
+      case 'media-upload':
+        return MomentEditorHook.onImageInsert.call(this, data);
       case 'insert-character':
         return MomentEditorHook.onTextInsert.call(this, data);
       case 'insert-newline':
@@ -143,8 +154,14 @@ export default class MomentCard extends React.Component {
         return MomentEditorHook.onTextDelete.call(this);
       case 'style':
         return MomentEditorHook.onStyle.call(this, data);
+      case 'align-moment':
+        return MomentEditorHook.onAlign.call(this);
       case 'append-moment':
-        return onShortcut('append-moment');
+        return onCreate().then(({ name, block }) => {
+          const { root } = this.props;
+          const { store: { dispatch } } = this.context;
+          return dispatch(api.setEditorState(root, { nextId: name }));
+        });
     }
   }
 
@@ -153,6 +170,10 @@ export default class MomentCard extends React.Component {
       case 'insert-character':
         return MomentEditorHook.onTextInsert.call(this, data);
     }
+  }
+
+  handleControlAction(event, data) {
+    return this.contextReceiveEvent('edit', event, data);
   }
 
   /**
@@ -167,11 +188,12 @@ export default class MomentCard extends React.Component {
    * get card style
    */
   getCardStyle() {
-    const { width, height, x } = this.props;
+    const { width, height, x, y, opacity } = this.props;
     return {
       width,
       height,
-      transform: `translate3d(${x}px, 0px, 0px) scale(1)`,
+      opacity,
+      transform: `translate3d(${x}px, ${y}px, 0px) scale(1)`,
     };
   }
 
@@ -193,7 +215,7 @@ export default class MomentCard extends React.Component {
   }
 
   /**
-   *
+   * render blocks
    */
   renderBlocks(blocks) {
 
@@ -285,8 +307,9 @@ export default class MomentCard extends React.Component {
    * render component view
    */
   render() {
-    const { id, scale, cover, editmode, editable, moment, editorState } = this.props;
+    const { id, no, total, scale, cover, editmode, editable, moment, editorState } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
+    const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
@@ -304,7 +327,6 @@ export default class MomentCard extends React.Component {
           transition: box-shadow ease .2s;
           position: absolute;
           display: flex;
-          overflow: hidden;
         }
         .base-dragging {
           box-shadow: rgba(0, 0, 0, 0.2) 0px 16px 32px 0px;
@@ -334,10 +356,17 @@ export default class MomentCard extends React.Component {
           word-wrap: break-word;
         }
       `}</style>
+      <MomentCardControls
+        no={no}
+        total={total}
+        editmode={editmode && !cover}
+        active={id === editorMoment}
+        onAction={::this.handleControlAction}
+      />
       <div
         { ...handlers }
         ref={n => this.n = n}
-        className={cover ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
+        className={cover || align === 1 ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
         aria-label="moment-content"
         data-moment-contenteditable={id}
         autoComplete="off"

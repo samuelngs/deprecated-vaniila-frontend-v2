@@ -226,6 +226,7 @@ class EditMoment extends React.Component {
             ]
           },
           style : { },
+          align : 0,
           order,
         },
       },

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 import { TransitionMotion, spring, presets } from 'react-motion';
 
+import Tooltip from '../Tooltip';
 import EditorContextualToolbarBold from '../EditorContextualToolbarBold';
 import EditorContextualToolbarItalic from '../EditorContextualToolbarItalic';
 import EditorContextualToolbarStrikethrough from '../EditorContextualToolbarStrikethrough';
@@ -124,6 +125,8 @@ export default class EditorContextualToolBar extends React.Component {
           white-space: nowrap;
           z-index: 10;
         }
+      `}</style>
+      <style jsx global>{`
         .contextual-toolbar-button:first-child { margin-left: 5px; }
         .contextual-toolbar-button:last-child { margin-right: 5px; }
         .contextual-toolbar-button {
@@ -163,34 +166,34 @@ export default class EditorContextualToolBar extends React.Component {
           border-right: 1px solid #000;
         }
       `}</style>
-      <button className="contextual-toolbar-button" data-contextual-menu={true} onClick={_ => this.handlePress('bold')}>
+      <Tooltip tag="button" className="contextual-toolbar-button" title="Bold" position="top" data-contextual-menu onClick={_ => this.handlePress('bold')}>
         <EditorContextualToolbarBold />
-      </button>
-      <button className="contextual-toolbar-button" data-contextual-menu={true} onClick={_ => this.handlePress('italic')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button" title="Italic" position="top" data-contextual-menu onClick={_ => this.handlePress('italic')}>
         <EditorContextualToolbarItalic />
-      </button>
-      <button className="contextual-toolbar-button" data-contextual-menu={true} onClick={_ => this.handlePress('strikethrough')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button" title="Strikethrough" position="top" data-contextual-menu onClick={_ => this.handlePress('strikethrough')}>
         <EditorContextualToolbarStrikethrough />
-      </button>
-      <button className="contextual-toolbar-button contextual-toolbar-button-list" data-contextual-menu={true} onClick={_ => this.handlePress('unordered-list')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button contextual-toolbar-button-list" title="Bulleted list" position="top" data-contextual-menu onClick={_ => this.handlePress('unordered-list')}>
         <EditorContextualToolbarBullet />
-      </button>
-      <button className="contextual-toolbar-button contextual-toolbar-button-list" data-contextual-menu={true} onClick={_ => this.handlePress('ordered-list')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button contextual-toolbar-button-list" title="Numbered list" position="top" data-contextual-menu onClick={_ => this.handlePress('ordered-list')}>
         <EditorContextualToolbarNumber />
-      </button>
-      <button className="contextual-toolbar-button contextual-toolbar-button-title" data-contextual-menu={true} onClick={_ => this.handlePress('h1')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button contextual-toolbar-button-title" title="Large header" position="top" data-contextual-menu onClick={_ => this.handlePress('h1')}>
         <EditorContextualToolbarH1 />
-      </button>
-      <button className="contextual-toolbar-button contextual-toolbar-button-subtitle" data-contextual-menu={true} onClick={_ => this.handlePress('h2')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button contextual-toolbar-button-title" title="Medium header" position="top" data-contextual-menu onClick={_ => this.handlePress('h2')}>
         <EditorContextualToolbarH2 />
-      </button>
+      </Tooltip>
       <div className="contextual-toolbar-separator" data-contextual-menu={true} />
-      <button className="contextual-toolbar-button" data-contextual-menu={true} onClick={_ => this.handlePress('quote')}>
+      <Tooltip tag="button" className="contextual-toolbar-button" title="Quote" position="top" data-contextual-menu onClick={_ => this.handlePress('quote')}>
         <EditorContextualToolbarQuote />
-      </button>
-      <button className="contextual-toolbar-button" data-contextual-menu={true} onClick={_ => this.handlePress('code')}>
+      </Tooltip>
+      <Tooltip tag="button" className="contextual-toolbar-button" title="Code" position="top" data-contextual-menu onClick={_ => this.handlePress('code')}>
         <EditorContextualToolbarCode />
-      </button>
+      </Tooltip>
     </div>;
   }
 

@@ -1,5 +1,5 @@
 
-export default function onStyleBulletText(calculated) {
+export default function onStyleTextBlock(calculated, TYPE_NAME) {
 
   const {
     blocks,
@@ -12,31 +12,33 @@ export default function onStyleBulletText(calculated) {
   } = calculated;
 
   if ( isBlocksEqual ) {
-    if ( blocks[startBlockIndex].type === 'unordered-list-item' ) {
+    if ( blocks[startBlockIndex].type === TYPE_NAME ) {
       blocks[startBlockIndex].type = 'unstyled';
     } else {
-      blocks[startBlockIndex].type = 'unordered-list-item';
+      blocks[startBlockIndex].type = TYPE_NAME;
     }
     return;
   }
 
-  let allUnordered = true;
+  let allOrdered = true;
   for ( let i = startBlockIndex; i <= endBlockIndex; i++ ) {
     const { type } = blocks[i];
-    if ( type !== 'unordered-list-item' ) {
-      allUnordered = false;
+    if ( type !== TYPE_NAME ) {
+      allOrdered = false;
       break;
     }
   }
 
   for ( let i = startBlockIndex; i <= endBlockIndex; i++ ) {
-    blocks[i].type = allUnordered
+    blocks[i].type = allOrdered
       ? (
-        blocks[i].type === 'unordered-list-item'
+        blocks[i].type === TYPE_NAME
         ? 'unstyled'
-        : 'unordered-list-item'
+        : TYPE_NAME
       )
-      : 'unordered-list-item';
+      : TYPE_NAME;
   }
 
 }
+
+

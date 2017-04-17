@@ -144,7 +144,7 @@ export default function onTextDeleteSelection() {
         focusGroup        : `${recoveryGroup}`,
         focusOffset       : recoveryOffset,
         selectionRecovery : true,
-        selectionCollapsed: false,
+        selectionCollapsed: true,
       }));
     });
 
@@ -212,7 +212,7 @@ export default function onTextDeleteSelection() {
       focusGroup        : `${recoveryGroup}`,
       focusOffset       : recoveryOffset,
       selectionRecovery : true,
-      selectionCollapsed: false,
+      selectionCollapsed: true,
     }));
   });
 

@@ -5,8 +5,7 @@ import { analyze, simplify } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
-import onStyleBulletText from './Style.Text.Bullet';
-import onStyleNumberText from './Style.Text.Number';
+import onStyleSimpleBlock from './Style.Text.Block';
 import onStyleSimpleText from './Style.Text.Simple';
 
 function findActualOffset(group, groups, offset) {
@@ -114,10 +113,22 @@ export default function onTextStyle(type) {
 
   switch ( type ) {
     case 'unordered-list':
-      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleBulletText.call(this, calculated) }
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'unordered-list-item') }
       break;
     case 'ordered-list':
-      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleNumberText.call(this, calculated) }
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'ordered-list-item') }
+      break;
+    case 'code':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'code') }
+      break;
+    case 'h1':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'header-one') }
+      break;
+    case 'h2':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'header-two') }
+      break;
+    case 'quote':
+      recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleBlock.call(this, calculated, 'blockquote') }
       break;
     case 'bold':
       recoveryPoint = { ...defaultRecoveryPoint, ...onStyleSimpleText.call(this, calculated, 'BOLD') }

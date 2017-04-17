@@ -81,24 +81,26 @@ export default function onTextDeleteCollapsed() {
           focusGroup        : editorStartGroup,
           focusOffset       : editorStartOffset,
           selectionRecovery : true,
-          selectionCollapsed: false,
+          selectionCollapsed: true,
         }));
       });
     }
 
-    const { editorHistories } = getState();
-    const { present: doc } = editorHistories[root] || { };
-    const moments = doc && doc.data && doc.data.slides || { };
-    const ids = Object.keys(moments);
-    if ( ids.length > 1 ) {
-      ids.sort((a, b) => moments[a].order - moments[b].order);
-      const idx = ids.indexOf(id);
-      const key = ids[idx + ( idx === 0 ? 1 : -1 )];
-      if ( !key ) return;
-      dispatch(api.setEditorState(root, {
-        nextId: key,
-      }));
-      return onChange(id, undefined);
+    if ( blocks.length === 1 ) {
+      const { editorHistories } = getState();
+      const { present: doc } = editorHistories[root] || { };
+      const moments = doc && doc.data && doc.data.slides || { };
+      const ids = Object.keys(moments);
+      if ( ids.length > 1 ) {
+        ids.sort((a, b) => moments[a].order - moments[b].order);
+        const idx = ids.indexOf(id);
+        const key = ids[idx + ( idx === 0 ? 1 : -1 )];
+        if ( !key ) return;
+        dispatch(api.setEditorState(root, {
+          nextId: key,
+        }));
+        return onChange(id, undefined);
+      }
     }
     return;
   }
@@ -116,7 +118,7 @@ export default function onTextDeleteCollapsed() {
           focusGroup        : editorStartGroup,
           focusOffset       : editorStartOffset,
           selectionRecovery : true,
-          selectionCollapsed: false,
+          selectionCollapsed: true,
         }));
       });
     }
@@ -163,7 +165,7 @@ export default function onTextDeleteCollapsed() {
         focusGroup        : `${recoveryGroup}`,
         focusOffset       : recoveryOffset,
         selectionRecovery : true,
-        selectionCollapsed: false,
+        selectionCollapsed: true,
       }));
     });
   }
@@ -199,7 +201,7 @@ export default function onTextDeleteCollapsed() {
     focusGroup        : `${startOffsetGroup - 1}`,
     focusOffset       : blockStyleGroups[startOffsetGroup - 1].length,
     selectionRecovery : true,
-    selectionCollapsed: false,
+    selectionCollapsed: true,
   }));
 
   shiftHead && dispatch(api.setEditorState(root, {
@@ -210,7 +212,7 @@ export default function onTextDeleteCollapsed() {
     focusGroup        : '0',
     focusOffset       : 0,
     selectionRecovery : true,
-    selectionCollapsed: false,
+    selectionCollapsed: true,
   }));
 
   return onChange(id, clone);

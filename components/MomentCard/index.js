@@ -205,11 +205,6 @@ export default class MomentCard extends React.Component {
       const { key, type } = block;
 
       switch ( type ) {
-        case 'unstyled':
-          groups.push(
-            this.renderBlock(blocks, blocks[i], i)
-          );
-          break;
         case 'unordered-list-item':
           const unorderedList = [ ];
           while ( i < blocks.length && blocks[i].type === 'unordered-list-item' ) {
@@ -232,6 +227,22 @@ export default class MomentCard extends React.Component {
           groups.push(<ol key={groups.length - 1} style={{ paddingLeft: '2.1em' }}>{ orderedList }</ol>);
           i--;
           break;
+        case 'code':
+          const code = [ ];
+          while ( i < blocks.length && blocks[i].type === 'code' ) {
+            code.push(
+              this.renderBlock(blocks, blocks[i], i)
+            );
+            i++;
+          }
+          groups.push(<ol key={groups.length - 1} style={{ paddingLeft: '2.1em' }} className="code">{ code }</ol>);
+          i--;
+          break;
+        default:
+          groups.push(
+            this.renderBlock(blocks, blocks[i], i)
+          );
+          break;
       }
     }
 
@@ -249,6 +260,10 @@ export default class MomentCard extends React.Component {
 
     switch ( type ) {
       case 'unstyled':
+      case 'header-one':
+      case 'header-two':
+      case 'blockquote':
+      case 'code':
       case 'unordered-list-item':
       case 'ordered-list-item':
         return <MomentCardText

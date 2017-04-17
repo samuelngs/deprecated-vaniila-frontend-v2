@@ -1,8 +1,12 @@
 
 const blockTypeWhiteList = [
+  'unstyled',
+  'header-one',
+  'header-two',
+  'blockquote',
+  'code',
   'unordered-list-item',
   'ordered-list-item',
-  'unstyled',
 ];
 
 function getSimplifiedStyle(block) {
@@ -65,7 +69,7 @@ function getSimplifiedStyle(block) {
   return styles;
 }
 
-function getTextStyle(style) {
+function getTextStyle(style, type) {
   if ( !style || !Array.isArray(style) ) return null;
   let o;
   style.forEach(rule => {
@@ -86,7 +90,7 @@ function getTextStyle(style) {
         o['color'] = parts[1];
         break;
       case 'BOLD':
-        o['fontWeight'] = 500;
+        o['fontWeight'] = type === 'blockquote' ? 600 : 500;
         break;
     }
   });
@@ -117,7 +121,7 @@ function getTextCollection(block) {
     const group = groups[groups.length - 1];
     const character = text[i];
     if ( i === 0 ) {
-      groups.push({ text: character, style: getTextStyle(style) });
+      groups.push({ text: character, style: getTextStyle(style, block.type) });
       cache = style;
       continue;
     }
@@ -138,7 +142,7 @@ function getTextCollection(block) {
     if ( equal ) {
       group.text += character;
     } else {
-      groups.push({ text: character, style: getTextStyle(style) });
+      groups.push({ text: character, style: getTextStyle(style, block.type) });
     }
     cache = style;
   }

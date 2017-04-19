@@ -66,7 +66,7 @@ export default class MomentCardText extends React.Component {
     }
   }
 
-  getStyle(type) {
+  getStyle(data, type) {
     const { scale } = this.props;
     const isListItem = (
       type === 'unordered-list-item' ||
@@ -77,7 +77,8 @@ export default class MomentCardText extends React.Component {
       fontSize: this.getFontSize(type),
       fontWeight: this.getFontWeight(type),
       lineHeight: 1.4,
-      minHeight : '1.2em',
+      height: '1.4em',
+      minHeight : data.length === 0 ? '1.4em' : 'min-content',
       paddingLeft: 40,
       paddingRight: 40,
       display: isListItem
@@ -126,7 +127,7 @@ export default class MomentCardText extends React.Component {
     const { position, block } = this.props;
     const { key, type, data, styles } = block;
 
-    const style = this.getStyle(type);
+    const style = this.getStyle(data, type);
     const groups = collection(block);
 
     const props = {

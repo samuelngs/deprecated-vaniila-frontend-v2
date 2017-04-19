@@ -41,7 +41,15 @@ export default class MomentCardControls extends React.Component {
     }
     const promises = [].map.call(files, file => new Promise(resolve => {
       const reader = new FileReader();
-      reader.addEventListener('load', ({ currentTarget: { result: base64 } }) => resolve({ file, base64 }), false);
+      reader.addEventListener('load', ({ currentTarget: { result: base64 } }) => {
+        const img = new Image;
+        img.onload = e => resolve({
+          file,
+          base64,
+          dimensions: { height: img.height, width: img.width },
+        });
+        img.src = base64;
+      }, false);
       return reader.readAsDataURL(file);
     }));
     return Promise.all(promises).then(blobs => {

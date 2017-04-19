@@ -18,6 +18,7 @@ export default class EditorStoryboard extends React.Component {
   static propTypes = {
     id            : PropTypes.string,
     doc           : PropTypes.object,
+    files         : PropTypes.object,
     editorState   : PropTypes.object,
     windowSize    : PropTypes.shape({
       width       : PropTypes.number,
@@ -30,6 +31,7 @@ export default class EditorStoryboard extends React.Component {
   static defaultProps = {
     id            : '',
     doc           : { data: { slides: { } } },
+    files         : { },
     editorState   : { },
     windowSize    : {
       width       : typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -224,6 +226,7 @@ export default class EditorStoryboard extends React.Component {
 
     const {
       id,
+      files,
       editorState,
       windowSize,
       onMomentCreate,
@@ -275,6 +278,7 @@ export default class EditorStoryboard extends React.Component {
           screen: { width: windowSize.width, height: windowSize.height },
         }}
         state={editorState}
+        files={files}
         onCreate={onMomentCreate}
         onChange={onMomentChange}
       />

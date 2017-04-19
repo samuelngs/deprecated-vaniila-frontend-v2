@@ -1,6 +1,7 @@
 
 import onTextInsertCollapsed from './Insert.Collapsed';
 import onTextInsertReplace from './Insert.Replace';
+import onImageInsertHandler from './Insert.Image';
 
 export function onTextInsert(character) {
 
@@ -15,10 +16,6 @@ export function onTextInsert(character) {
 }
 
 export function onImageInsert(blobs) {
-
   if ( blobs.length === 0 ) return;
-
-  const { base64, file } = blobs[0];
-  const { name, size = 0 } = file;
-
+  return onImageInsertHandler.call(this, blobs[0]);
 }

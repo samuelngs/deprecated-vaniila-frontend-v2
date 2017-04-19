@@ -37,6 +37,7 @@ export default class EditorMomentCards extends React.Component {
     }),
     // editor state
     state           : PropTypes.object,
+    files           : PropTypes.object,
     // callbacks
     onCreate        : PropTypes.func,
     onChange        : PropTypes.func,
@@ -49,6 +50,7 @@ export default class EditorMomentCards extends React.Component {
     moments         : { },
     size            : { },
     state           : { },
+    files           : { },
     onCreate        : _ => null,
     onChange        : _ => null,
   }
@@ -94,6 +96,7 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       state,
+      files,
       size: { card: { width, height, padding, ratio: scale } },
       onCreate,
       onChange,
@@ -110,6 +113,7 @@ export default class EditorMomentCards extends React.Component {
         moment      : moments[id],
         editmode    : true,
         editorState : state,
+        files,
         onCreate,
         onChange,
       },
@@ -130,6 +134,7 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       state,
+      files,
       size: { card: { width, height, padding, ratio: scale } },
       onCreate,
       onChange,
@@ -146,6 +151,7 @@ export default class EditorMomentCards extends React.Component {
         moment      : moments[id],
         editmode    : true,
         editorState : state,
+        files,
         onCreate,
         onChange,
       },

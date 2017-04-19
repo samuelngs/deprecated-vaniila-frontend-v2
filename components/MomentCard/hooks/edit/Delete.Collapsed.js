@@ -2,6 +2,7 @@
 import { analyze, simplify } from '../../../MomentCardText/utils';
 import { api } from '../../../../reducers/editor';
 import deepClone from '../../../../utils/clone';
+import { isText, isMedia } from '../../types';
 
 function findActualOffset(group, groups, offset) {
   for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
@@ -70,7 +71,7 @@ export default function onTextDeleteCollapsed() {
 
   if ( textLength === 0 && blockIndex === 0 ) {
 
-    if ( block.type !== 'unstyled' ) {
+    if ( isText(block) && block.type !== 'unstyled' ) {
       block.type = 'unstyled';
       return Promise.resolve(onChange(id, clone)).then(_ => {
         return dispatch(api.setEditorState(root, {
@@ -107,7 +108,7 @@ export default function onTextDeleteCollapsed() {
 
   if ( affactedLength === 0 && blockIndex > 0 ) {
 
-    if ( block.type !== 'unstyled' ) {
+    if ( isText(block) && block.type !== 'unstyled' ) {
       block.type = 'unstyled';
       return Promise.resolve(onChange(id, clone)).then(_ => {
         return dispatch(api.setEditorState(root, {
@@ -126,6 +127,39 @@ export default function onTextDeleteCollapsed() {
     const targetBlock = clone.data.blocks[blockIndex - 1];
     const targetStartOffset = targetBlock.data.length;
 
+    if ( isMedia(targetBlock) ) {
+
+      if ( textLength === 0 ) {
+        blocks.splice(blockIndex - 1, 2);
+        return Promise.resolve(onChange(id, clone)).then(_ => {
+          return dispatch(api.setEditorState(root, {
+            anchorKey         : editorStartKey,
+            anchorGroup       : editorStartGroup,
+            anchorOffset      : editorStartOffset,
+            focusKey          : editorStartKey,
+            focusGroup        : editorStartGroup,
+            focusOffset       : editorStartOffset,
+            selectionRecovery : true,
+            selectionCollapsed: true,
+          }));
+        });
+      } else {
+        blocks.splice(blockIndex - 1, 1);
+        return Promise.resolve(onChange(id, clone)).then(_ => {
+          return dispatch(api.setEditorState(root, {
+            anchorKey         : editorStartKey,
+            anchorGroup       : editorStartGroup,
+            anchorOffset      : editorStartOffset,
+            focusKey          : editorStartKey,
+            focusGroup        : editorStartGroup,
+            focusOffset       : editorStartOffset,
+            selectionRecovery : true,
+            selectionCollapsed: true,
+          }));
+        });
+      }
+    }
+
     const mergeText = `${targetBlock.data}${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
 
     targetBlock.styles = (targetBlock.styles || [ ]);
@@ -137,7 +171,7 @@ export default function onTextDeleteCollapsed() {
 
     targetBlock.data = mergeText;
     targetBlock.styles = simplify(targetBlock);
-    if ( mergeText.length === 0 && targetBlock.type !== 'unstyled' ) targetBlock.type = 'unstyled';
+    if ( isText(targetBlock) && mergeText.length === 0 && targetBlock.type !== 'unstyled' ) targetBlock.type = 'unstyled';
 
     const targetBlockStyleGroups = analyze(targetBlock);
     let recoveryGroup = 0, recoveryOffset = 0;
@@ -216,5 +250,6 @@ export default function onTextDeleteCollapsed() {
   }));
 
   return onChange(id, clone);
+
 }
 

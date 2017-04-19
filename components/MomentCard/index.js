@@ -7,6 +7,7 @@ import { MomentEditHandler, MomentCompositionHandler, defaultState } from './han
 import MomentEditorHook from './hooks';
 import MomentCardControls from '../MomentCardControls';
 import MomentCardText from '../MomentCardText';
+import MomentCardImage from '../MomentCardImage';
 
 import { analyze } from '../MomentCardText/utils';
 import { api } from '../../reducers/editor';
@@ -32,6 +33,7 @@ export default class MomentCard extends React.Component {
     editmode    : PropTypes.bool,
     editable    : PropTypes.bool,
     moment      : PropTypes.object,
+    files       : PropTypes.object,
     editorState : PropTypes.object,
     onCreate    : PropTypes.func,
     onChange    : PropTypes.func,
@@ -59,6 +61,7 @@ export default class MomentCard extends React.Component {
       order     : 1,
       style     : { },
     },
+    files       : { },
     editorState : { },
     onCreate    : _ => null,
     onChange    : _ => null,
@@ -122,8 +125,13 @@ export default class MomentCard extends React.Component {
   bind() {
     const { contextReceiveEvent, props: { root, id }, context: { store } } = this;
     const context = { root, id, store, emit: contextReceiveEvent.bind(this) };
+
     this.editHandler = new MomentEditHandler(context);
     this.compositionHandler = new MomentCompositionHandler(context);
+
+    this.handleControlAction = this.handleControlAction.bind(this);
+    this.handleSelectAction = this.handleSelectAction.bind(this);
+
   }
 
   /**
@@ -174,6 +182,22 @@ export default class MomentCard extends React.Component {
 
   handleControlAction(event, data) {
     return this.contextReceiveEvent('edit', event, data);
+  }
+
+  handleSelectAction(key, type) {
+    const { root, editmode } = this.props;
+    const { store: { dispatch } } = this.context;
+    if ( !editmode ) return;
+    document.activeElement && document.activeElement.blur();
+    return dispatch(api.setEditorState(root, {
+      anchorKey         : key,
+      anchorGroup       : '0',
+      anchorOffset      : 0,
+      focusKey          : key,
+      focusGroup        : '0',
+      focusOffset       : 0,
+      selectionRecovery : false,
+    }));
   }
 
   /**
@@ -277,7 +301,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, editmode, editable, editorState } = this.props;
+    const { scale, editmode, editable, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -296,7 +320,21 @@ export default class MomentCard extends React.Component {
           scale={scale}
           editmode={editmode}
           editable={editable}
+          files={files}
           editorState={editorState}
+        />
+      case 'image':
+        return <MomentCardImage
+          key={key}
+          position={i}
+          block={block}
+          total={blocks.length}
+          scale={scale}
+          editmode={editmode}
+          editable={editable}
+          files={files}
+          editorState={editorState}
+          onSelect={this.handleSelectAction}
         />
       default:
         return null;
@@ -307,7 +345,7 @@ export default class MomentCard extends React.Component {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, editmode, editable, moment, editorState } = this.props;
+    const { id, no, total, scale, cover, editmode, editable, moment, editorState, width } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
@@ -339,16 +377,23 @@ export default class MomentCard extends React.Component {
           display: flex;
           flex: 1;
           flex-direction: column;
-          overflow: auto;
           outline: none;
           -webkit-user-modify: read-write-plaintext-only;
+        }
+        .base-inner {
+          margin: auto;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          display: flex;
+          overflow-y: auto;
+          flex-direction: column;
         }
         .base-vcenter {
           justify-content: center;
         }
         .base-hcenter {
           align-items: center;
-          text-aligin: center;
+          text-align: center;
         }
         .base-word {
           white-space: pre-wrap;
@@ -361,12 +406,12 @@ export default class MomentCard extends React.Component {
         total={total}
         editmode={editmode && !cover}
         active={id === editorMoment}
-        onAction={::this.handleControlAction}
+        onAction={this.handleControlAction}
       />
       <div
         { ...handlers }
         ref={n => this.n = n}
-        className={cover || align === 1 ? "base-content base-word base-vcenter base-hcenter" : "base-content base-word base-vcenter"}
+        className={cover || align === 1 ? "base-content base-word" : "base-content base-word"}
         aria-label="moment-content"
         data-moment-contenteditable={id}
         autoComplete="off"
@@ -378,7 +423,9 @@ export default class MomentCard extends React.Component {
         suppressContentEditableWarning={true}
         style={contentStyle}
       >
-        { this.renderBlocks(blocks) }
+        <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width }}>
+          { this.renderBlocks(blocks) }
+        </div>
       </div>
     </article>;
   }

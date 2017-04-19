@@ -36,8 +36,8 @@ class EditMoment extends React.Component {
     return { id, username, moment };
   }
 
-  static observe ({ authenticationToken, momentDocuments, editorHistories, editorStates, windowSize }) {
-    return { authenticationToken, momentDocuments, editorHistories, editorStates, windowSize };
+  static observe ({ authenticationToken, momentDocuments, editorHistories, editorStates, files, windowSize }) {
+    return { authenticationToken, momentDocuments, editorHistories, editorStates, files, windowSize };
   }
 
   state = {
@@ -240,7 +240,7 @@ class EditMoment extends React.Component {
   }
 
   render () {
-    const { id, username, moment, editorHistories, editorStates, windowSize } = this.props;
+    const { id, username, moment, editorHistories, editorStates, files, windowSize } = this.props;
     const { err, peers } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
@@ -269,6 +269,7 @@ class EditMoment extends React.Component {
         <EditorStoryboard
           id={id}
           doc={doc}
+          files={files}
           editorState={editorState}
           windowSize={windowSize}
           onMomentCreate={::this.onMomentCreate}

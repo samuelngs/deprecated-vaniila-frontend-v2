@@ -61,16 +61,16 @@ export default class EditorContextualToolBar extends React.Component {
   }
 
   getDefaultStyles() {
-    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } } = this.props;
-    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0
+    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
+    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { y: 0, opacity: 1 } }));
   }
 
   getStyles() {
-    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } } = this.props;
-    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0
+    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
+    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { y: spring(20), opacity: spring(1) } }));
@@ -85,7 +85,7 @@ export default class EditorContextualToolBar extends React.Component {
     const left = (editorSelectionLeft + editorSelectionRight) / 2 - EditorContextualToolBar.cssVariables.contextualToolbarWidth / 2;
     const bottom = top + EditorContextualToolBar.cssVariables.contextualToolbarHeight;
     const right = left + EditorContextualToolBar.cssVariables.contextualToolbarWidth;
-    const x = (
+    const cx = (
       left >= 20
       ? (
         windowSize.width - left >= ( EditorContextualToolBar.cssVariables.contextualToolbarWidth + 20 )
@@ -94,11 +94,21 @@ export default class EditorContextualToolBar extends React.Component {
       )
       : 20
     );
+    const cy = (
+      top - 30 >= 80
+      ? (
+        windowSize.height - top >= ( EditorContextualToolBar.cssVariables.contextualToolbarHeight + 30 )
+        ? top - 30
+        : windowSize.height - ( EditorContextualToolBar.cssVariables.contextualToolbarHeight + 30 )
+      )
+      : 80
+    );
     return {
       height    : EditorContextualToolBar.cssVariables.contextualToolbarHeight,
       width     : EditorContextualToolBar.cssVariables.contextualToolbarWidth,
       top       : top - 30,
-      left      : x,
+      top       : cy,
+      left      : cx,
       transform : `translate3d(0px, -${y}px, 0px) scale(1)`,
       opacity,
     };
@@ -201,7 +211,6 @@ export default class EditorContextualToolBar extends React.Component {
    * render component view
    */
   render() {
-    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } } = this.props;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}

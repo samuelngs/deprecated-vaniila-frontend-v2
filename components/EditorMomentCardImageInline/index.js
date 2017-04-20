@@ -3,7 +3,7 @@ import React from 'react';
 
 export default ({ active = false }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" className={active ? "icon icon-active" : "icon"}>
   <style jsx>{`
-    .icon { height: 36px; width: 36px; fill: #a8a8a8; pointer-events: none; }
+    .icon { height: 36px; width: 36px; fill: #ccc; pointer-events: none; }
     .icon-active { fill: #76FFB4; }
   `}</style>
   <path d="M29.5 27h-19c-.3 0-.5-.2-.5-.5s.2-.5.5-.5h19c.3 0 .5.2.5.5s-.2.5-.5.5zM20 30.1h-9.5c-.3 0-.5-.2-.5-.5s.2-.5.5-.5H20c.3 0 .5.2.5.5s-.2.5-.5.5zm9.5-6.5h-19c-.3 0-.5-.2-.5-.5V10.4c0-.3.2-.5.5-.5h19c.3 0 .5.2.5.5v12.7c0 .2-.2.5-.5.5zm-18.5-1h18V10.9H11v11.7z"/>

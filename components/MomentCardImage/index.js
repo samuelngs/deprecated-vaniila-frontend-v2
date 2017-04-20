@@ -3,8 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-import EditorMomentCardImageInline from '../EditorMomentCardImageInline';
-import EditorMomentCardImageFullscreen from '../EditorMomentCardImageFullscreen';
+import MomentCardImageControls from '../MomentCardImageControls';
+import MomentCardImageProgress from '../MomentCardImageProgress';
 
 export default class MomentCardImage extends React.Component {
 
@@ -49,12 +49,6 @@ export default class MomentCardImage extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  componentWillUpdate(nextProps) {
-    // By flipping this flag, we also keep flipping keys which forces
-    // React to remount this node every time it rerenders.
-    // this._forceFlag = !this._forceFlag;
-  }
-
   handleClick() {
     const { block, onSelect } = this.props;
     const { key, type } = block;
@@ -72,37 +66,18 @@ export default class MomentCardImage extends React.Component {
       paddingBottom: 0,
       paddingLeft: 0,
       paddingRight: 0,
+      width: '100%',
     };
   }
 
-  getImageStyle() {
+  getImageStyle(isUploading) {
     return {
       display: 'block',
       maxWidth: '100%',
       marginLeft: 'auto',
       marginRight: 'auto',
+      opacity: isUploading ? .5 : null,
     }
-  }
-
-  renderStyleControls() {
-    return <div className="image-controls">
-      <style jsx>{`
-        .image-controls {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          z-index: 5;
-          display: flex;
-          flex-direction: row;
-          padding-left: 7px;
-          padding-right: 5px;
-          background-color: #fff;
-          border-radius: 2px;
-        }
-      `}</style>
-      <EditorMomentCardImageInline />
-      <EditorMomentCardImageFullscreen />
-    </div>
   }
 
   render() {
@@ -127,13 +102,28 @@ export default class MomentCardImage extends React.Component {
       'data-offset-position': position,
     };
 
-    const src = (data || '').indexOf('local:') === 0
-      ? (files[data.substr(6)] || { }).base64
-      : `${CDN_URL}/${data}`;
+    const isLocal = (data || '').indexOf('local:') === 0;
+    const file = isLocal && files[data.substr(6)];
 
-    return <figure { ...props } onClick={this.handleClick} draggable={false}>
-      { isImageSelected && this.renderStyleControls() }
-      <img src={src} data-offset-key={key} data-offset-position={position} data-offset-group={0} data-moment-image style={this.getImageStyle()} draggable={false} />
+    const src = isLocal && file
+      ? file.base64
+      : `${CDN_URL}/${data}/regular`;
+
+    let progress = isLocal && file && file.progress;
+    if ( typeof progress !== 'number' ) progress = 0;
+
+    return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
+      <MomentCardImageControls active={isImageSelected} />
+      <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
+      <img
+        src={src}
+        data-offset-key={key}
+        data-offset-position={position}
+        data-offset-group={0}
+        data-moment-image
+        style={this.getImageStyle(isLocal && !!file && !!progress && !file.url)}
+        draggable={false}
+      />
     </figure>;
   }
 

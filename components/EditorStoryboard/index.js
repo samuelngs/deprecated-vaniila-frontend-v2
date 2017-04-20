@@ -42,6 +42,7 @@ export default class EditorStoryboard extends React.Component {
   }
 
   state = {
+    scrollLeft: 0,
     isPressed: false,
     topDeltaX: 0,
     mouseX: 0,
@@ -67,21 +68,19 @@ export default class EditorStoryboard extends React.Component {
     this.removeEventListener();
   }
 
-  componentDidUpdate({ editorState: { editorMoment: prevMoment } }) {
-    const { editorState: { editorMoment } } = this.props;
-    if ( this.n && editorMoment !== prevMoment && editorMoment ) {
+  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorHasFocus: prevHasFocus } }) {
+    const { editorState: { editorMoment, editorHasFocus } } = this.props;
+    if ( this.n && editorMoment && ( editorMoment !== prevMoment || editorHasFocus !== prevHasFocus ) ) {
       this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
       this.onMomentsRelocation = setTimeout(_ => {
         const { ids } = this.doc();
         const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
         const idx = ids.indexOf(editorMoment);
-        if ( idx === -1 && this.scrollLock ) return;
+        if ( idx === -1 ) return;
         const widths = ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding);
         const offset = widths[idx];
-        this.scrollLock = true;
-        scrollToLeft(this.n, offset, {
-          callback: _ => this.scrollLock = false,
-        });
+        if ( this.scrollCancellable ) this.scrollCancellable();
+        this.scrollCancellable = scrollToLeft(this.n, offset);
       }, 200);
     }
   }
@@ -104,6 +103,7 @@ export default class EditorStoryboard extends React.Component {
   }
 
   addEventListener() {
+    window.addEventListener('touchstart', this.handleTouchStart);
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('touchend', this.handleTouchUp);
     window.addEventListener('mousemove', this.handleMouseMove);
@@ -112,6 +112,7 @@ export default class EditorStoryboard extends React.Component {
   }
 
   removeEventListener() {
+    window.removeEventListener('touchstart', this.handleTouchStart);
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleTouchUp);
     window.removeEventListener('mousemove', this.handleMouseMove);
@@ -135,16 +136,13 @@ export default class EditorStoryboard extends React.Component {
     this.handleMouseUp(e);
   }
 
-  handleTouchStart(key, pressLocation, e) {
-    this.handleMouseDown(key, pressLocation, e.touches[0]);
+  handleTouchStart(e) {
   }
 
   handleTouchMove(e) {
-    this.handleMouseMove(e.touches[0]);
   }
 
-  handleMouseUp() {
-    this.setState({ isPressed: false, topDeltaX: 0 });
+  handleMouseUp(e) {
   }
 
   handleMouseDown(e) {
@@ -179,30 +177,28 @@ export default class EditorStoryboard extends React.Component {
         }));
       });
     }
+    if ( this.n ) {
+      const { scrollLeft } = this.n;
+      this.setState({ scrollLeft });
+    }
     this.handleRelocation();
   }
 
   handleRelocation() {
-    if ( this.scrollLock ) return;
     if ( !this.n ) return;
     this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
     this.onMomentsRelocation = setTimeout(_ => {
-      const { ids, count, moments } = this.doc();
-      const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
-      const { scrollLeft } = this.n;
-      const widths = [ 0, ...ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding) ];
-      const offset = widths.reduce((prev, curr) => (Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft) ? curr : prev));
-      this.scrollLock = true;
-      this.n && scrollToLeft(this.n, offset, {
-        callback: _ => this.scrollLock = false,
-      });
-    }, 750);
+      const offset = this.getMomentOffsets();
+      if ( !this.n ) return;
+      if ( this.scrollCancellable ) this.scrollCancellable();
+      this.scrollCancellable = scrollToLeft(this.n, offset);
+    }, 500);
   }
 
   getMomentStyle(count) {
     const { windowSize } = this.props;
     let itemWidth = windowSize.width - 40.0;
-    let itemHeight = windowSize.height - 140.0;
+    let itemHeight = windowSize.height - 160.0;
     let itemRatio = itemWidth / 1024.0;
     if ( itemWidth >= 760 ) {
       itemWidth = Math.ceil(itemWidth * 0.5);
@@ -219,7 +215,16 @@ export default class EditorStoryboard extends React.Component {
     const listWidth = itemWidth * (count + 1) + itemPadding * count + (windowSize.width - itemWidth) / 2;
     const listPadding = (windowSize.width - itemWidth) / 2;
     const listHeight = itemHeight;
-    return { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding };
+    const maximumItems = Math.ceil(windowSize.width / itemWidth);
+    return { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding, maximumItems };
+  }
+
+  getMomentOffsets() {
+    const { ids, count, moments } = this.doc();
+    const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
+    const { scrollLeft } = this.n;
+    const widths = [ 0, ...ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding) ];
+    return widths.reduce((prev, curr) => (Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft) ? curr : prev));
   }
 
   render() {
@@ -232,6 +237,10 @@ export default class EditorStoryboard extends React.Component {
       onMomentCreate,
       onMomentChange,
     } = this.props;
+
+    const {
+      scrollLeft,
+    } = this.state;
 
     const {
       ids,
@@ -279,6 +288,7 @@ export default class EditorStoryboard extends React.Component {
         }}
         state={editorState}
         files={files}
+        scrollLeft={scrollLeft}
         onCreate={onMomentCreate}
         onChange={onMomentChange}
       />

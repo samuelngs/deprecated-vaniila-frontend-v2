@@ -19,6 +19,9 @@ function opts(options) {
 
 function animateScrollLeft(options) {
 
+  let cancel = false;
+  let hasEnded = false;
+
   const opt = opts(options);
 
   const start = ( opt.parent === window ? opt.parent.pageXOffset : opt.parent.scrollLeft ) || 0;
@@ -28,6 +31,8 @@ function animateScrollLeft(options) {
   let timeStart, timeElapsed;
 
   const end = _ => {
+    if ( hasEnded ) return;
+    hasEnded = true;
     const x = start + opt.distance;
     if ( opt.parent === window ) {
       opt.parent.scrollTo(x, 0);
@@ -37,7 +42,16 @@ function animateScrollLeft(options) {
     typeof opt.callback === 'function' && opt.callback();
   }
 
+  const cancellable = _ => {
+    cancel = true;
+    if ( !hasEnded ) {
+      hasEnded = true;
+      typeof opt.callback === 'function' && opt.callback();
+    }
+  }
+
   const loop = time => {
+    if ( cancel ) return;
     timeElapsed = time - timeStart;
     const x = opt.easing(timeElapsed, start, opt.distance, duration)
     if ( opt.parent === window ) {
@@ -57,6 +71,8 @@ function animateScrollLeft(options) {
     timeStart = time;
     loop(time);
   });
+
+  return cancellable;
 }
 
 export function scrollLeft(options) {

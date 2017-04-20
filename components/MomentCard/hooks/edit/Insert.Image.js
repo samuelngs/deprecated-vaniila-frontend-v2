@@ -63,7 +63,45 @@ export default function onImageInsert(blob) {
   const newImageBlock = { ...imageBlockTemplate, key: UUID.v4() };
   const newTextBlock = { ...textBlockTemplate, key: UUID.v4() };
 
-  return dispatch(filesReducerApi.upload(blob)).then(file => {
+  const callback = state => {
+
+    const { present: doc } = getState().editorHistories[root];
+    if ( !doc ) return;
+
+    doc.data = (doc.data || { });
+    doc.data.slides = (doc.data.slides || { });
+
+    const moment = doc.data.slides[id];
+    if ( !moment ) return;
+
+    const clone = { };
+    deepClone(clone, moment);
+
+    clone.hash = `${Date.now()}`;
+    clone.data = (clone.data || { });
+    clone.data.blocks = (clone.data.blocks || [ ]);
+
+    let imageBlock, imageBlockIdx;
+    for ( let i = 0; i < clone.data.blocks.length; i++ ) {
+      const block = clone.data.blocks[i];
+      if ( block.key === newImageBlock.key ) {
+        imageBlock = block;
+        imageBlockIdx = i;
+      }
+    }
+
+    if ( !imageBlock ) return;
+
+    if ( state.error ) {
+      blocks.splice(imageBlockIdx, 1);
+    } else {
+      imageBlock.data = state.url;
+    }
+
+    onChange(id, clone);
+  }
+
+  return dispatch(filesReducerApi.upload(blob, callback)).then(file => {
 
     if ( file.url ) {
       newImageBlock.data = file.url;

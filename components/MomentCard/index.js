@@ -131,7 +131,7 @@ export default class MomentCard extends React.Component {
 
     this.handleControlAction = this.handleControlAction.bind(this);
     this.handleSelectAction = this.handleSelectAction.bind(this);
-
+    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
   }
 
   /**
@@ -198,6 +198,9 @@ export default class MomentCard extends React.Component {
       focusOffset       : 0,
       selectionRecovery : false,
     }));
+  }
+
+  handleVisibilityChange(visible) {
   }
 
   /**

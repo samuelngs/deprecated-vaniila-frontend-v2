@@ -77,7 +77,6 @@ export default class MomentCardText extends React.Component {
       fontSize: this.getFontSize(type),
       fontWeight: this.getFontWeight(type),
       lineHeight: 1.4,
-      height: '1.4em',
       minHeight : data.length === 0 ? '1.4em' : 'min-content',
       paddingLeft: 40,
       paddingRight: 40,
@@ -86,6 +85,9 @@ export default class MomentCardText extends React.Component {
         : 'inline-block',
       backgroundColor: type === 'code'
         ? '#ebfff6'
+        : null,
+      textAlign: type === 'code'
+        ? 'left'
         : null,
     };
   }

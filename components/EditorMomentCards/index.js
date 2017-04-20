@@ -35,6 +35,8 @@ export default class EditorMomentCards extends React.Component {
         height      : PropTypes.number,
       }),
     }),
+    // scroll state
+    scrollLeft      : PropTypes.number,
     // editor state
     state           : PropTypes.object,
     files           : PropTypes.object,
@@ -49,6 +51,7 @@ export default class EditorMomentCards extends React.Component {
     count           : 0,
     moments         : { },
     size            : { },
+    scrollLeft      : 0,
     state           : { },
     files           : { },
     onCreate        : _ => null,
@@ -95,6 +98,7 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       moments,
+      scrollLeft,
       state,
       files,
       size: { card: { width, height, padding, ratio: scale } },
@@ -113,6 +117,7 @@ export default class EditorMomentCards extends React.Component {
         moment      : moments[id],
         editmode    : true,
         editorState : state,
+        scrollLeft,
         files,
         onCreate,
         onChange,
@@ -133,6 +138,7 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       moments,
+      scrollLeft,
       state,
       files,
       size: { card: { width, height, padding, ratio: scale } },
@@ -151,6 +157,7 @@ export default class EditorMomentCards extends React.Component {
         moment      : moments[id],
         editmode    : true,
         editorState : state,
+        scrollLeft,
         files,
         onCreate,
         onChange,
@@ -178,16 +185,23 @@ export default class EditorMomentCards extends React.Component {
     };
   }
 
-  renderCard({ key, data: props, style }) {
-    return <MomentCard
-      { ...props }
-      x={style.x}
-      y={style.y}
-      opacity={style.opacity}
-      scale={style.scale}
-      width={style.width}
-      height={style.height}
-    />
+  renderCard = ({ key, data: props, style }) => {
+    const { scrollLeft, size: { screen: { width }, card: { padding: cardPadding }, list: { padding: listPadding } } } = this.props;
+    if (
+      style.x >= ( scrollLeft - style.width - listPadding - cardPadding * 2 ) &&
+      style.x <= scrollLeft + width + style.width + listPadding + cardPadding * 2
+    ) {
+      return <MomentCard
+        { ...props }
+        x={style.x}
+        y={style.y}
+        opacity={style.opacity}
+        scale={style.scale}
+        width={style.width}
+        height={style.height}
+      />
+    }
+    return null;
   }
 
   render() {

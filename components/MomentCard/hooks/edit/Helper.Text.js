@@ -1,5 +1,6 @@
 
 import { analyze, simplify } from '../../../MomentCardText/utils';
+import { isText } from '../../types';
 
 function findSingleRecoveryPoint(block, actualStartOffset, actualEndOffset) {
 
@@ -96,6 +97,8 @@ export default function onStyleTextHelper(calculated, STYLE_NAME) {
 
   if ( isBlocksEqual ) {
 
+    if ( !isText(startBlock) ) return;
+
     let matches = false;
     let distance = actualEndOffset - actualStartOffset;
 
@@ -144,17 +147,19 @@ export default function onStyleTextHelper(calculated, STYLE_NAME) {
   let matchesAll = true;
   let foundStyle = false;
 
-  for ( let i = 0, t = startBlock.data.length; i < startBlock.styles.length; i++ ) {
-    const { offset, length, style } = startBlock.styles[i];
-    if ( style !== STYLE_NAME ) continue;
-    const start = offset;
-    const end = offset + length;
-    const matches = actualStartOffset === start && t === end;
-    if ( !matches ) matchesAll = false;
-    if ( !foundStyle ) foundStyle = true;
+  if ( isText(startBlock) ) {
+    for ( let i = 0, t = startBlock.data.length; i < startBlock.styles.length; i++ ) {
+      const { offset, length, style } = startBlock.styles[i];
+      if ( style !== STYLE_NAME ) continue;
+      const start = offset;
+      const end = offset + length;
+      const matches = actualStartOffset === start && t === end;
+      if ( !matches ) matchesAll = false;
+      if ( !foundStyle ) foundStyle = true;
+    }
   }
 
-  if ( matchesAll ) {
+  if ( isText(endBlock) && matchesAll ) {
     for ( let i = 0, t = 0; i < endBlock.styles.length; i++ ) {
       const { offset, length, style } = endBlock.styles[i];
       if ( style !== STYLE_NAME ) continue;
@@ -168,7 +173,8 @@ export default function onStyleTextHelper(calculated, STYLE_NAME) {
 
   if ( matchesAll ) {
     for ( let i = startBlockIndex + 1; matchesAll && i < endBlockIndex; i++ ) {
-      const { data, styles } = blocks[i];
+      const { type, data, styles } = blocks[i];
+      if ( !isText(type) ) continue;
       if ( data.length === 0 ) continue;
       if ( styles.length === 0 ) {
         matchesAll = false;
@@ -191,15 +197,18 @@ export default function onStyleTextHelper(calculated, STYLE_NAME) {
 
   if ( matchesAll && foundStyle ) {
 
-    for ( let i = 0; i < startBlock.styles.length; i++ ) {
-      const { offset, length, style } = startBlock.styles[i];
-      if ( style !== STYLE_NAME ) continue;
-      if ( offset === actualStartOffset && length === ( startBlock.data.length - actualStartOffset ) ) startBlock.styles[i] = { };
+    if ( isText(startBlock) ) {
+      for ( let i = 0; i < startBlock.styles.length; i++ ) {
+        const { offset, length, style } = startBlock.styles[i];
+        if ( style !== STYLE_NAME ) continue;
+        if ( offset === actualStartOffset && length === ( startBlock.data.length - actualStartOffset ) ) startBlock.styles[i] = { };
+      }
+      startBlock.styles = simplify(startBlock);
     }
-    startBlock.styles = simplify(startBlock);
 
     for ( let i = startBlockIndex + 1; i < endBlockIndex; i++ ) {
-      const { data, styles } = blocks[i];
+      const { type, data, styles } = blocks[i];
+      if ( !isText(type) ) continue;
       for ( let y = 0; y < styles.length; y++ ) {
         const { offset, length, style } = styles[y];
         if ( style !== STYLE_NAME ) continue;
@@ -208,25 +217,32 @@ export default function onStyleTextHelper(calculated, STYLE_NAME) {
       blocks[i].styles = simplify(blocks[i]);
     }
 
-    for ( let i = 0; i < endBlock.styles.length; i++ ) {
-      const { offset, length, style } = endBlock.styles[i];
-      if ( style !== STYLE_NAME ) continue;
-      if ( offset === 0 && length == actualEndOffset ) endBlock.styles[i] = { };
+    if ( isText(endBlock) ) {
+      for ( let i = 0; i < endBlock.styles.length; i++ ) {
+        const { offset, length, style } = endBlock.styles[i];
+        if ( style !== STYLE_NAME ) continue;
+        if ( offset === 0 && length == actualEndOffset ) endBlock.styles[i] = { };
+      }
+      endBlock.styles = simplify(endBlock);
     }
-    endBlock.styles = simplify(endBlock);
 
   } else {
 
-    startBlock.styles.unshift({ offset: actualStartOffset, length: startBlock.data.length - actualStartOffset, style: STYLE_NAME });
-    startBlock.styles = simplify(startBlock);
+    if ( isText(startBlock) ) {
+      startBlock.styles.unshift({ offset: actualStartOffset, length: startBlock.data.length - actualStartOffset, style: STYLE_NAME });
+      startBlock.styles = simplify(startBlock);
+    }
 
     for ( let i = startBlockIndex + 1; i < endBlockIndex; i++ ) {
+      if ( !isText(blocks[i]) ) continue;
       blocks[i].styles.unshift({ offset: 0, length: blocks[i].data.length, style: STYLE_NAME });
       blocks[i].styles = simplify(blocks[i]);
     }
 
-    endBlock.styles.unshift({ offset: 0, length: actualEndOffset, style: STYLE_NAME });
-    endBlock.styles = simplify(endBlock);
+    if ( isText(endBlock) ) {
+      endBlock.styles.unshift({ offset: 0, length: actualEndOffset, style: STYLE_NAME });
+      endBlock.styles = simplify(endBlock);
+    }
 
   }
 

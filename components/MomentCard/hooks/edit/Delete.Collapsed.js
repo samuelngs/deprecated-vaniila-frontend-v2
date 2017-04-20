@@ -12,6 +12,26 @@ function findActualOffset(group, groups, offset) {
   return offset;
 }
 
+function findRelativeOffset(block, offset) {
+  const groups = analyze(block);
+  let recoveryGroup = 0, recoveryOffset = 0;
+  for ( let i = 0, t = 0; i < groups.length; i++ ) {
+    const text = groups[i];
+    const start = t;
+    const end = t + text.length;
+    if ( offset > start && offset <= end ) {
+      recoveryGroup = i;
+      recoveryOffset = offset - start;
+      break;
+    }
+    t = end;
+  }
+  return {
+    recoveryGroup,
+    recoveryOffset,
+  };
+}
+
 /**
  * trigger when delete text event within content area
  */
@@ -131,14 +151,22 @@ export default function onTextDeleteCollapsed() {
 
       if ( textLength === 0 ) {
         blocks.splice(blockIndex - 1, 2);
+
+        const focusBlock = blocks[blockIndex - 2];
+
+        const { recoveryGroup, recoveryOffset } = findRelativeOffset(
+          focusBlock,
+          focusBlock.data.length,
+        );
+
         return Promise.resolve(onChange(id, clone)).then(_ => {
           return dispatch(api.setEditorState(root, {
-            anchorKey         : editorStartKey,
-            anchorGroup       : editorStartGroup,
-            anchorOffset      : editorStartOffset,
-            focusKey          : editorStartKey,
-            focusGroup        : editorStartGroup,
-            focusOffset       : editorStartOffset,
+            anchorKey         : focusBlock.key,
+            anchorGroup       : recoveryGroup,
+            anchorOffset      : recoveryOffset,
+            focusKey          : focusBlock.key,
+            focusGroup        : recoveryGroup,
+            focusOffset       : recoveryOffset,
             selectionRecovery : true,
             selectionCollapsed: true,
           }));

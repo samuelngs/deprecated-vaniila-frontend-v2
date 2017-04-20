@@ -102,7 +102,7 @@ function files (files = defaults.files, action = defaults.action, store) {
 /**
  * set editor state
  */
-function upload(blob) {
+function upload(blob, callback) {
   const { file } = blob;
   const { name } = file;
   return function ( dispatch, getState ) {
@@ -138,11 +138,13 @@ function upload(blob) {
         } else {
           dispatch({ type: actions.UploadFailure, name, error: res });
         }
+        typeof callback === 'function' && callback(getState().files[name]);
       });
 
       req.addEventListener('error', e => {
         const error = parse(req.responseText);
         dispatch({ type: actions.UploadFailure, name, error });
+        typeof callback === 'function' && callback(getState().files[name]);
       });
 
       req.upload.addEventListener('progress', e => {

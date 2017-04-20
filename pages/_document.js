@@ -49,7 +49,7 @@ export default class _Document extends Document {
         `}</style>
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="MobileOptimized" content="320" />
-        <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="referrer" content="origin-when-cross-origin" />
       </Head>
       <body>

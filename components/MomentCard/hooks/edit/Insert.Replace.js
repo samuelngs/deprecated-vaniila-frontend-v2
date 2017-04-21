@@ -5,20 +5,8 @@ import { analyze, simplify } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
-const blockTemplate = {
-  key   : '',
-  type  : 'unstyled',
-  data  : '',
-  styles: [ ],
-};
-
-function findActualOffset(group, groups, offset) {
-  for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
-    c += (groups[i] || '').length;
-    if ( i + 1 === group ) return c;
-  }
-  return offset;
-}
+import { findActualOffset } from '../../utils';
+import { text as blockTemplate } from '../../template';
 
 export default function onTextInsertReplace(data) {
 

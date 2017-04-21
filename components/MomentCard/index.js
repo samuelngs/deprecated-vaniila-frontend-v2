@@ -131,7 +131,7 @@ export default class MomentCard extends React.Component {
 
     this.handleControlAction = this.handleControlAction.bind(this);
     this.handleSelectAction = this.handleSelectAction.bind(this);
-    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
+    this.handleChangeAction = this.handleChangeAction.bind(this);
   }
 
   /**
@@ -160,6 +160,8 @@ export default class MomentCard extends React.Component {
         return MomentEditorHook.onNewLine.call(this);
       case 'delete-character':
         return MomentEditorHook.onTextDelete.call(this);
+      case 'delete-image':
+        return MomentEditorHook.onImageDelete.call(this, data);
       case 'style':
         return MomentEditorHook.onStyle.call(this, data);
       case 'align-moment':
@@ -184,6 +186,10 @@ export default class MomentCard extends React.Component {
     return this.contextReceiveEvent('edit', event, data);
   }
 
+  handleChangeAction(event, key) {
+    return this.contextReceiveEvent('edit', event, key);
+  }
+
   handleSelectAction(key, type) {
     const { root, editmode } = this.props;
     const { store: { dispatch } } = this.context;
@@ -198,9 +204,6 @@ export default class MomentCard extends React.Component {
       focusOffset       : 0,
       selectionRecovery : false,
     }));
-  }
-
-  handleVisibilityChange(visible) {
   }
 
   /**
@@ -338,6 +341,7 @@ export default class MomentCard extends React.Component {
           files={files}
           editorState={editorState}
           onSelect={this.handleSelectAction}
+          onChange={this.handleChangeAction}
         />
       default:
         return null;

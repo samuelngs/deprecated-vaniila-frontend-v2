@@ -3,7 +3,7 @@ export const image = {
   key   : '',
   type  : 'image',
   data  : '',
-  styles: [ 'inline' ],
+  styles: [ ],
 };
 
 export const text = {

@@ -2,13 +2,7 @@
 import { analyze } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 
-function findActualOffset(group, groups, offset) {
-  for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
-    c += (groups[i] || '').length;
-    if ( i + 1 === group ) return c;
-  }
-  return offset;
-}
+import { findActualOffset } from '../../utils';
 
 /**
  * trigger when input event within content area

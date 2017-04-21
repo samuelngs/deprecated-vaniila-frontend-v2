@@ -5,16 +5,10 @@ import { analyze, simplify } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
+import { findActualOffset } from '../../utils';
+
 import onStyleSimpleBlock from './Style.Text.Block';
 import onStyleSimpleText from './Style.Text.Simple';
-
-function findActualOffset(group, groups, offset) {
-  for ( let i = 0, c = offset; i < group && i < groups.length; i++ ) {
-    c += (groups[i] || '').length;
-    if ( i + 1 === group ) return c;
-  }
-  return offset;
-}
 
 export default function onTextStyle(type) {
 

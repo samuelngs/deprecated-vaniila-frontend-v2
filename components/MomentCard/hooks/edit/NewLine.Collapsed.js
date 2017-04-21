@@ -5,12 +5,7 @@ import { analyze } from '../../../MomentCardText/utils';
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
-const blockTemplate = {
-  key   : '',
-  type  : 'unstyled',
-  data  : '',
-  styles: [ ],
-};
+import { text as blockTemplate } from '../../template';
 
 export default function onNewLineCollapsed() {
 

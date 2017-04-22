@@ -97,6 +97,7 @@ export default class EditorPeersList extends React.Component {
           align-items: center;
           justify-content: center;
           border-radius: 50%;
+          box-shadow: rgba(0, 0, 0, 0.098) 0px 0px 0px 1px inset;
           transition: filter ease .3s, opacity ease .3s;
           overflow: hidden;
         }

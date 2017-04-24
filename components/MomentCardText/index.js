@@ -78,6 +78,7 @@ export default class MomentCardText extends React.Component {
       fontWeight: this.getFontWeight(type),
       lineHeight: 1.4,
       minHeight : data.length === 0 ? '1.4em' : 'min-content',
+      maxWidth: '100%',
       paddingLeft: 40,
       paddingRight: 40,
       paddingTop: type === 'blockquote' && 5,

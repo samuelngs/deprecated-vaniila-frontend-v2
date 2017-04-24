@@ -17,7 +17,7 @@ import {
  */
 export default function onImageInsert(blob) {
 
-  const { moment, editorState, root, id, onChange } = this.props;
+  const { moment, editorState, root, id, onChange, onProgress } = this.props;
   const { store: { dispatch, getState } } = this.context;
 
   const {
@@ -75,6 +75,17 @@ export default function onImageInsert(blob) {
     clone.parent = newImageBlock.key;
   }
 
+  const progress = state => {
+    const { name, type, progress, error } = state;
+    const update = {
+      name,
+      type,
+      progress,
+    };
+    if ( error ) update.error = error;
+    onProgress(id, update);
+  }
+
   const callback = state => {
 
     const { present: doc } = getState().editorHistories[root];
@@ -113,7 +124,7 @@ export default function onImageInsert(blob) {
     onChange(id, clone);
   }
 
-  return dispatch(filesReducerApi.upload(blob, callback)).then(file => {
+  return dispatch(filesReducerApi.upload(blob, callback, progress)).then(file => {
 
     if ( file.url ) {
       newImageBlock.data = file.url;

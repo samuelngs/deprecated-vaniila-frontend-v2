@@ -5,7 +5,8 @@ import UUID from 'uuid';
 
 import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
-import { api as Api } from '../../reducers/histories';
+import { api as HistoryApi } from '../../reducers/histories';
+import { api as FileApi } from '../../reducers/file';
 
 export default class EditorSync extends React.Component {
 
@@ -328,6 +329,9 @@ export default class EditorSync extends React.Component {
       case 'signal':
         if ( !data.id ) return;
         return this.onEditorSignal(type, name, data);
+      case 'progress':
+        if ( !data.state ) return;
+        return this.onEditorProgress(type, name, data);
     }
   }
 
@@ -337,7 +341,7 @@ export default class EditorSync extends React.Component {
   onEditorSync(type, name, data) {
     const { store } = this.context;
     const { onSync } = this.props;
-    store.dispatch(Api.replaceState(name, data, true)).then(
+    store.dispatch(HistoryApi.replaceState(name, data, true)).then(
       data => onSync({ type, name, data }),
     );
   }
@@ -348,7 +352,7 @@ export default class EditorSync extends React.Component {
   onEditorChange(type, name, data) {
     const { store } = this.context;
     const { changes } = data;
-    store.dispatch(Api.patchState(name, changes));
+    store.dispatch(HistoryApi.patchState(name, changes));
   }
 
   /**
@@ -356,6 +360,15 @@ export default class EditorSync extends React.Component {
    */
   onEditorUpdate(type, name, data) {
     console.log('on update', type, name, data);
+  }
+
+  /**
+   * trigger when the receive message is a progress change response
+   */
+  onEditorProgress(type, name, data) {
+    const { store } = this.context;
+    const { state } = data;
+    store.dispatch(FileApi.sync(state));
   }
 
   /**

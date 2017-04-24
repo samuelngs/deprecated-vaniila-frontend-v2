@@ -124,6 +124,21 @@ class EditMoment extends React.Component {
   }
 
   /**
+   * handler for moment file progress
+   */
+  onMomentProgress(moment, state) {
+    const { username, moment: plotname } = this.props;
+    const payload = {
+      action: 'progress',
+      plotname,
+      username,
+      moment,
+      state,
+    };
+    this.emit(payload);
+  }
+
+  /**
    * handler for moment edit change
    */
   onMomentChange(moment, state) {
@@ -347,6 +362,7 @@ class EditMoment extends React.Component {
           windowSize={windowSize}
           onMomentCreate={::this.onMomentCreate}
           onMomentChange={::this.onMomentChange}
+          onMomentProgress={::this.onMomentProgress}
         />
       </EditorLaunchSuccess>
     </div>

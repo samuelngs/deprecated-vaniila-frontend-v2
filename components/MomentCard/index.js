@@ -39,6 +39,7 @@ export default class MomentCard extends React.Component {
     editorState : PropTypes.object,
     onCreate    : PropTypes.func,
     onChange    : PropTypes.func,
+    onProgress  : PropTypes.func,
   }
 
   static defaultProps = {
@@ -68,6 +69,7 @@ export default class MomentCard extends React.Component {
     editorState : { },
     onCreate    : _ => null,
     onChange    : _ => null,
+    onProgress  : _ => null,
   }
 
   componentDidMount() {

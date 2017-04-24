@@ -51,6 +51,7 @@ export default class EditorMomentCards extends React.Component {
     // callbacks
     onCreate        : PropTypes.func,
     onChange        : PropTypes.func,
+    onProgress      : PropTypes.func,
   }
 
   static defaultProps = {
@@ -64,6 +65,7 @@ export default class EditorMomentCards extends React.Component {
     files           : { },
     onCreate        : _ => null,
     onChange        : _ => null,
+    onProgress      : _ => null,
   }
 
   /**
@@ -120,6 +122,7 @@ export default class EditorMomentCards extends React.Component {
       size: { card: { width, height, padding, ratio: scale } },
       onCreate,
       onChange,
+      onProgress,
     } = this.props;
     return ids.map((id, i) => ({
       key       : id,
@@ -137,6 +140,7 @@ export default class EditorMomentCards extends React.Component {
         files,
         onCreate,
         onChange,
+        onProgress,
       },
       style     : {
         x       : ( i + 1 ) * width + ( i + 1 ) * padding,
@@ -160,6 +164,7 @@ export default class EditorMomentCards extends React.Component {
       size: { card: { width, height, padding, ratio: scale } },
       onCreate,
       onChange,
+      onProgress,
     } = this.props;
     return ids.map((id, i) => ({
       key       : id,
@@ -177,6 +182,7 @@ export default class EditorMomentCards extends React.Component {
         files,
         onCreate,
         onChange,
+        onProgress,
       },
       style     : {
         x       : ( i + 1 ) * width + ( i + 1 ) * padding,

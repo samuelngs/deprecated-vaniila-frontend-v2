@@ -25,10 +25,11 @@ const defaults = {
 }
 
 export const actions = {
-  UploadFile: '@@file/UPLOAD_FILE',
+  UploadFile      : '@@file/UPLOAD_FILE',
   UploadSuccessful: '@@file/UPLOAD_SUCCESSFUL',
-  UploadFailure: '@@file/UPLOAD_FAILURE',
-  UpdateState: '@@file/UPDATE_STATE',
+  UploadFailure   : '@@file/UPLOAD_FAILURE',
+  UpdateState     : '@@file/UPDATE_STATE',
+  SetState        : '@@file/SET_FILE',
 };
 
 function hookUploadFile(files, action, store) {
@@ -74,6 +75,25 @@ function hookUploadSuccessful(files, action, store) {
   return clone;
 }
 
+function hookSetState(files, action, store) {
+  const { state } = action;
+  if ( typeof state !== 'object' || state === null ) {
+    return files;
+  }
+  const { name } = state;
+  if ( typeof name !== 'string' ) {
+    return files;
+  }
+  const clone = patcher.clone(files);
+  const file = clone[name];
+  // prevent remote changes
+  if ( typeof file === 'object' && file !== null && !!file.base64 ) {
+    return files;
+  }
+  clone[name] = state;
+  return clone;
+}
+
 /**
  * files state
  */
@@ -93,6 +113,9 @@ function files (files = defaults.files, action = defaults.action, store) {
     case actions.UploadSuccessful:
       return hookUploadSuccessful(files, action, store);
 
+    case actions.SetState:
+      return hookSetState(files, action, store);
+
     default:
       return files;
 
@@ -100,9 +123,20 @@ function files (files = defaults.files, action = defaults.action, store) {
 }
 
 /**
- * set editor state
+ * update file state
  */
-function upload(blob, callback) {
+function sync(state) {
+  return function ( dispatch, getState ) {
+    return new Promise(resolve => {
+      resolve(dispatch({ type: actions.SetState, state }));
+    });
+  }
+}
+
+/**
+ * upload file
+ */
+function upload(blob, callback, update) {
   const { file } = blob;
   const { name } = file;
   return function ( dispatch, getState ) {
@@ -153,6 +187,7 @@ function upload(blob, callback) {
           progress = parseInt((e.loaded / e.total) * 100, 10);
         }
         dispatch({ type: actions.UpdateState, name, progress });
+        typeof update === 'function' && update(getState().files[name]);
       });
 
       req.addEventListener('abort', e => {
@@ -172,6 +207,7 @@ function upload(blob, callback) {
  */
 export const api = {
   upload,
+  sync,
 }
 
 export default {

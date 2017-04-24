@@ -144,12 +144,27 @@ export default class MomentCardImage extends React.Component {
     let progress = isLocal && file && file.progress;
     if ( typeof progress !== 'number' ) progress = 0;
 
+    if ( ( isLocal && file && file.base64 ) || !isLocal ) {
+      return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
+        <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} />
+        <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
+        <MomentCardFallbackImage
+          src={src}
+          cover={fullscreen}
+          data-offset-key={key}
+          data-offset-position={position}
+          data-offset-group={0}
+          data-moment-image
+          style={this.getImageStyle(isLocal && !!file && !!progress && !file.url)}
+          draggable={false}
+        />
+      </figure>;
+    }
+
     return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
       <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} />
       <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
-      <MomentCardFallbackImage
-        src={src}
-        cover={fullscreen}
+      <div
         data-offset-key={key}
         data-offset-position={position}
         data-offset-group={0}
@@ -158,6 +173,7 @@ export default class MomentCardImage extends React.Component {
         draggable={false}
       />
     </figure>;
+
   }
 
 }

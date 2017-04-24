@@ -16,29 +16,31 @@ export default class EditorStoryboard extends React.Component {
   }
 
   static propTypes = {
-    id            : PropTypes.string,
-    doc           : PropTypes.object,
-    files         : PropTypes.object,
-    editorState   : PropTypes.object,
-    windowSize    : PropTypes.shape({
-      width       : PropTypes.number,
-      height      : PropTypes.number,
+    id              : PropTypes.string,
+    doc             : PropTypes.object,
+    files           : PropTypes.object,
+    editorState     : PropTypes.object,
+    windowSize      : PropTypes.shape({
+      width         : PropTypes.number,
+      height        : PropTypes.number,
     }),
-    onMomentCreate: PropTypes.func,
-    onMomentChange: PropTypes.func,
+    onMomentCreate  : PropTypes.func,
+    onMomentChange  : PropTypes.func,
+    onMomentProgress: PropTypes.func,
   }
 
   static defaultProps = {
-    id            : '',
-    doc           : { data: { slides: { } } },
-    files         : { },
-    editorState   : { },
-    windowSize    : {
-      width       : typeof window !== 'undefined' ? window.innerWidth : 0,
-      height      : typeof window !== 'undefined' ? window.innerHeight : 0,
+    id              : '',
+    doc             : { data: { slides: { } } },
+    files           : { },
+    editorState     : { },
+    windowSize      : {
+      width         : typeof window !== 'undefined' ? window.innerWidth : 0,
+      height        : typeof window !== 'undefined' ? window.innerHeight : 0,
     },
-    onMomentCreate: _ => null,
-    onMomentChange: _ => null,
+    onMomentCreate  : _ => null,
+    onMomentChange  : _ => null,
+    onMomentProgress: _ => null,
   }
 
   state = {
@@ -236,6 +238,7 @@ export default class EditorStoryboard extends React.Component {
       windowSize,
       onMomentCreate,
       onMomentChange,
+      onMomentProgress,
     } = this.props;
 
     const {
@@ -291,6 +294,7 @@ export default class EditorStoryboard extends React.Component {
         scrollLeft={scrollLeft}
         onCreate={onMomentCreate}
         onChange={onMomentChange}
+        onProgress={onMomentProgress}
       />
     </div>;
   }

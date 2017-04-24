@@ -5,8 +5,16 @@ import PropTypes from 'prop-types';
 import { TransitionMotion, Motion, spring } from 'react-motion';
 
 import MomentCard from '../MomentCard';
+import EditorCreateCard from '../EditorCreateCard';
+import EditorInsertCard from '../EditorInsertCard';
+
+import { api } from '../../reducers/editor';
 
 export default class EditorMomentCards extends React.Component {
+
+  static contextTypes = {
+    store: PropTypes.object,
+  }
 
   static propTypes = {
     // moments collection id
@@ -81,6 +89,14 @@ export default class EditorMomentCards extends React.Component {
     return this.cards[id]
       && this.cards[id].contextReceiveEvent
       && this.cards[id].contextReceiveEvent(type, event, data);
+  }
+
+  handleOnCreate(e) {
+    const { id: root, onCreate } = this.props;
+    const { store: { dispatch } } = this.context;
+    return onCreate().then(({ name, block }) => {
+      return dispatch(api.setEditorState(root, { nextId: name }));
+    });
   }
 
   willEnter(o) {
@@ -191,21 +207,31 @@ export default class EditorMomentCards extends React.Component {
       style.x >= ( scrollLeft - style.width - listPadding - cardPadding * 2 ) &&
       style.x <= scrollLeft + width + style.width + listPadding + cardPadding * 2
     ) {
-      return <MomentCard
-        { ...props }
-        x={style.x}
-        y={style.y}
-        opacity={style.opacity}
-        scale={style.scale}
-        width={style.width}
-        height={style.height}
-      />
+      return [
+        <MomentCard
+          { ...props }
+          x={style.x}
+          y={style.y}
+          opacity={style.opacity}
+          scale={style.scale}
+          width={style.width}
+          height={style.height}
+        />,
+        <EditorInsertCard
+          key={style.x}
+          x={style.x - cardPadding + cardPadding / 4}
+          y={style.y}
+          width={cardPadding / 2}
+          height={style.height}
+          onInsert={_ => this.emit(key, 'edit', 'insert-moment', props.moment.order)}
+        />,
+      ]
     }
     return null;
   }
 
   render() {
-    const { size: { card: { width, height, ratio } } } = this.props;
+    const { ids, size: { card: { width, height, padding, ratio } } } = this.props;
     const { initialized } = this.state;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
@@ -225,6 +251,12 @@ export default class EditorMomentCards extends React.Component {
             editmode={true}
           />
           { styles.map(this.renderCard) }
+          <EditorCreateCard
+            x={((ids.length + 1) * width + (ids.length + 1) * padding)}
+            y={0}
+            height={height}
+            onClick={::this.handleOnCreate}
+          />
         </div> }
       </Motion> }
     </TransitionMotion>

@@ -66,8 +66,7 @@ export default class MomentCardFallbackImage extends React.Component {
           height: 202px;
           background-image: url('/static/editor/dot.png');
           background-repeat: repeat;
-          background-position: contain;
-          background-color: #000;
+          background-position: center;
         }
         .image-1x { background-size: 25px; }
         .image-2x { background-size: 12.5px; }
@@ -107,8 +106,9 @@ export default class MomentCardFallbackImage extends React.Component {
       ...style,
       backgroundImage: `url(${src})`,
       backgroundPosition: 'center',
-      backgroundSize: 'cover',
+      backgroundSize: 'contain',
       backgroundRepeat: 'no-repeat',
+      backgroundColor: '#000',
     };
     return <div { ...props } style={styles} />
   }

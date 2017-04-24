@@ -180,9 +180,68 @@ class EditMoment extends React.Component {
   }
 
   /**
+   * handler for moment reordering
+   */
+  onMomentReorder(n) {
+
+    // retrieve moments document
+    const { id, username, moment: plotname, editorHistories, dispatch } = this.props;
+    if ( !editorHistories[id] ) return;
+    const { present: doc } = editorHistories[id] || { };
+    const clone = { };
+    deepClone(clone, doc);
+
+    // patch clone
+    clone.data || (clone.data = { });
+    clone.data.slides || (clone.data.slides = { });
+
+    const moments = clone.data.slides;
+    const ids = Object.keys(moments);
+
+    const payload = {
+      action  : 'update',
+      username,
+      plotname,
+      time    : new Date(),
+      slides: { },
+    };
+
+    let changes = 0;
+    for ( let i = 0, c = n; i < ids.length; i++ ) {
+
+      const id = ids[i];
+      const moment = moments[id];
+
+      if ( moment.order < c ) continue;
+
+      c++;
+      changes++;
+
+      moment.hash = `${Date.now()}`;
+      moment.order = c;
+
+      payload.slides[id] = {
+        hash  : moment.hash,
+        order : moment.order,
+      };
+    }
+
+    return dispatch(historiesReducerApi.updateState(id, clone))
+      .then(changes => this.emit({ action: 'change', changes }))
+      .then(_ => {
+        return changes > 0
+          ? this.emit(payload)
+          : null;
+      });
+  }
+
+  /**
    * handler for create new moment
    */
-  onMomentCreate() {
+  onMomentCreate(n, opts = { }) {
+
+    const { parent, blocks } = opts;
+
     // retrieve moments from histories
     const { id, username, moment: plotname, editorHistories } = this.props;
     if ( !editorHistories[id] ) return;
@@ -194,17 +253,20 @@ class EditMoment extends React.Component {
     // generate moment id
     const name = `${UUID.v4()}`;
     const block = `${UUID.v4()}`;
-    const order = (() => {
-      let max = 0;
-      ids.forEach(id => {
-        const moment = (moments[id] || { });
-        const order = typeof moment.order === 'number'
-          ? moment.order
-          : 0;
-        if ( order > max ) max = order;
-      });
-      return max + 1;
-    })();
+    const reorder = typeof n === 'number';
+    const order = typeof n === 'number'
+      ? n
+      : (() => {
+        let max = 0;
+        ids.forEach(id => {
+          const moment = (moments[id] || { });
+          const order = typeof moment.order === 'number'
+            ? moment.order
+            : 0;
+          if ( order > max ) max = order;
+        });
+        return max + 1;
+      })();
 
     // prepare payload
     const payload = {
@@ -232,11 +294,22 @@ class EditMoment extends React.Component {
       },
     };
 
-    // create moment
-    return this.emit(payload).then(_ => {
-      this.latest();
-      return { name, block };
-    });
+    if ( Array.isArray(blocks) && blocks.length > 0 ) {
+      payload.slides[name].data.blocks = blocks;
+    }
+
+    if ( typeof parent === 'string' && parent.length > 0 ) {
+      payload.slides[name].parent = parent;
+    }
+
+    if ( reorder ) {
+      return this.onMomentReorder(n)
+        .then(_ => this.emit(payload))
+        .then(_ => this.latest()).then(_ => ({ name, block }));
+    }
+
+    return this.emit(payload)
+      .then(_ => this.latest()).then(_ => ({ name, block }));
   }
 
   render () {

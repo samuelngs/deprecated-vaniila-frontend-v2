@@ -231,7 +231,7 @@ export default class EditorMomentCards extends React.Component {
   }
 
   render() {
-    const { ids, size: { card: { width, height, padding, ratio } } } = this.props;
+    const { id: root, ids, moments, size: { card: { width, height, padding, ratio } } } = this.props;
     const { initialized } = this.state;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
@@ -244,7 +244,10 @@ export default class EditorMomentCards extends React.Component {
             .base { position: relative; }
           `}</style>
           <MomentCard
+            id="cover"
+            root={root}
             cover={true}
+            moment={moments.cover}
             scale={ratio}
             width={width}
             height={height}

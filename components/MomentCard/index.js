@@ -141,7 +141,6 @@ export default class MomentCard extends React.Component {
    * trigger when receiving event from handlers
    */
   contextReceiveEvent(type, event, data) {
-    console.log(type, event, data);
     switch ( type ) {
       case 'edit':
         return this.contextReceiveEdit(event, data);

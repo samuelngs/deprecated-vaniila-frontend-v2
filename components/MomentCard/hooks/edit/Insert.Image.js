@@ -54,6 +54,14 @@ export default function onImageInsert(blob) {
 
   if ( typeof blockIndex === 'undefined' ) return;
 
+  const shouldFullscreen = (
+    blocks.length === 1 &&
+    typeof blocks[0] === 'object' &&
+    blocks[0] !== null &&
+    isText(blocks[0]) &&
+    blocks[0].data.length === 0
+  );
+
   const addTextBlockAfterImage = !(
     typeof blocks[blockIndex + 1] === 'object' &&
     blocks[blockIndex + 1] !== null &&
@@ -62,6 +70,10 @@ export default function onImageInsert(blob) {
 
   const newImageBlock = { ...mediaBlockTemplate, type: 'image', key: UUID.v4() };
   const newTextBlock = { ...textBlockTemplate, key: UUID.v4() };
+
+  if ( shouldFullscreen ) {
+    clone.parent = newImageBlock.key;
+  }
 
   const callback = state => {
 
@@ -109,13 +121,23 @@ export default function onImageInsert(blob) {
       newImageBlock.data = `local:${file.name}`;
     }
 
-    if ( addTextBlockAfterImage ) {
-      blocks.splice(blockIndex + 1, 0, newImageBlock, newTextBlock);
+    if ( shouldFullscreen ) {
+      clone.data.blocks = [ newImageBlock ];
     } else {
-      blocks.splice(blockIndex + 1, 0, newImageBlock);
+      if ( addTextBlockAfterImage ) {
+        blocks.splice(blockIndex + 1, 0, newImageBlock, newTextBlock);
+      } else {
+        blocks.splice(blockIndex + 1, 0, newImageBlock);
+      }
     }
 
-    const target = addTextBlockAfterImage ? newTextBlock : blocks[blockIndex + 2];
+    const target = shouldFullscreen
+      ? newImageBlock
+      : (
+        addTextBlockAfterImage
+        ? newTextBlock
+        : blocks[blockIndex + 2]
+      );
 
     Promise.resolve(onChange(id, clone)).then(_ => {
       return dispatch(editorReducerApi.setEditorState(root, {

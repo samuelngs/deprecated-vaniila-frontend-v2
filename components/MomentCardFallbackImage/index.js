@@ -31,12 +31,21 @@ export default class MomentCardFallbackImage extends React.Component {
     loadedSuccessful: undefined,
   }
 
+  _forceFlag = false;
+
   onLoad = e => {
     this.setState({ loadedSuccessful: true });
   }
 
   onError = e => {
     this.setState({ loadedSuccessful: false });
+  }
+
+  componentWillUpdate({ src: next }) {
+    const { src: prev } = this.props;
+    if ( prev !== next ) {
+      this.setState({ loadedSuccessful: undefined });
+    }
   }
 
   renderFallback() {

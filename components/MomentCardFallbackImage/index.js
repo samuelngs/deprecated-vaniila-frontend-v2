@@ -20,18 +20,18 @@ function isRetina() {
 export default class MomentCardFallbackImage extends React.Component {
 
   static propTypes = {
-    src: PropTypes.string,
+    src   : PropTypes.string,
+    cover : PropTypes.bool,
   }
 
   static defaultProps = {
-    src: null,
+    src   : null,
+    cover : false,
   }
 
   state = {
     loadedSuccessful: undefined,
   }
-
-  _forceFlag = false;
 
   onLoad = e => {
     this.setState({ loadedSuccessful: true });
@@ -49,7 +49,7 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderFallback() {
-    const { src, className, ...props } = this.props;
+    const { src, cover, className, ...props } = this.props;
     const scale = isHighDensity()
       ? 'image-2x'
       : 'image-1x';
@@ -100,8 +100,20 @@ export default class MomentCardFallbackImage extends React.Component {
     </div>
   }
 
+  renderCoverImage() {
+    const { src, cover, style, ...props } = this.props;
+    const styles = {
+      ...style,
+      backgroundImage: `url(${src})`,
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+    };
+    return <div { ...props } style={styles} />
+  }
+
   renderImage() {
-    const { src, ...props } = this.props;
+    const { src, cover, ...props } = this.props;
     return <img
       { ...props }
       src={src}
@@ -111,9 +123,13 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   render() {
+    const { cover } = this.props;
     const { loadedSuccessful } = this.state;
     if ( loadedSuccessful === false ) {
       return this.renderFallback();
+    }
+    if ( loadedSuccessful === true && cover === true ) {
+      return this.renderCoverImage();
     }
     return this.renderImage();
   }

@@ -70,6 +70,14 @@ export default function onTextInsertCollapsed(data) {
 
     const { type, data } = embed;
 
+    const shouldFullscreen = (
+      blocks.length === 1 &&
+      typeof blocks[0] === 'object' &&
+      blocks[0] !== null &&
+      isText(blocks[0]) &&
+      blocks[0].data.length === 0
+    );
+
     const addTextBlockAfterMedia = !(
       typeof blocks[blockIndex + 1] === 'object' &&
       blocks[blockIndex + 1] !== null &&
@@ -81,15 +89,27 @@ export default function onTextInsertCollapsed(data) {
       ? { ...textBlockTemplate, key: UUID.v4() }
       : null;
 
-    if ( addTextBlockAfterMedia ) {
-      blocks.splice(blockIndex + 1, 0, newMediaBlock, newTextBlock);
+    if ( shouldFullscreen ) {
+      clone.parent = newMediaBlock.key;
+      clone.data.blocks = [ newMediaBlock ];
     } else {
-      blocks.splice(blockIndex + 1, 0, newMediaBlock);
+      if ( addTextBlockAfterMedia ) {
+        blocks.splice(blockIndex + 1, 0, newMediaBlock, newTextBlock);
+      } else {
+        blocks.splice(blockIndex + 1, 0, newMediaBlock);
+      }
     }
 
-    const target = addTextBlockAfterMedia
-      ? newTextBlock
-      : blocks[blockIndex + 2];
+    const target = shouldFullscreen
+      ? newMediaBlock
+      : (
+        addTextBlockAfterMedia
+        ? newTextBlock
+        : blocks[blockIndex + 2]
+      );
+
+    document.activeElement
+      && document.activeElement.blur();
 
     return Promise.resolve(onChange(id, clone)).then(_ => {
       return dispatch(editorReducerApi.setEditorState(root, {

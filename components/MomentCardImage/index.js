@@ -149,6 +149,7 @@ export default class MomentCardImage extends React.Component {
       <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
       <MomentCardFallbackImage
         src={src}
+        cover={fullscreen}
         data-offset-key={key}
         data-offset-position={position}
         data-offset-group={0}

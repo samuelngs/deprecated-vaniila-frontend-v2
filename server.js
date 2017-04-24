@@ -5,6 +5,7 @@ const next = require('next');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
+const port = process.env.PORT || 3000;
 const handle = app.getRequestHandler();
 
 const routes = {
@@ -46,18 +47,18 @@ app.prepare().then(() => {
       if ( params.length > 0 ) {
         const _core = req.params[params[0]];
         if ( dev && (_core === '_webpack' || _core === '__webpack_hmr' || _core === '_next') ) {
-          return handle(req, res, req._parsedUrl)
+          return handle(req, res, req._parsedUrl);
         }
       }
-      return app.render(req, res, view, query)
+      return app.render(req, res, view, query);
     });
   }
 
   server.get('*', (req, res) => handle(req, res));
 
-  server.listen(3000, err => {
+  server.listen(port, err => {
     if (err) throw err
-    console.log('> Ready on http://localhost:3000')
+    console.log(`> Ready on http://localhost:${port}`);
   });
 
 });

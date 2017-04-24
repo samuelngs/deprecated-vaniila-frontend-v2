@@ -74,8 +74,8 @@ function landingFoldGetInvolved (landingFoldGetInvolved = defaults.landingFoldGe
 landingFoldGetInvolved.cookie = { type: actions.SetLandingFoldGetInvolved, name: 'landingFoldGetInvolved', def: defaults.landingFoldGetInvolved };
 
 export default {
-  landingFoldWordsOut,
-  landingFoldHeartsAndMind,
-  landingFoldCreativity,
-  landingFoldGetInvolved,
+  // landingFoldWordsOut,
+  // landingFoldHeartsAndMind,
+  // landingFoldCreativity,
+  // landingFoldGetInvolved,
 }

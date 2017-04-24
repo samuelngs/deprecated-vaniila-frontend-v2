@@ -1,8 +1,18 @@
 
+import UUID from 'uuid';
+
 import { analyze } from '../../../MomentCardText/utils';
+import { api as editorReducerApi } from '../../../../reducers/editor';
 import deepClone from '../../../../utils/clone';
+import parse from './Parse';
 
 import { findActualOffset } from '../../utils';
+import { isText } from '../../types';
+
+import {
+  media as mediaBlockTemplate,
+  text as textBlockTemplate,
+} from '../../template';
 
 /**
  * trigger when input event within content area
@@ -10,6 +20,10 @@ import { findActualOffset } from '../../utils';
 export default function onTextInsertCollapsed(data) {
 
   const character = data.replace(/(\r\n|\n|\r)/gm, '');
+
+  const embed = character.length > 1
+    ? parse(character)
+    : null;
 
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch, getState } } = this.context;
@@ -51,6 +65,44 @@ export default function onTextInsertCollapsed(data) {
   }
 
   if ( !block || typeof blockStyleGroups[startOffsetGroup] !== 'string' ) return;
+
+  if ( embed ) {
+
+    const { type, data } = embed;
+
+    const addTextBlockAfterMedia = !(
+      typeof blocks[blockIndex + 1] === 'object' &&
+      blocks[blockIndex + 1] !== null &&
+      isText(blocks[blockIndex + 1])
+    );
+
+    const newMediaBlock = { ...mediaBlockTemplate, key: UUID.v4(), type, data };
+    const newTextBlock = addTextBlockAfterMedia
+      ? { ...textBlockTemplate, key: UUID.v4() }
+      : null;
+
+    if ( addTextBlockAfterMedia ) {
+      blocks.splice(blockIndex + 1, 0, newMediaBlock, newTextBlock);
+    } else {
+      blocks.splice(blockIndex + 1, 0, newMediaBlock);
+    }
+
+    const target = addTextBlockAfterMedia
+      ? newTextBlock
+      : blocks[blockIndex + 2];
+
+    return Promise.resolve(onChange(id, clone)).then(_ => {
+      return dispatch(editorReducerApi.setEditorState(root, {
+        anchorKey         : target.key,
+        anchorGroup       : '0',
+        anchorOffset      : 0,
+        focusKey          : target.key,
+        focusGroup        : '0',
+        focusOffset       : 0,
+        selectionRecovery : true,
+      }));
+    });
+  }
 
   const actualOffset = findActualOffset(startOffsetGroup, blockStyleGroups, editorStartOffset);
 

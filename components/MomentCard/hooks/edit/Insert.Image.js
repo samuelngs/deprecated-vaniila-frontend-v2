@@ -8,7 +8,7 @@ import deepClone from '../../../../utils/clone';
 import { isText } from '../../types';
 
 import {
-  image as imageBlockTemplate,
+  media as mediaBlockTemplate,
   text as textBlockTemplate,
 } from '../../template';
 
@@ -60,7 +60,7 @@ export default function onImageInsert(blob) {
     isText(blocks[blockIndex + 1])
   );
 
-  const newImageBlock = { ...imageBlockTemplate, key: UUID.v4() };
+  const newImageBlock = { ...mediaBlockTemplate, type: 'image', key: UUID.v4() };
   const newTextBlock = { ...textBlockTemplate, key: UUID.v4() };
 
   const callback = state => {

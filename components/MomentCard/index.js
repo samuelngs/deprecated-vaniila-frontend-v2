@@ -8,6 +8,8 @@ import MomentEditorHook from './hooks';
 import MomentCardControls from '../MomentCardControls';
 import MomentCardText from '../MomentCardText';
 import MomentCardImage from '../MomentCardImage';
+import MomentCardTwitter from '../MomentCardTwitter';
+import MomentCardYoutube from '../MomentCardYoutube';
 
 import { analyze } from '../MomentCardText/utils';
 import { api } from '../../reducers/editor';
@@ -59,6 +61,7 @@ export default class MomentCard extends React.Component {
       },
       hash      : 0,
       order     : 1,
+      parent    : null,
       style     : { },
     },
     files       : { },
@@ -154,6 +157,10 @@ export default class MomentCard extends React.Component {
     switch ( event ) {
       case 'media-upload':
         return MomentEditorHook.onImageInsert.call(this, data);
+      case 'inline-media':
+        return MomentEditorHook.onInline.call(this, data);
+      case 'fullscreen-media':
+        return MomentEditorHook.onFullscreen.call(this, data);;
       case 'insert-character':
         return MomentEditorHook.onTextInsert.call(this, data);
       case 'insert-newline':
@@ -166,8 +173,16 @@ export default class MomentCard extends React.Component {
         return MomentEditorHook.onStyle.call(this, data);
       case 'align-moment':
         return MomentEditorHook.onAlign.call(this);
+      case 'delete-moment':
+        return MomentEditorHook.onMomentDelete.call(this);
       case 'append-moment':
         return onCreate().then(({ name, block }) => {
+          const { root } = this.props;
+          const { store: { dispatch } } = this.context;
+          return dispatch(api.setEditorState(root, { nextId: name }));
+        });
+      case 'insert-moment':
+        return onCreate(data).then(({ name, block }) => {
           const { root } = this.props;
           const { store: { dispatch } } = this.context;
           return dispatch(api.setEditorState(root, { nextId: name }));
@@ -183,11 +198,13 @@ export default class MomentCard extends React.Component {
   }
 
   handleControlAction(event, data) {
-    return this.contextReceiveEvent('edit', event, data);
+    return this.contextReceiveEvent
+      && this.contextReceiveEvent('edit', event, data);
   }
 
   handleChangeAction(event, key) {
-    return this.contextReceiveEvent('edit', event, key);
+    return this.contextReceiveEvent
+      && this.contextReceiveEvent('edit', event, key);
   }
 
   handleSelectAction(key, type) {
@@ -307,7 +324,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, editmode, editable, files, editorState } = this.props;
+    const { scale, moment: { parent }, editmode, editable, width, height, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -338,6 +355,43 @@ export default class MomentCard extends React.Component {
           scale={scale}
           editmode={editmode}
           editable={editable}
+          width={width}
+          height={height}
+          fullscreen={parent === key}
+          files={files}
+          editorState={editorState}
+          onSelect={this.handleSelectAction}
+          onChange={this.handleChangeAction}
+        />
+      case 'twitter':
+        return <MomentCardTwitter
+          key={key}
+          position={i}
+          block={block}
+          total={blocks.length}
+          scale={scale}
+          editmode={editmode}
+          editable={editable}
+          width={width}
+          height={height}
+          fullscreen={parent === key}
+          files={files}
+          editorState={editorState}
+          onSelect={this.handleSelectAction}
+          onChange={this.handleChangeAction}
+        />
+      case 'youtube':
+        return <MomentCardYoutube
+          key={key}
+          position={i}
+          block={block}
+          total={blocks.length}
+          scale={scale}
+          editmode={editmode}
+          editable={editable}
+          width={width}
+          height={height}
+          fullscreen={parent === key}
           files={files}
           editorState={editorState}
           onSelect={this.handleSelectAction}
@@ -354,6 +408,7 @@ export default class MomentCard extends React.Component {
   render() {
     const { id, no, total, scale, cover, editmode, editable, moment, editorState, width } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
+    const fullscreen = !!moment.parent;
     const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
@@ -393,6 +448,7 @@ export default class MomentCard extends React.Component {
           padding-bottom: 10px;
           display: flex;
           overflow-y: auto;
+          overflow-x: hidden;
           flex-direction: column;
         }
         .base-vcenter {
@@ -412,6 +468,7 @@ export default class MomentCard extends React.Component {
         no={no}
         total={total}
         editmode={editmode && !cover}
+        fullscreen={fullscreen}
         active={id === editorMoment}
         onAction={this.handleControlAction}
       />
@@ -430,7 +487,7 @@ export default class MomentCard extends React.Component {
         suppressContentEditableWarning={true}
         style={contentStyle}
       >
-        <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width }}>
+        <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width, paddingTop: fullscreen && 0, paddingBottom: fullscreen && 0 }}>
           { this.renderBlocks(blocks) }
         </div>
       </div>

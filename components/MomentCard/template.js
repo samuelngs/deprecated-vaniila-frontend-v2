@@ -1,7 +1,7 @@
 
-export const image = {
+export const media = {
   key   : '',
-  type  : 'image',
+  type  : '',
   data  : '',
   styles: [ ],
 };

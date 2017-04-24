@@ -12,6 +12,8 @@ const text = [
 const media = [
   'image',
   'video',
+  'twitter',
+  'youtube',
 ];
 
 function extractBlockType(o) {

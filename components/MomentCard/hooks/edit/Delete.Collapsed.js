@@ -89,7 +89,9 @@ export default function onTextDeleteCollapsed() {
       if ( ids.length > 1 ) {
         ids.sort((a, b) => moments[a].order - moments[b].order);
         const idx = ids.indexOf(id);
-        const key = ids[idx + ( idx === 0 ? 1 : -1 )];
+        const key = ids[idx + 1]
+          ? ids[idx + 1]
+          : ids[idx + ( idx === 0 ? 1 : -1 )];
         if ( !key ) return;
         dispatch(api.setEditorState(root, {
           nextId: key,

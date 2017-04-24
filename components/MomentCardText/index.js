@@ -80,6 +80,10 @@ export default class MomentCardText extends React.Component {
       minHeight : data.length === 0 ? '1.4em' : 'min-content',
       paddingLeft: 40,
       paddingRight: 40,
+      paddingTop: type === 'blockquote' && 5,
+      paddingBottom: type === 'blockquote' && 5,
+      marginTop: type === 'blockquote' && 0,
+      marginBottom: type === 'blockquote' && 0,
       display: isListItem
         ? 'list-item'
         : 'inline-block',

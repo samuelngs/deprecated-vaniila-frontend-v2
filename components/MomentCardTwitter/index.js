@@ -1,13 +1,24 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-import MomentCardFallbackImage from '../MomentCardFallbackImage';
 import MomentCardMediaControls from '../MomentCardMediaControls';
-import MomentCardImageProgress from '../MomentCardImageProgress';
 
-export default class MomentCardImage extends React.Component {
+const callbacks = [ ];
+
+function addScript (src, cb) {
+  if (callbacks.length === 0) {
+    callbacks.push(cb)
+    var s = document.createElement('script')
+    s.setAttribute('src', src)
+    s.onload = () => callbacks.forEach((cb) => cb())
+    document.body.appendChild(s)
+  } else {
+    callbacks.push(cb)
+  }
+}
+
+export default class MomentCardTwitter extends React.Component {
 
   static propTypes = {
     position    : PropTypes.number,
@@ -53,19 +64,47 @@ export default class MomentCardImage extends React.Component {
 
   _forceFlag = false;
 
-  constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
+  componentDidMount() {
+    if ( !window.twttr ) {
+      const isLocal = window.location.protocol.indexOf('file') >= 0
+      const protocol = isLocal ? this.props.protocol : ''
+      addScript(`${protocol}//platform.twitter.com/widgets.js`, this.renderTweet);
+    } else {
+      this.renderTweet();
+    }
   }
 
-  handleClick() {
+  renderTweet = e => {
+    const { width, height, fullscreen, block: { data } } = this.props;
+    const opts = {
+      conversation: 'none',
+      width: width < 250
+        ? 250
+        : (
+          width > 550
+          ? 550
+          : width - 40
+        ),
+      align: 'center',
+      dnt: true,
+    };
+    if ( fullscreen && height < 500.0 ) {
+      opts.cards = 'hidden';
+    }
+    window.twttr.ready().then(({ widgets }) => {
+      widgets
+        .createTweetEmbed(data, this.n, opts);
+    });
+  }
+
+  handleClick = e => {
     const { block, onSelect } = this.props;
     const { key, type } = block;
     return onSelect(key, type);
   }
 
   getStyle(type) {
-    const { fullscreen, height, width } = this.props;
+    const { editmode, fullscreen, height, width } = this.props;
     return {
       position: 'relative',
       marginTop: fullscreen ? 0 : 10,
@@ -86,27 +125,6 @@ export default class MomentCardImage extends React.Component {
     };
   }
 
-  getImageStyle(isUploading) {
-    const { fullscreen, height, width } = this.props;
-    const args = { };
-    if ( fullscreen && height >= width ) {
-      args.height = height;
-    } else if ( fullscreen && width > height ) {
-      args.width = width;
-    } else {
-      args.maxWidth = '100%';
-    }
-    return {
-      display: 'block',
-      marginLeft: !fullscreen && 'auto',
-      marginRight: !fullscreen && 'auto',
-      minWidth: fullscreen && width,
-      minHeight: fullscreen && height,
-      opacity: isUploading ? .5 : null,
-      ...args,
-    }
-  }
-
   onChange = type => {
     const { block: { key }, onChange } = this.props;
     return onChange(type, key);
@@ -114,15 +132,22 @@ export default class MomentCardImage extends React.Component {
 
   render() {
 
-    const { position, block, files, fullscreen, editorState: { editorStartKey, editorEndKey } } = this.props;
+    const { position, block, files, editmode, fullscreen, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
-    const isImageSelected = (
+    const isSelected = (
       key === editorStartKey &&
       key === editorEndKey
     );
 
     const style = this.getStyle(type);
+    const className = editmode
+      ? (
+        isSelected
+        ? 'tweet no-select'
+        : 'tweet tweet-editable no-select'
+      )
+      : 'tweet';
 
     const props = {
       key: this._forceFlag
@@ -134,29 +159,27 @@ export default class MomentCardImage extends React.Component {
       'data-offset-position': position,
     };
 
-    const isLocal = (data || '').indexOf('local:') === 0;
-    const file = isLocal && files[data.substr(6)];
-
-    const src = isLocal && file
-      ? file.base64
-      : `${CDN_URL}/${data}/regular`;
-
-    let progress = isLocal && file && file.progress;
-    if ( typeof progress !== 'number' ) progress = 0;
-
-    return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
-      <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} />
-      <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
-      <MomentCardFallbackImage
-        src={src}
-        data-offset-key={key}
-        data-offset-position={position}
-        data-offset-group={0}
-        data-moment-image
-        style={this.getImageStyle(isLocal && !!file && !!progress && !file.url)}
-        draggable={false}
-      />
-    </figure>;
+    return <div { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
+      <style jsx>{`
+        .tweet {
+          margin-top: 0;
+          margin-bottom: 0;
+          padding-top: 5px;
+          padding-bottom: 5px;
+          padding-left: 0;
+          padding-right: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .tweet-editable {
+          pointer-events: none;
+          cursor: default;
+        }
+      `}</style>
+      <MomentCardMediaControls active={isSelected} fullscreen={fullscreen} onChange={this.onChange} />
+      <blockquote className={className} ref={n => this.n = n} />
+    </div>
   }
 
 }

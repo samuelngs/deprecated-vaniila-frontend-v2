@@ -1256,6 +1256,10 @@ commondir@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
 
+compress.js@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/compress.js/-/compress.js-1.0.9.tgz#8f847cc86153d59efcfca89c95fa574540ecfe50"
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"

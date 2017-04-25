@@ -2,12 +2,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Compress from 'compress.js';
 import { TransitionMotion, spring, presets } from 'react-motion';
 
 import Tooltip from '../Tooltip';
 import EditorMomentCardControlDelete from '../EditorMomentCardControlDelete';
 import EditorMomentCardControlAlign from '../EditorMomentCardControlAlign';
 import EditorMomentCardControlMedia from '../EditorMomentCardControlMedia';
+
+const compress = new Compress();
 
 const active   = [ { key: 'card-controls' } ];
 const inactive = [ ];
@@ -39,18 +42,47 @@ export default class MomentCardControls extends React.Component {
     if ( typeof files !== 'object' || typeof files.length !== 'number' ) {
       return;
     }
+
     const promises = [].map.call(files, file => new Promise(resolve => {
-      const reader = new FileReader();
-      reader.addEventListener('load', ({ currentTarget: { result: base64 } }) => {
-        const img = new Image;
-        img.onload = e => resolve({
-          file,
-          base64,
-          dimensions: { height: img.height, width: img.width },
-        });
-        img.src = base64;
-      }, false);
-      return reader.readAsDataURL(file);
+
+      compress.compress([ file ], {
+        size      : 2,
+        quality   : 1,
+        maxWidth  : 3840,
+        maxHeight : 3840,
+        resize    : true,
+      }).then(([ { data, prefix, ext, alt, endWidthInPx, endHeightInPx, initialSizeInMb, endSizeInMb }, ...wtv ]) => {
+
+        // if compress image successfully
+        if ( initialSizeInMb >= endSizeInMb ) {
+          const blob = {
+            file      : Compress.convertBase64ToFile(data, ext),
+            base64    : `${prefix}${data}`,
+            dimensions: { width: endWidthInPx, height: endHeightInPx },
+            compressed: true,
+          };
+          if ( typeof blob.file.name === 'undefined' ) blob.file.name = alt;
+          if ( typeof blob.file.type === 'undefined' ) blob.file.type = ext;
+          if ( typeof blob.file.size === 'undefined' ) blob.file.size = endSizeInMb;
+          if ( typeof blob.file.lastModified === 'undefined' ) blob.lastModified = Date.now();
+          return resolve(blob);
+        }
+
+        // use regular file reader
+        const reader = new FileReader();
+        reader.addEventListener('load', ({ currentTarget: { result: base64 } }) => {
+          const img = new Image;
+          img.onload = e => resolve({
+            file,
+            base64,
+            dimensions: { height: img.height, width: img.width },
+            compressed: false,
+          });
+          img.src = base64;
+        }, false);
+        return reader.readAsDataURL(file);
+
+      });
     }));
     return Promise.all(promises).then(blobs => {
       return onAction('media-upload', blobs);

@@ -358,8 +358,8 @@ class EditMoment extends React.Component {
           id={id}
           doc={doc}
           files={files}
-          editorState={editorState}
           windowSize={windowSize}
+          editorState={editorState}
           onMomentCreate={::this.onMomentCreate}
           onMomentChange={::this.onMomentChange}
           onMomentProgress={::this.onMomentProgress}

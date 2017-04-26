@@ -6,85 +6,161 @@ function easeInOutQuad(t, b, c, d)  {
   return -c / 2 * (t * (t - 2) - 1) + b
 }
 
-function opts(options) {
-  return {
-    parent  : options.parent || window,
-    distance: options.distance || 0,
-    duration: options.duration || 400,
-    offset  : options.offset || 0,
-    callback: options.callback,
-    easing  : options.easing || easeInOutQuad,
-  };
-}
-
 function animateScrollLeft(options) {
 
-  let cancel = false;
-  let hasEnded = false;
+  let element;
 
-  const opt = opts(options);
+  let start;            // where scroll starts                    (px)
+  let stop;             // where scroll stops                     (px)
+  let offset;           // adjustment from the stop position      (px)
+  let distance;         // distance of scroll                     (px)
 
-  const start = ( opt.parent === window ? opt.parent.pageXOffset : opt.parent.scrollLeft ) || 0;
-  const duration = typeof opt.duration === 'function'
-    ? opt.duration(opt.distance)
-    : opt.duration;
-  let timeStart, timeElapsed;
+  let easing;           // easing function                        (function)
+  let duration;         // scroll duration                        (ms)
 
-  const end = _ => {
-    if ( hasEnded ) return;
-    hasEnded = true;
-    const x = start + opt.distance;
-    if ( opt.parent === window ) {
-      opt.parent.scrollTo(x, 0);
-    } else {
-      opt.parent.scrollLeft = x;
-    }
-    typeof opt.callback === 'function' && opt.callback();
+  let timeStart;        // time scroll started                    (ms)
+  let timeElapsed;      // time spent scrolling thus far          (ms)
+
+  let next;             // next scroll position                   (px)
+  let callback;         // to call when done scrolling            (function)
+
+  let autoCancel;
+
+  let requestID;
+  let cancelled;
+
+  const requestAnimationFrame = (_ => {
+    return window.requestAnimationFrame
+      || window.webkitRequestAnimationFrame
+      || window.mozRequestAnimationFrame
+      || ( callback => window.setTimeout(callback, 1000 / 60) );
+  })();
+
+  const cancelAnimationFrame = (_ => {
+    return window.cancelAnimationFrame
+      || window.webkitCancelAnimationFrame
+      || window.mozRequestAnimationFrame
+      || ( id => window.clearTimeout(id) );
+  })();
+
+  function location() {
+    const x = element === window
+      ? ( window.scrollX || window.pageXOffset )
+      : ( element.scrollLeft )
+    return x || 0;
   }
 
-  const cancellable = _ => {
-    cancel = true;
-    if ( !hasEnded ) {
-      hasEnded = true;
-      typeof opt.callback === 'function' && opt.callback();
-    }
+  function scrollTo(x) {
+    element === window
+      ? element.scrollTo(x, 0)
+      : ( element.scrollLeft = x );
   }
 
-  const loop = time => {
-    if ( cancel ) return;
-    timeElapsed = time - timeStart;
-    const x = opt.easing(timeElapsed, start, opt.distance, duration)
-    if ( opt.parent === window ) {
-      opt.parent.scrollTo(x, 0);
-    } else {
-      opt.parent.scrollLeft = x;
-    }
+  function isCancelled() {
+    return !!cancelled;
+  }
 
+  function loop(timeCurrent) {
+    // store time scroll started, if not started already
+    if ( !timeStart ) {
+      timeStart = timeCurrent;
+    }
+    // determine time spent scrolling so far
+    timeElapsed = timeCurrent - timeStart;
+    // calculate next scroll position
+    next = easing(timeElapsed, start, distance, duration);
+    if ( isCancelled() ) return;
+    // scroll to it
+    scrollTo(next);
+    // check progress
     if ( timeElapsed < duration ) {
-      requestAnimationFrame(loop);
+      // continue scroll loop
+      requestID = requestAnimationFrame(loop);
     } else {
-      end();
+      // scrolling is done
+      done();
     }
   }
 
-  requestAnimationFrame(time => {
-    timeStart = time;
-    loop(time);
-  });
+  function done() {
+    // account for rAF time rounding inaccuracies
+    scrollTo(start + distance);
+    // if it exists, fire the callback
+    if ( typeof callback === 'function' ) {
+      callback();
+    }
+    // reset time for next jump
+    timeStart = false;
+    post();
+  }
 
-  return cancellable;
+  function cancel() {
+    if ( isCancelled() ) return;
+    timeStart = false;
+    cancelled = true;
+    cancelAnimationFrame(requestID);
+    post();
+  }
+
+  function post() {
+    removeEventListener();
+    // if it exists, fire the callback
+    if ( typeof callback === 'function' ) {
+      callback();
+    }
+  }
+
+  function addEventListener() {
+    if ( !autoCancel ) return;
+    window.addEventListener('wheel', cancel, false);
+    window.addEventListener('touchstart', cancel, false);
+  }
+
+  function removeEventListener() {
+    if ( !autoCancel ) return;
+    window.removeEventListener('wheel', cancel, false);
+    window.removeEventListener('touchstart', cancel, false);
+  }
+
+  function scroll(next) {
+
+    element     = options.element  || window;
+    distance    = options.distance || 0;
+    duration    = options.duration || 500;
+    offset      = options.offset   || 0;
+    easing      = options.easing   || easeInOutQuad;
+    callback    = options.after || ( _ => { } );
+    autoCancel  = typeof options.autoCancel === 'boolean'
+      ? options.autoCancel
+      : true;
+
+    if ( distance === 0 ) return;
+    if ( typeof options.before === 'function' ) options.before();
+
+    start       = location();
+    stop        = start + distance + offset;
+
+    addEventListener();
+    requestID = requestAnimationFrame(loop);
+  }
+
+  return {
+    scroll,
+    cancel,
+    isCancelled,
+  };
 }
 
 export function scrollLeft(options) {
   return animateScrollLeft(options);
 }
 
-export function scrollToLeft(parent, pos, options) {
-  const start = ( parent === window ? parent.pageXOffset : parent.scrollLeft ) || 0;
+export function scrollToLeft(element, pos, options) {
+  const start = ( element === window ? element.pageXOffset : element.scrollLeft ) || 0;
   const distance = pos - start;
-  return animateScrollLeft({
+  return new animateScrollLeft({
     ...options,
-    parent,
+    element,
     distance,
   });
 }

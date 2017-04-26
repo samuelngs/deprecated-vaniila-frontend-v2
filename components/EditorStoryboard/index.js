@@ -2,11 +2,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { scrollToLeft } from '../Scroller';
-
 import EditorMomentCards from '../EditorMomentCards';
 import EditorContextualToolBar from '../EditorContextualToolbar';
 
+import { scrollToLeft } from '../Scroller';
 import { api } from '../../reducers/editor';
 
 export default class EditorStoryboard extends React.Component {
@@ -44,13 +43,264 @@ export default class EditorStoryboard extends React.Component {
   }
 
   state = {
+
+    dragging: false,  // dragging state
+    sx      : 0,      // start x
+    sy      : 0,      // start y
+    cx      : 0,      // current x
+    cy      : 0,      // current y
+
     scrollLeft: 0,
-    isPressed: false,
-    topDeltaX: 0,
-    mouseX: 0,
-    originalPosOfLastPressed: 0,
   }
 
+  componentDidMount() {
+    window.addEventListener('touchstart', this.handleTouchStart);
+    window.addEventListener('touchmove', this.handleTouchMove);
+    window.addEventListener('touchend', this.handleTouchEnd);
+    window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('mousedown', this.handleMouseDown);
+    window.addEventListener('mouseup', this.handleMouseUp);
+    if ( this.n && this.n.lastChild ) this.n.scrollLeft = this.n.lastChild.offsetWidth;
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('touchstart', this.handleTouchStart);
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('touchend', this.handleTouchEnd);
+    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('mousedown', this.handleMouseDown);
+    window.removeEventListener('mouseup', this.handleMouseUp);
+  }
+
+  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorHasFocus: prevHasFocus } }) {
+    const { editorState: { editorMoment, editorHasFocus } } = this.props;
+    if ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) {
+      this.refocus(editorMoment);
+    }
+  }
+
+  /**
+   * on touch start
+   */
+  handleTouchStart = e => {
+    const { targetTouches: touches } = e;
+    const { pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle } = e.targetTouches[0];
+    const c = { nativeEvent: e, pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle };
+    return this.handleMouseDown(c, 'touch');
+  }
+
+  /**
+   * on touch move
+   */
+  handleTouchMove = e => {
+    const { targetTouches: touches } = e;
+    const { pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle } = e.targetTouches[0];
+    const c = { nativeEvent: e, touches, pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle };
+    return this.handleMouseMove(c, 'touch');
+  }
+
+  /**
+   * on touch release
+   */
+  handleTouchEnd = e => {
+    const { changedTouches: touches } = e;
+    const { pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle } = e.changedTouches[0];
+    const c = { nativeEvent: e, touches, pageX, pageY, screenX, screenY, clientX, clientY, force, identifier, radiusX, radiusY, rotationAngle };
+    return this.handleMouseUp(c, 'touch');
+  }
+
+  /**
+   * on mouse down
+   */
+  handleMouseDown = (e, t = 'mouse') => {
+
+    this.setState({
+      dragging: true,
+      sx      : e.pageX,
+      sy      : e.pageY,
+      cx      : e.pageX,
+      cy      : e.pageY,
+    });
+
+    // retrieve native event
+    const evt = e.nativeEvent || e;
+
+    // override contextual and controls behavior
+    if (
+      (
+       evt.target.hasAttribute('data-contextual-menu') ||
+       evt.target.hasAttribute('data-controls')
+      )
+      && evt.preventDefault
+    ) return evt.preventDefault();
+  }
+
+  /**
+   * on mouse move
+   */
+  handleMouseMove = (e, t = 'mouse') => {
+
+    const { dragging, sx, cx } = this.state;
+    if ( !dragging ) return;
+
+    this.setState(state => state.dragging && {
+      cx: e.pageX,
+      cy: e.pageY,
+    });
+
+    // retrieve native event
+    const evt = e.nativeEvent || e;
+    const { card: { width, padding, mode } } = this.size(0);
+
+    switch ( mode ) {
+
+      case 'mobile':
+        const dx = Math.abs(sx - e.pageX) <= ( width + padding )
+          ? cx - e.pageX
+          : 0;
+        if ( this.n ) this.n.scrollLeft += dx;
+        break;
+    }
+
+  }
+
+  /**
+   * on mouse up
+   */
+  handleMouseUp = (e, t = 'mouse') => {
+
+    const { dragging, sx, cx } = this.state;
+
+    this.setState(state => state.dragging && { dragging: false });
+
+    if ( !dragging ) return;
+
+    // retrieve native event
+    const evt = e.nativeEvent || e;
+
+    const { ids } = this.doc();
+    const { card: { width, padding, mode } } = this.size(0);
+
+    switch ( mode ) {
+
+      case 'mobile':
+
+        const swipeMin = width / 5;
+        const swipeLen = Math.round(Math.sqrt(Math.pow(e.pageX - sx, 2)));
+        const swipeOffset = e.pageX > sx
+          ? -1
+          : 1;
+        const swipeModified = Math.abs(sx - cx) < width / 2;
+
+        if ( swipeLen > swipeMin ) {
+
+          const nearest = this.nearest();
+          const offsets = [ 0, ...ids.map(
+            (n, i) => (i + 1) * (width + padding),
+          ) ];
+          const idx = offsets.indexOf(nearest);
+
+          if ( idx > -1 ) {
+            let next = swipeModified
+              ? idx + swipeOffset
+              : idx;
+            if ( next < 0 ) next = 0;
+            if ( next > ids.length ) next = ids.length;
+            const offset = offsets[next];
+            this.scroll(offset);
+          }
+        } else {
+          this.scroll(this.nearest());
+        }
+
+        break;
+
+    }
+
+  }
+
+  /**
+   * on scroll event
+   */
+  handleScroll = e => {
+    this.handlePositionCapture(e);
+    this.handleAfterScroll(e);
+  }
+
+  /**
+   * handle after scroll moment
+   */
+  handleAfterScroll = e => {
+    if ( this.$$_cancel_scroll_$$ ) return;
+    this.$$_after_scroll_$$ && window.clearTimeout(this.$$_after_scroll_$$);
+    this.$$_after_scroll_$$ = window.setTimeout(this.recenter, 200);
+  }
+
+  /**
+   * handle position capture
+   */
+  handlePositionCapture = e => {
+    if ( this.n ) {
+      const { scrollLeft } = this.n;
+      this.setState({ scrollLeft });
+    }
+  }
+
+  /**
+   * on contextual toolbar press
+   */
+  handleContextualToolbarPress = action => {
+    const { editorState: { editorMoment } } = this.props;
+    this.cards && this.cards.emit(editorMoment, 'edit', 'style', action);
+  }
+
+  /**
+   * animate scroll helper
+   */
+  scroll = offset => {
+    if ( this.$$_cancel_scroll_$$ ) this.$$_cancel_scroll_$$();
+    if ( this.n ) {
+      const { card: { mode } } = this.size(0);
+      const { scroll, cancel } = scrollToLeft(this.n, offset, {
+        autoCancel: mode !== 'mobile',
+        before    : _ => ( this.$$_cancel_scroll_$$ = cancel ),
+        after     : _ => ( this.$$_cancel_scroll_$$ = null ),
+      });
+      scroll();
+    }
+  }
+
+  /**
+   * refocus on a moment card
+   */
+  refocus = id => {
+    if ( !id ) return;
+    const { ids } = this.doc();
+    const { card: { width, padding } } = this.size(0);
+    const idx = ids.indexOf(id);
+    if ( idx > -1 ) {
+      const offset = ids.map(
+        (n, i) => (i + 1) * (width + padding),
+      )[idx];
+      this.scroll(offset);
+    }
+  }
+
+  /**
+   * re-center scroll location
+   */
+  recenter = offset => {
+    if ( this.$$_cancel_scroll_$$ ) return;
+    if ( typeof offset === 'number' ) {
+      return this.scroll(offset);
+    }
+    const nearest = this.nearest();
+    return this.scroll(nearest);
+  }
+
+  /**
+   * return organized doc
+   */
   doc() {
     const { doc } = this.props;
     const data = (doc.data || { });
@@ -60,173 +310,66 @@ export default class EditorStoryboard extends React.Component {
     return { ids, count, moments };
   }
 
-  componentDidMount() {
-    this.bind();
-    this.addEventListener();
-    this.defaultLayout();
-  }
+  /**
+   * calculate card, list and screen size
+   */
+  size(count) {
 
-  componentWillUnmount() {
-    this.removeEventListener();
-  }
+    const { windowSize: screen } = this.props;
+    const { width, height } = screen;
 
-  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorHasFocus: prevHasFocus } }) {
-    const { editorState: { editorMoment, editorHasFocus } } = this.props;
-    if ( this.n && editorMoment && ( editorMoment !== prevMoment || editorHasFocus !== prevHasFocus ) ) {
-      this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
-      this.onMomentsRelocation = setTimeout(_ => {
-        const { ids } = this.doc();
-        const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
-        const idx = ids.indexOf(editorMoment);
-        if ( idx === -1 ) return;
-        const widths = ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding);
-        const offset = widths[idx];
-        if ( this.scrollCancellable ) this.scrollCancellable();
-        this.scrollCancellable = scrollToLeft(this.n, offset);
-      }, 200);
-    }
-  }
+    const defaults = {
+      padding     : 40.0,
+      maxWidth    : 1024,
+      maxHeight   : 768,
+      offsetWidth : 0,
+      offsetHeight: 160.0,
+    };
 
-  defaultLayout() {
-    if ( this.n && this.n.lastChild ) {
-      this.n.scrollLeft = this.n.lastChild.offsetWidth;
-    }
-  }
+    const res = {
+      card  : { width: ( width - defaults.padding ), height: ( height - defaults.offsetHeight ), padding: defaults.padding, ratio: ( width - defaults.padding ) / defaults.maxWidth, mode: 'desktop' },
+      list  : { width: 0, height: 0, padding: 0 },
+      screen,
+    };
 
-  bind() {
-    this.handleTouchUp = this.handleTouchUp.bind(this);
-    this.handleTouchStart = this.handleTouchStart.bind(this);
-    this.handleTouchMove = this.handleTouchMove.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.handleMouseMove = this.handleMouseMove.bind(this);
-    this.handleMouseDown = this.handleMouseDown.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.handleScroll = this.handleScroll.bind(this);
-  }
-
-  addEventListener() {
-    window.addEventListener('touchstart', this.handleTouchStart);
-    window.addEventListener('touchmove', this.handleTouchMove);
-    window.addEventListener('touchend', this.handleTouchUp);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    window.addEventListener('mousedown', this.handleMouseDown);
-    window.addEventListener('mouseup', this.handleMouseUp);
-  }
-
-  removeEventListener() {
-    window.removeEventListener('touchstart', this.handleTouchStart);
-    window.removeEventListener('touchmove', this.handleTouchMove);
-    window.removeEventListener('touchend', this.handleTouchUp);
-    window.removeEventListener('mousemove', this.handleMouseMove);
-    window.removeEventListener('mousedown', this.handleMouseDown);
-    window.removeEventListener('mouseup', this.handleMouseUp);
-  }
-
-  onContextualMenuPress(action) {
-    const { editorState: { editorMoment } } = this.props;
-    this.cards && this.cards.emit(editorMoment, 'edit', 'style', action);
-  }
-
-  onContextualMenuOverride(e) {
-    (
-     e.target.hasAttribute('data-contextual-menu') ||
-     e.target.hasAttribute('data-controls')
-    ) && e.preventDefault && e.preventDefault();
-  }
-
-  handleTouchUp(e) {
-    this.handleMouseUp(e);
-  }
-
-  handleTouchStart(e) {
-  }
-
-  handleTouchMove(e) {
-  }
-
-  handleMouseUp(e) {
-  }
-
-  handleMouseDown(e) {
-    this.onContextualMenuOverride(e);
-  }
-
-  handleMouseMove({ pageX }) {
-
-    const { isPressed, topDeltaX, originalPosOfLastPressed } = this.state;
-
-    // if it's not pressed, ignored action
-    if ( !isPressed ) return;
-
-    const mouseX = pageX - topDeltaX;
-
-  }
-
-  handleScroll() {
-    const { id, editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed } } = this.props;
-    if ( !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 ) {
-      this.onContextualMenuRelocation && clearImmediate(this.onContextualMenuRelocation);
-      this.onContextualMenuRelocation = setImmediate(_ => {
-        const rect = window.getSelection().getRangeAt(0).getBoundingClientRect() || { };
-        const { store: { dispatch } } = this.context;
-        dispatch(api.setEditorState(id, {
-          selectionTop      : rect.top,
-          selectionLeft     : rect.left,
-          selectionBottom   : rect.bottom,
-          selectionRight    : rect.right,
-          selectionHeight   : rect.height,
-          selectionWidth    : rect.width,
-        }));
-      });
-    }
-    if ( this.n ) {
-      const { scrollLeft } = this.n;
-      this.setState({ scrollLeft });
-    }
-    this.handleRelocation();
-  }
-
-  handleRelocation() {
-    if ( !this.n ) return;
-    this.onMomentsRelocation && clearTimeout(this.onMomentsRelocation);
-    this.onMomentsRelocation = setTimeout(_ => {
-      const offset = this.getMomentOffsets();
-      if ( !this.n ) return;
-      if ( this.scrollCancellable ) this.scrollCancellable();
-      this.scrollCancellable = scrollToLeft(this.n, offset);
-    }, 500);
-  }
-
-  getMomentStyle(count) {
-    const { windowSize } = this.props;
-    let itemWidth = windowSize.width - 40.0;
-    let itemHeight = windowSize.height - 160.0;
-    let itemRatio = itemWidth / 1024.0;
-    if ( itemWidth >= 760 ) {
-      itemWidth = Math.ceil(itemWidth * 0.5);
-      itemRatio = itemWidth / 1024.0;
-      let itemRatioHeight = Math.ceil(768 * itemRatio);
-      itemHeight = itemHeight > itemRatioHeight ? itemRatioHeight : itemHeight;
+    if ( res.card.width >= defaults.maxHeight ) {
+      res.card.width = Math.ceil(res.card.width * .5);
+      res.card.ratio = res.card.width / defaults.maxWidth;
+      let h = Math.ceil(defaults.maxHeight * res.card.ratio);
+      res.card.height = res.card.height > h
+        ? h
+        : res.card.height;
+      res.card.mode = 'desktop';
     } else {
-      let itemHeightRatio = itemHeight / 768.0;
-      itemRatio = itemRatio > itemHeightRatio ? itemHeightRatio : itemRatio;
+      let r = res.card.height / defaults.maxHeight;
+      res.card.ratio = res.card.ratio > r
+        ? r
+        : res.card.ratio;
+      res.card.mode = 'mobile';
     }
-    if ( itemWidth > 1024 ) itemWidth = 1024;
-    if ( itemHeight > 768 ) itemHeight = 768;
-    const itemPadding = 40.0;
-    const listWidth = itemWidth * (count + 1) + itemPadding * count + (windowSize.width - itemWidth) / 2;
-    const listPadding = (windowSize.width - itemWidth) / 2;
-    const listHeight = itemHeight;
-    const maximumItems = Math.ceil(windowSize.width / itemWidth);
-    return { itemWidth, itemHeight, itemPadding, itemRatio, listWidth, listHeight, listPadding, maximumItems };
+
+    if ( res.card.width > defaults.maxWidth ) res.card.width = defaults.maxWidth;
+    if ( res.card.height > defaults.maxHeight ) res.card.height = defaults.maxHeight;
+
+    res.list.width = ( res.card.width + res.card.padding) * (count + 1) + ( width - res.card.width ) / 2;
+    res.list.height = ( res.card.height );
+    res.list.padding = ( width - res.card.width ) / 2;
+
+    return res;
   }
 
-  getMomentOffsets() {
-    const { ids, count, moments } = this.doc();
-    const { itemWidth, itemPadding } = this.getMomentStyle(ids.length);
+  /**
+   * return nearest moment offsets
+   */
+  nearest() {
     const { scrollLeft } = this.n;
-    const widths = [ 0, ...ids.map((n, i) => (i + 1) * itemWidth + (i + 1) * itemPadding) ];
-    return widths.reduce((prev, curr) => (Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft) ? curr : prev));
+    const { ids, count, moments } = this.doc();
+    const { card: { width, padding } } = this.size(ids.length);
+    return [ 0, ...ids.map((n, i) => (i + 1) * (width + padding)) ].reduce(
+      (prev, curr) => Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft)
+        ? curr
+        : prev
+    );
   }
 
   render() {
@@ -251,17 +394,14 @@ export default class EditorStoryboard extends React.Component {
       moments,
     } = this.doc();
 
-    const {
-      itemWidth,
-      itemHeight,
-      itemPadding,
-      itemRatio,
-      listWidth,
-      listHeight,
-      listPadding,
-    } = this.getMomentStyle(ids.length);
+    const size = this.size(ids.length);
+    const { card: { mode } } = size;
 
-    return <div ref={n => this.n = n} className="base" data-moments={true} onScroll={this.handleScroll}>
+    const className = mode === 'mobile'
+      ? 'base base-mobile'
+      : 'base';
+
+    return <div ref={n => this.n = n} className={className} data-moments={true} onScroll={this.handleScroll}>
       <style jsx>{`
         .base {
           margin-top: 46px;
@@ -271,12 +411,16 @@ export default class EditorStoryboard extends React.Component {
           overflow-y: hidden!important;
           align-items: center;
         }
+        .base-mobile {
+          overflow-x: hidden!important;
+          overflow-y: hidden!important;
+        }
       `}</style>
       <EditorContextualToolBar
         root={id}
         editorState={editorState}
         windowSize={windowSize}
-        onPress={::this.onContextualMenuPress}
+        onPress={this.handleContextualToolbarPress}
       />
       <EditorMomentCards
         ref={n => this.cards = n}
@@ -284,11 +428,7 @@ export default class EditorStoryboard extends React.Component {
         ids={ids}
         count={count}
         moments={moments}
-        size={{
-          list  : { width: listWidth, height: listHeight, padding: listPadding },
-          card  : { width: itemWidth, height: itemHeight, padding: itemPadding, ratio: itemRatio },
-          screen: { width: windowSize.width, height: windowSize.height },
-        }}
+        size={size}
         state={editorState}
         files={files}
         scrollLeft={scrollLeft}

@@ -57,8 +57,8 @@ export default class EditorStoryboard extends React.Component {
     window.addEventListener('touchstart', this.handleTouchStart);
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('touchend', this.handleTouchEnd);
-    window.addEventListener('mousemove', this.handleMouseMove);
     window.addEventListener('mousedown', this.handleMouseDown);
+    window.addEventListener('mousemove', this.handleMouseMove);
     window.addEventListener('mouseup', this.handleMouseUp);
     if ( this.n && this.n.lastChild ) this.n.scrollLeft = this.n.lastChild.offsetWidth;
   }
@@ -67,17 +67,18 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('touchstart', this.handleTouchStart);
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleTouchEnd);
-    window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mousedown', this.handleMouseDown);
+    window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mouseup', this.handleMouseUp);
   }
 
   componentDidUpdate({ editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
     const { editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
-    if ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) {
+    if (
+      ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) ||
+      ( prevNextMoment && !editorNextMoment )
+    ) {
       this.refocus(editorMoment);
-    } else if ( prevNextMoment && !editorNextMoment ) {
-      this.refocus(prevNextMoment);
     }
   }
 
@@ -233,8 +234,9 @@ export default class EditorStoryboard extends React.Component {
    * handle after scroll moment
    */
   handleAfterScroll = e => {
-    if ( this.$$_cancel_scroll_$$ ) return;
+    const { dragging } = this.state;
     this.$$_after_scroll_$$ && window.clearTimeout(this.$$_after_scroll_$$);
+    if ( dragging || this.$$_cancel_scroll_$$ ) return;
     this.$$_after_scroll_$$ = window.setTimeout(this.recenter, 200);
   }
 

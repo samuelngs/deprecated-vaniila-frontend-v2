@@ -72,10 +72,12 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('mouseup', this.handleMouseUp);
   }
 
-  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorHasFocus: prevHasFocus } }) {
-    const { editorState: { editorMoment, editorHasFocus } } = this.props;
+  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
+    const { editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
     if ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) {
       this.refocus(editorMoment);
+    } else if ( prevNextMoment && !editorNextMoment ) {
+      this.refocus(prevNextMoment);
     }
   }
 

@@ -125,11 +125,11 @@ function hookSetEditorState(states, { id, options: opts }, store) {
   conditionUpdateNext(state, present, opts);
   conditionUpdateAnchorPoint(state, present, opts);
   conditionUpdateFocusPoint(state, present, opts);
+  conditionUpdateFocus(state, present, opts);
   conditionUpdateOrdering(state, present, opts);
   conditionUpdateSelectionPosition(state, present, opts);
   conditionUpdateSelectionRecovery(state, present, opts);
   conditionUpdateSelectionCollapsed(state, present, opts);
-  conditionUpdateFocus(state, present, opts);
   conditionUpdateCompositionMode(state, present, opts);
   conditionUpdateCompositionResolved(state, present, opts);
   conditionUpdateComposing(state, present, opts);

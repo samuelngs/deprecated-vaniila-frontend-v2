@@ -45,6 +45,7 @@ export default class EditorStoryboard extends React.Component {
   state = {
 
     dragging: false,  // dragging state
+    moved   : false,  // touch moved
     sx      : 0,      // start x
     sy      : 0,      // start y
     cx      : 0,      // current x
@@ -74,10 +75,10 @@ export default class EditorStoryboard extends React.Component {
 
   componentDidUpdate({ editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
     const { editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
-    const { dragging } = this.state;
+    const { dragging, moved } = this.state;
     if (
-      !dragging &&
-      (
+      !(dragging && moved)
+      && (
         ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) ||
         ( prevNextMoment && !editorNextMoment )
       )
@@ -151,8 +152,9 @@ export default class EditorStoryboard extends React.Component {
     if ( !dragging ) return;
 
     this.setState(state => state.dragging && {
-      cx: e.pageX,
-      cy: e.pageY,
+      moved : true,
+      cx    : e.pageX,
+      cy    : e.pageY,
     });
 
     // retrieve native event
@@ -178,7 +180,7 @@ export default class EditorStoryboard extends React.Component {
 
     const { dragging, sx, cx } = this.state;
 
-    this.setState(state => state.dragging && { dragging: false });
+    this.setState(state => state.dragging && { dragging: false, moved: false });
 
     if ( !dragging ) return;
 

@@ -74,9 +74,13 @@ export default class EditorStoryboard extends React.Component {
 
   componentDidUpdate({ editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
     const { editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
+    const { dragging } = this.state;
     if (
-      ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) ||
-      ( prevNextMoment && !editorNextMoment )
+      !dragging &&
+      (
+        ( editorMoment && editorHasFocus && ( ( editorMoment !== prevMoment ) || ( editorMoment === prevMoment && editorHasFocus !== prevHasFocus ) ) ) ||
+        ( prevNextMoment && !editorNextMoment )
+      )
     ) {
       this.refocus(editorMoment);
     }

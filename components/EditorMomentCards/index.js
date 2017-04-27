@@ -162,6 +162,7 @@ export default class EditorMomentCards extends React.Component {
   }
 
   getStyles() {
+
     const {
       id: root,
       ids,
@@ -174,6 +175,11 @@ export default class EditorMomentCards extends React.Component {
       onChange,
       onProgress,
     } = this.props;
+
+    const {
+      editorMoment,
+    } = state;
+
     return ids.map((id, i) => ({
       key       : id,
       data      : {
@@ -193,7 +199,9 @@ export default class EditorMomentCards extends React.Component {
         onProgress,
       },
       style     : {
-        x       : spring(( i + 1 ) * (width + padding)),
+        x       : editorMoment === id
+          ? ( i + 1 ) * (width + padding)
+          : spring(( i + 1 ) * (width + padding)),
         y       : spring(0),
         opacity : spring(1),
         scale,

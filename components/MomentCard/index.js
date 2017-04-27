@@ -470,6 +470,7 @@ export default class MomentCard extends React.Component {
         }
       `}</style>
       <MomentCardControls
+        id={id}
         no={no}
         total={total}
         editmode={editmode && !cover}

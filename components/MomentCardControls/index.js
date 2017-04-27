@@ -18,6 +18,7 @@ const inactive = [ ];
 export default class MomentCardControls extends React.Component {
 
   static propTypes = {
+    id          : PropTypes.string,
     no          : PropTypes.number,
     total       : PropTypes.number,
     editmode    : PropTypes.bool,
@@ -27,6 +28,7 @@ export default class MomentCardControls extends React.Component {
   }
 
   static defaultProps = {
+    id          : '',
     no          : 1,
     total       : 0,
     editmode    : false,
@@ -116,7 +118,7 @@ export default class MomentCardControls extends React.Component {
   }
 
   renderCardControls = ({ key, style, data }) => {
-    const { no, total, editmode, active, fullscreen, onAction } = this.props;
+    const { id, no, total, editmode, active, fullscreen, onAction } = this.props;
     return <div key={key} className="base" style={{ opacity: style.opacity, transform: `translate3d(0px, ${style.y}px, 0px) scale(1)` }} data-controls>
       <style jsx>{`
         .base {
@@ -165,15 +167,15 @@ export default class MomentCardControls extends React.Component {
       `}</style>
       { no !== -1 && <div className="column" data-controls>{ no } of { total }</div> }
       { !fullscreen && <div className="column" data-controls>
-        <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
+        { id !== 'cover' && <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
           <EditorMomentCardControlAlign />
-        </Tooltip>
+        </Tooltip> }
         <Tooltip tag="label" className="card-controls-button" title="Upload image" data-controls>
           <EditorMomentCardControlMedia />
           <input className="card-input-hidden" type="file" onChange={this.onFileChange} onClick={this.onFileClick} data-controls />
         </Tooltip>
       </div> }
-      { total > 1 && <div className="column" data-controls>
+      { id !== 'cover' && total > 1 && <div className="column" data-controls>
         <Tooltip tag="button" className="card-controls-button" title="Delete moment" data-controls onClick={_ => onAction('delete-moment')}>
           <EditorMomentCardControlDelete />
         </Tooltip>

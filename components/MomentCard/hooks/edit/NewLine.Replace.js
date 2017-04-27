@@ -13,6 +13,10 @@ export default function onNewLineReplace() {
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch } } = this.context;
 
+  if ( id === 'cover' ) {
+    return;
+  }
+
   const {
     editorStartKey,
     editorStartGroup,

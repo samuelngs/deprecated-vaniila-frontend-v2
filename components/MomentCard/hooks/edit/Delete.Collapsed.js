@@ -65,7 +65,7 @@ export default function onTextDeleteCollapsed() {
 
   if ( textLength === 0 && blockIndex === 0 ) {
 
-    if ( isText(block) && block.type !== 'unstyled' ) {
+    if ( id !== 'cover' && isText(block) && block.type !== 'unstyled' ) {
       block.type = 'unstyled';
       return Promise.resolve(onChange(id, clone)).then(_ => {
         return dispatch(api.setEditorState(root, {
@@ -81,7 +81,7 @@ export default function onTextDeleteCollapsed() {
       });
     }
 
-    if ( blocks.length === 1 ) {
+    if ( id !== 'cover' && blocks.length === 1 ) {
       const { editorHistories } = getState();
       const { present: doc } = editorHistories[root] || { };
       const moments = doc && doc.data && doc.data.slides || { };
@@ -104,7 +104,7 @@ export default function onTextDeleteCollapsed() {
 
   if ( affactedLength === 0 && blockIndex > 0 ) {
 
-    if ( isText(block) && block.type !== 'unstyled' ) {
+    if ( id !== 'cover' && isText(block) && block.type !== 'unstyled' ) {
       block.type = 'unstyled';
       return Promise.resolve(onChange(id, clone)).then(_ => {
         return dispatch(api.setEditorState(root, {

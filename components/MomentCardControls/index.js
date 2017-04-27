@@ -163,7 +163,7 @@ export default class MomentCardControls extends React.Component {
           top: -3000px;
         }
       `}</style>
-      <div className="column" data-controls>{ no } of { total }</div>
+      { no !== -1 && <div className="column" data-controls>{ no } of { total }</div> }
       { !fullscreen && <div className="column" data-controls>
         <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
           <EditorMomentCardControlAlign />

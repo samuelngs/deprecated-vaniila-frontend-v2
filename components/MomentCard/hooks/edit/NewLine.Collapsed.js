@@ -12,6 +12,10 @@ export default function onNewLineCollapsed() {
   const { moment, editorState, root, id, onChange } = this.props;
   const { store: { dispatch, getState } } = this.context;
 
+  if ( id === 'cover' ) {
+    return;
+  }
+
   const {
     editorStartKey,
     editorStartGroup,

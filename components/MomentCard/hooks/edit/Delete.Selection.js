@@ -169,10 +169,9 @@ export default function onTextDeleteSelection() {
     }
   }
 
-
   newStartBlock = { ...startBlock, data: mergeText, styles: styles };
   newStartBlock.styles = simplify(newStartBlock);
-  if ( mergeText.length === 0 && newStartBlock.type !== 'unstyled' ) newStartBlock.type = 'unstyled';
+  if ( id !== 'cover' && mergeText.length === 0 && newStartBlock.type !== 'unstyled' ) newStartBlock.type = 'unstyled';
 
   blocks[startBlockIndex] = newStartBlock;
 

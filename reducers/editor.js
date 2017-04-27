@@ -187,7 +187,21 @@ function conditionUpdateOrdering(state, doc, opts) {
 
   const data = (doc.data || { });
   const moments = (data.slides || { });
-  const moment = moments[editorMoment];
+  const moment = editorMoment === 'cover'
+    ? {
+      data  : {
+        blocks: [
+          {
+            key   : 'cover',
+            type  : 'unstyled',
+            data  : '',
+            styles: [ ],
+          }
+        ]
+      }
+    }
+    : moments[editorMoment];
+
   if ( typeof moment !== 'object' || moment === null ) return;
 
   const blocks = (moment && moment.data && moment.data.blocks) || [ ];

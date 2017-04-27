@@ -24,6 +24,7 @@ export default class EditorMomentCards extends React.Component {
     // number of moment items
     count           : PropTypes.number,
     // moments datastore
+    cover           : PropTypes.object,
     moments         : PropTypes.object,
     // sizing units
     size            : PropTypes.shape({
@@ -58,6 +59,7 @@ export default class EditorMomentCards extends React.Component {
     id              : '',
     ids             : [ ],
     count           : 0,
+    cover           : { data: { } },
     moments         : { },
     size            : { },
     scrollLeft      : 0,
@@ -243,8 +245,21 @@ export default class EditorMomentCards extends React.Component {
   }
 
   render() {
-    const { id: root, ids, moments, size: { card: { width, height, padding, ratio } } } = this.props;
-    const { initialized } = this.state;
+
+    const {
+      id: root,
+      ids,
+      cover,
+      moments,
+      state,
+      size: { card: { width, height, padding, ratio } },
+      onChange,
+    } = this.props;
+
+    const {
+      initialized,
+    } = this.state;
+
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}
@@ -257,13 +272,19 @@ export default class EditorMomentCards extends React.Component {
           `}</style>
           <MomentCard
             id="cover"
+            key="cover"
             root={root}
+            no={-1}
+            total={ids.length}
             cover={true}
-            moment={moments.cover}
+            moment={cover}
             scale={ratio}
             width={width}
             height={height}
             editmode={true}
+            editorState={state}
+            placeholder="What's this all about? (~ﾟ∀ﾟ)~"
+            onChange={onChange}
           />
           { styles.map(this.renderCard) }
           <EditorCreateCard

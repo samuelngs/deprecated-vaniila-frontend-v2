@@ -61,16 +61,16 @@ export default class EditorContextualToolBar extends React.Component {
   }
 
   getDefaultStyles() {
-    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
-    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
+    const { editorState: { editorStartKey, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
+    const arr = editorStartKey !== 'cover' && !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { y: 0, opacity: 1 } }));
   }
 
   getStyles() {
-    const { editorState: { editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
-    const arr = !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
+    const { editorState: { editorStartKey, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorHasFocus } } = this.props;
+    const arr = editorStartKey !== 'cover' && !editorIsCollapsed && editorSelectionTop !== 0 && editorSelectionLeft !== 0 && editorHasFocus
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { y: spring(20), opacity: spring(1) } }));

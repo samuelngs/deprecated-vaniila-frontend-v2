@@ -17,6 +17,7 @@ export default class EditorStoryboard extends React.Component {
   static propTypes = {
     id              : PropTypes.string,
     doc             : PropTypes.object,
+    cover           : PropTypes.object,
     files           : PropTypes.object,
     editorState     : PropTypes.object,
     windowSize      : PropTypes.shape({
@@ -31,6 +32,7 @@ export default class EditorStoryboard extends React.Component {
   static defaultProps = {
     id              : '',
     doc             : { data: { slides: { } } },
+    cover           : { data: { } },
     files           : { },
     editorState     : { },
     windowSize      : {
@@ -291,10 +293,14 @@ export default class EditorStoryboard extends React.Component {
     const { ids } = this.doc();
     const { card: { width, padding } } = this.size(0);
     const idx = ids.indexOf(id);
-    if ( idx > -1 ) {
-      const offset = ids.map(
-        (n, i) => (i + 1) * (width + padding),
-      )[idx];
+    if ( id === 'cover' || idx > -1 ) {
+
+      const offset = id === 'cover'
+        ? 0
+        : ids.map(
+          (n, i) => (i + 1) * (width + padding),
+        )[idx];
+
       if ( animate ) {
         this.scroll(offset);
       } else {
@@ -393,6 +399,7 @@ export default class EditorStoryboard extends React.Component {
 
     const {
       id,
+      cover,
       files,
       editorState,
       windowSize,
@@ -444,6 +451,7 @@ export default class EditorStoryboard extends React.Component {
         id={id}
         ids={ids}
         count={count}
+        cover={cover}
         moments={moments}
         size={size}
         state={editorState}

@@ -32,6 +32,7 @@ export default class MomentCard extends React.Component {
     width       : PropTypes.number,
     height      : PropTypes.number,
     cover       : PropTypes.bool,
+    placeholder : PropTypes.string,
     editmode    : PropTypes.bool,
     editable    : PropTypes.bool,
     moment      : PropTypes.object,
@@ -54,6 +55,7 @@ export default class MomentCard extends React.Component {
     width       : 0,
     height      : 0,
     cover       : false,
+    placeholder : 'What\'s happening?',
     editmode    : false,
     editable    : false,
     moment      : {
@@ -326,7 +328,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, moment: { parent }, editmode, editable, width, height, files, editorState } = this.props;
+    const { scale, placeholder, moment: { parent }, editmode, editable, width, height, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -343,6 +345,7 @@ export default class MomentCard extends React.Component {
           block={block}
           total={blocks.length}
           scale={scale}
+          placeholder={placeholder}
           editmode={editmode}
           editable={editable}
           files={files}

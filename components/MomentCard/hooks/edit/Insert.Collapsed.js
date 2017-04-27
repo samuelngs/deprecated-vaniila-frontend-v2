@@ -66,7 +66,7 @@ export default function onTextInsertCollapsed(data) {
 
   if ( !block || typeof blockStyleGroups[startOffsetGroup] !== 'string' ) return;
 
-  if ( embed ) {
+  if ( id !== 'cover' && embed ) {
 
     const { type, data } = embed;
 

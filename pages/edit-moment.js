@@ -44,6 +44,22 @@ class EditMoment extends React.Component {
     connected : false,
     peers     : [ ],
     err       : this.props.err,
+    cover     : {
+      hash  : `${Date.now()}`,
+      data  : {
+        blocks: [
+          {
+            key   : 'cover',
+            type  : 'header-one',
+            data  : '',
+            styles: [ ],
+          }
+        ]
+      },
+      style : { },
+      align : 1,
+      order : -1,
+    },
   }
 
   /**
@@ -144,6 +160,10 @@ class EditMoment extends React.Component {
   onMomentChange(moment, state) {
 
     if ( !window.getSelection ) return;
+
+    if ( moment === 'cover' ) {
+      return this.setState({ cover: state });
+    }
 
     // retrieve moments document
     const { id, username, moment: plotname, editorHistories, dispatch } = this.props;
@@ -329,7 +349,7 @@ class EditMoment extends React.Component {
 
   render () {
     const { id, username, moment, editorHistories, editorStates, files, windowSize } = this.props;
-    const { err, peers } = this.state;
+    const { err, peers, cover } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
     return <div>
@@ -357,6 +377,7 @@ class EditMoment extends React.Component {
         <EditorStoryboard
           id={id}
           doc={doc}
+          cover={cover}
           files={files}
           windowSize={windowSize}
           editorState={editorState}

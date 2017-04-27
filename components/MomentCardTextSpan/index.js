@@ -12,6 +12,7 @@ export default class MomentCardTextSpan extends React.Component {
     total       : PropTypes.number,
     spans       : PropTypes.number,
     text        : PropTypes.string,
+    placeholder : PropTypes.string,
     style       : PropTypes.object,
     editorState : PropTypes.object,
   }
@@ -23,6 +24,7 @@ export default class MomentCardTextSpan extends React.Component {
     total       : 0,
     spans       : 0,
     text        : '',
+    placeholder : 'What\'s happening?',
     style       : { },
     editorState : { },
   }
@@ -188,9 +190,9 @@ export default class MomentCardTextSpan extends React.Component {
   }
 
   render() {
-    const { id, position, group, total, spans, text, style } = this.props;
-    const placeholder = group === 0 && total === 1 && spans === 1 && !text;
-    return <span key={this._forceFlag ? 'A' : 'B'} data-offset-key={id} data-offset-position={position} data-offset-group={group} data-moment-text="true" data-placeholder="What's happening?" style={style} className={placeholder ? "placeholder" : "moment-card-span"}>{ text }</span>;
+    const { id, position, group, total, spans, text, placeholder, style } = this.props;
+    const showPlaceholder = group === 0 && total === 1 && spans === 1 && !text;
+    return <span key={this._forceFlag ? 'A' : 'B'} data-offset-key={id} data-offset-position={position} data-offset-group={group} data-moment-text="true" data-placeholder={placeholder} style={style} className={showPlaceholder ? "placeholder" : "moment-card-span"}>{ text }</span>;
   }
 
 }

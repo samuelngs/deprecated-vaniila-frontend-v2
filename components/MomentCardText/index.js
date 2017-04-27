@@ -18,6 +18,7 @@ export default class MomentCardText extends React.Component {
     }),
     total       : PropTypes.number,
     scale       : PropTypes.number,
+    placeholder : PropTypes.string,
     editmode    : PropTypes.bool,
     editable    : PropTypes.bool,
     editorState : PropTypes.object,
@@ -33,6 +34,7 @@ export default class MomentCardText extends React.Component {
     },
     total       : 0,
     scale       : 1,
+    placeholder : '',
     editmode    : false,
     editable    : false,
     editorState : { },
@@ -115,7 +117,7 @@ export default class MomentCardText extends React.Component {
   }
 
   renderGroups(key, groups) {
-    const { position, total, editorState } = this.props;
+    const { position, total, editorState, placeholder } = this.props;
     return groups.map(({ text, style }, i) => <MomentCardTextSpan
       key={i}
       id={key}
@@ -125,6 +127,7 @@ export default class MomentCardText extends React.Component {
       spans={groups.length}
       text={text}
       style={style}
+      placeholder={placeholder}
       editorState={editorState}
     />)
   }

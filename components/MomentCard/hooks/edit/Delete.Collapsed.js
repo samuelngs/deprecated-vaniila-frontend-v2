@@ -2,9 +2,12 @@
 import { analyze, simplify } from '../../../MomentCardText/utils';
 import { api } from '../../../../reducers/editor';
 import deepClone from '../../../../utils/clone';
+import GraphemeSplitter from '../../../../utils/splitter';
 
 import { findActualOffset, findRelativeOffset } from '../../utils';
 import { isText, isMedia } from '../../types';
+
+const splitter = new GraphemeSplitter();
 
 /**
  * trigger when delete text event within content area
@@ -54,7 +57,19 @@ export default function onTextDeleteCollapsed() {
 
   const actualOffset = findActualOffset(startOffsetGroup, blockStyleGroups, editorStartOffset);
 
-  const affactedLength = ( startOffsetGroup === 0 && editorStartOffset > 0 ) || startOffsetGroup > 0 ? 1 : 0;
+  const unicode = splitter.splitGraphemes(blockStyleGroups[startOffsetGroup]);
+  const charLength = (_ => {
+    for ( let i = 0, t = 0; i < unicode.length; i++ ) {
+      t += unicode[i].length;
+      if ( actualOffset === t ) {
+        return unicode[i].length;
+        l = unicode[i].length;
+        break;
+      }
+    }
+    return 1;
+  })();
+  const affactedLength = ( startOffsetGroup === 0 && editorStartOffset > 0 ) || startOffsetGroup > 0 ? charLength : 0;
 
   const textLength = blockStyleGroups[startOffsetGroup].length;
   const shiftLeft = editorStartOffset === 1 && textLength === 1 && startOffsetGroup > 0;
@@ -164,7 +179,7 @@ export default function onTextDeleteCollapsed() {
       }
     }
 
-    const mergeText = `${targetBlock.data}${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`;
+    const mergeText = `${targetBlock.data}${block.data.substr(0, actualOffset - affactedLength)}${block.data.substr(actualOffset)}`.replace(/\uFFFD/g, '');
 
     targetBlock.styles = (targetBlock.styles || [ ]);
     if ( Array.isArray(block.styles) ) {

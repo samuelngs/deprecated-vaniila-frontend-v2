@@ -41,12 +41,16 @@ class EditMoment extends React.Component {
   }
 
   state = {
+
     connected : false,
     peers     : [ ],
     err       : this.props.err,
+
+    gridview  : false,
+
     cover     : {
-      hash  : `${Date.now()}`,
-      data  : {
+      hash    : `${Date.now()}`,
+      data    : {
         blocks: [
           {
             key   : 'cover',
@@ -56,9 +60,9 @@ class EditMoment extends React.Component {
           }
         ]
       },
-      style : { },
-      align : 1,
-      order : -1,
+      style   : { },
+      align   : 1,
+      order   : -1,
     },
   }
 
@@ -123,6 +127,10 @@ class EditMoment extends React.Component {
       if ( err ) return this.setState({ err });
     }
     return this.setState({ err: null });
+  }
+
+  onModeChange(gridview) {
+    return this.setState({ gridview });
   }
 
   /**
@@ -350,7 +358,7 @@ class EditMoment extends React.Component {
 
   render () {
     const { id, username, moment, editorHistories, editorStates, files, windowSize } = this.props;
-    const { err, peers, cover } = this.state;
+    const { err, peers, cover, gridview } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
     return <div>
@@ -373,6 +381,8 @@ class EditMoment extends React.Component {
         />
         <EditorHeader
           peers={peers}
+          gridview={gridview}
+          onModeChange={::this.onModeChange}
           onMomentCreate={::this.onMomentCreate}
         />
         <EditorStoryboard
@@ -380,6 +390,7 @@ class EditMoment extends React.Component {
           doc={doc}
           cover={cover}
           files={files}
+          gridview={gridview}
           windowSize={windowSize}
           editorState={editorState}
           onMomentCreate={::this.onMomentCreate}

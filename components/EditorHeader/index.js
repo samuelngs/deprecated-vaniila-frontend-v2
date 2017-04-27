@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import EditorHeaderLogo from '../EditorHeaderLogo';
 import EditorHeaderBack from '../EditorHeaderBack';
+import EditorHeaderMode from '../EditorHeaderMode';
 import EditorHeaderDetails from '../EditorHeaderDetails';
 import EditorPeersList from '../EditorPeersList';
 
@@ -17,26 +18,40 @@ export default class EditorHeader extends React.Component {
   static propTypes = {
     doc           : PropTypes.object,
     peers         : PropTypes.array,
+    gridview      : PropTypes.bool,
+    onModeChange  : PropTypes.func,
     onMomentCreate: PropTypes.func,
   }
 
   static defaultProps = {
     doc           : null,
     peers         : [ ],
+    gridview      : false,
+    onModeChange  : _ => null,
     onMomentCreate: _ => null,
   }
 
   static cssVariables = {
     headerHeight: 46,
     headerBackgroundColor: '#fff',
-    headerIconColor: '#7799a4',
+    headerTransparentBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+    headerIconColor: '#8aa7b1',
+  }
+
+  onModeChange = gridview => {
+    const { gridview: current, onModeChange } = this.props;
+    if ( current === gridview ) return;
+    return onModeChange(gridview);
   }
 
   render() {
-    const { peers, onMomentCreate } = this.props;
+    const { peers, gridview, onMomentCreate } = this.props;
     const { store: { getState } } = this.context;
     const { authenticationToken } = getState();
-    return <header className="header">
+    const className = gridview
+      ? 'header header-grid'
+      : 'header';
+    return <header className={className}>
       <style jsx>{`
         .header {
           margin-top: 0;
@@ -53,6 +68,10 @@ export default class EditorHeader extends React.Component {
           display: flex;
           background-color: ${EditorHeader.cssVariables.headerBackgroundColor};
           box-shadow: rgba(0, 0, 0, 0.05) 0px 1px;
+          z-index: 7;
+        }
+        .header-grid {
+          background-color: ${EditorHeader.cssVariables.headerTransparentBackgroundColor};
         }
         .header-nav {
           flex: 1;
@@ -67,6 +86,11 @@ export default class EditorHeader extends React.Component {
         .header-grid-column-al { justify-content: flex-start; }
         .header-grid-column-ac { justify-content: center; }
         .header-grid-column-ar { justify-content: flex-end; }
+        .header-separator {
+          width: 0;
+          height: 100%;
+          border-left: 1px solid #eee;
+        }
       `}</style>
       <nav className="header-nav header-grid">
         <div className="header-grid-column-4 header-grid-column-al">
@@ -74,6 +98,13 @@ export default class EditorHeader extends React.Component {
             headerHeight={EditorHeader.cssVariables.headerHeight}
             headerIconColor={EditorHeader.cssVariables.headerIconColor}
           />
+          <div className="header-separator" />
+          <EditorHeaderMode
+            headerHeight={EditorHeader.cssVariables.headerHeight}
+            onPress={this.onModeChange}
+            gridview={gridview}
+          />
+          <div className="header-separator" />
           <EditorHeaderDetails
             headerHeight={EditorHeader.cssVariables.headerHeight}
           />

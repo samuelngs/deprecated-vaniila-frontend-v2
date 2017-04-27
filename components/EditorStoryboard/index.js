@@ -19,6 +19,7 @@ export default class EditorStoryboard extends React.Component {
     doc             : PropTypes.object,
     cover           : PropTypes.object,
     files           : PropTypes.object,
+    gridview        : PropTypes.bool,
     editorState     : PropTypes.object,
     windowSize      : PropTypes.shape({
       width         : PropTypes.number,
@@ -34,6 +35,7 @@ export default class EditorStoryboard extends React.Component {
     doc             : { data: { slides: { } } },
     cover           : { data: { } },
     files           : { },
+    gridview        : false,
     editorState     : { },
     windowSize      : {
       width         : typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -54,6 +56,7 @@ export default class EditorStoryboard extends React.Component {
     cy      : 0,      // current y
 
     scrollLeft: 0,    // current scroll left
+    scrollTop : 0,    // current scroll top
 
   }
 
@@ -76,8 +79,8 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('mouseup', this.handleMouseUp);
   }
 
-  componentDidUpdate({ doc: prevDoc, editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
-    const { doc, editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
+  componentDidUpdate({ gridview: prevGridview, doc: prevDoc, editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
+    const { gridview, doc, editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
     const { dragging, moved } = this.state;
     if (
       !(dragging && moved)
@@ -89,6 +92,8 @@ export default class EditorStoryboard extends React.Component {
       this.refocus(editorMoment);
     } else if ( doc !== prevDoc ) {
       this.refocus(editorMoment, false);
+    } else if ( gridview !== prevGridview && gridview ) {
+      if ( this.n ) this.n.scrollLeft = 0;
     }
   }
 
@@ -127,6 +132,9 @@ export default class EditorStoryboard extends React.Component {
    */
   handleMouseDown = (e, t = 'mouse') => {
 
+    const { gridview } = this.props;
+    if ( gridview ) return;
+
     this.setState({
       dragging: true,
       sx      : e.pageX,
@@ -153,8 +161,9 @@ export default class EditorStoryboard extends React.Component {
    */
   handleMouseMove = (e, t = 'mouse') => {
 
+    const { gridview } = this.props;
     const { dragging, sx, cx } = this.state;
-    if ( !dragging ) return;
+    if ( gridview || !dragging ) return;
 
     this.setState(state => state.dragging && {
       moved : true,
@@ -169,10 +178,12 @@ export default class EditorStoryboard extends React.Component {
     switch ( mode ) {
 
       case 'mobile':
-        const dx = Math.abs(sx - e.pageX) <= ( width + padding )
-          ? cx - e.pageX
-          : 0;
-        if ( this.n ) this.n.scrollLeft += dx;
+        if ( !gridview ) {
+          const dx = Math.abs(sx - e.pageX) <= ( width + padding )
+            ? cx - e.pageX
+            : 0;
+          if ( this.n ) this.n.scrollLeft += dx;
+        }
         break;
     }
 
@@ -183,11 +194,12 @@ export default class EditorStoryboard extends React.Component {
    */
   handleMouseUp = (e, t = 'mouse') => {
 
+    const { gridview } = this.props;
     const { dragging, sx, cx } = this.state;
 
-    this.setState(state => state.dragging && { dragging: false, moved: false });
+    if ( gridview || !dragging ) return;
 
-    if ( !dragging ) return;
+    this.setState(state => state.dragging && { dragging: false, moved: false });
 
     // retrieve native event
     const evt = e.nativeEvent || e;
@@ -245,9 +257,10 @@ export default class EditorStoryboard extends React.Component {
    * handle after scroll moment
    */
   handleAfterScroll = e => {
+    const { gridview } = this.props;
     const { dragging } = this.state;
     this.$$_after_scroll_$$ && window.clearTimeout(this.$$_after_scroll_$$);
-    if ( dragging || this.$$_cancel_scroll_$$ ) return;
+    if ( gridview || dragging || this.$$_cancel_scroll_$$ ) return;
     this.$$_after_scroll_$$ = window.setTimeout(this.recenter, 200);
   }
 
@@ -256,8 +269,8 @@ export default class EditorStoryboard extends React.Component {
    */
   handlePositionCapture = e => {
     if ( this.n ) {
-      const { scrollLeft } = this.n;
-      this.setState({ scrollLeft });
+      const { scrollLeft, scrollTop } = this.n;
+      this.setState({ scrollLeft, scrollTop });
     }
   }
 
@@ -290,6 +303,7 @@ export default class EditorStoryboard extends React.Component {
    */
   refocus = (id, animate = true) => {
     if ( !id ) return;
+    const { gridview } = this.props;
     const { ids } = this.doc();
     const { card: { width, padding } } = this.size(0);
     const idx = ids.indexOf(id);
@@ -304,7 +318,10 @@ export default class EditorStoryboard extends React.Component {
       if ( animate ) {
         this.scroll(offset);
       } else {
-        this.n.scrollLeft = offset;
+        if ( gridview ) {
+        } else {
+          this.n.scrollLeft = offset;
+        }
       }
     }
   }
@@ -338,13 +355,17 @@ export default class EditorStoryboard extends React.Component {
    */
   size(count) {
 
-    const { windowSize: screen } = this.props;
+    const { windowSize: screen, gridview } = this.props;
     const { width, height } = screen;
 
     const defaults = {
       padding     : 40.0,
       maxWidth    : 1024,
       maxHeight   : 768,
+      gridWidth   : 416.0,
+      gridHeight  : 312.0,
+      gridLimits  : 4,
+      gridSpace   : 50.0,
       offsetWidth : 0,
       offsetHeight: 160.0,
     };
@@ -355,30 +376,64 @@ export default class EditorStoryboard extends React.Component {
       screen,
     };
 
-    if ( res.card.width >= defaults.maxHeight ) {
-      res.card.width = Math.ceil(res.card.width * .5);
-      res.card.ratio = res.card.width / defaults.maxWidth;
-      let h = Math.ceil(defaults.maxHeight * res.card.ratio);
-      res.card.height = res.card.height > h
-        ? h
-        : res.card.height;
-      res.card.mode = 'desktop';
-    } else {
-      let r = res.card.height / defaults.maxHeight;
-      res.card.ratio = res.card.ratio > r
-        ? r
-        : res.card.ratio;
-      res.card.mode = 'mobile';
+    switch ( gridview ) {
+
+      case true:
+
+        if ( defaults.gridWidth > width - ( defaults.padding * 2 ) ) {
+          res.card.width = width - defaults.padding * 2;
+          res.card.height = defaults.gridWidth / defaults.maxWidth * defaults.maxHeight;
+          res.card.mode = 'mobile';
+        } else {
+          res.card.width = defaults.gridWidth;
+          res.card.height = defaults.gridHeight;
+          res.card.mode = 'desktop';
+        }
+        res.card.ratio = res.card.width / defaults.maxWidth;
+        res.card.space = defaults.gridSpace;
+
+        let maxPerRow = Math.floor( width / ( res.card.width + defaults.padding ) );
+        if ( maxPerRow > defaults.gridLimits ) maxPerRow = defaults.gridLimits;
+
+        let rows = Math.ceil( ( count + 2 ) / maxPerRow );
+        if ( rows <= 0 ) rows = 1;
+
+        res.list.width = ( ( res.card.width + res.card.padding ) * maxPerRow );
+        res.list.height = res.card.padding + rows * ( res.card.height + res.card.padding + res.card.space );
+        res.list.padding = ( width - res.list.width + res.card.padding ) / 2;
+        res.list.columns = maxPerRow;
+        res.list.rows = rows;
+
+        return res;
+
+      default:
+
+        if ( res.card.width >= defaults.maxHeight ) {
+          res.card.width = Math.ceil(res.card.width * .5);
+          res.card.ratio = res.card.width / defaults.maxWidth;
+          let h = Math.ceil(defaults.maxHeight * res.card.ratio);
+          res.card.height = res.card.height > h
+            ? h
+            : res.card.height;
+          res.card.mode = 'desktop';
+        } else {
+          let r = res.card.height / defaults.maxHeight;
+          res.card.ratio = res.card.ratio > r
+            ? r
+            : res.card.ratio;
+          res.card.mode = 'mobile';
+        }
+
+        if ( res.card.width > defaults.maxWidth ) res.card.width = defaults.maxWidth;
+        if ( res.card.height > defaults.maxHeight ) res.card.height = defaults.maxHeight;
+
+        res.list.width = ( res.card.width + res.card.padding) * (count + 1) + ( width - res.card.width ) / 2;
+        res.list.height = ( res.card.height );
+        res.list.padding = ( width - res.card.width ) / 2;
+        res.list.columns = -1;
+
+        return res;
     }
-
-    if ( res.card.width > defaults.maxWidth ) res.card.width = defaults.maxWidth;
-    if ( res.card.height > defaults.maxHeight ) res.card.height = defaults.maxHeight;
-
-    res.list.width = ( res.card.width + res.card.padding) * (count + 1) + ( width - res.card.width ) / 2;
-    res.list.height = ( res.card.height );
-    res.list.padding = ( width - res.card.width ) / 2;
-
-    return res;
   }
 
   /**
@@ -401,6 +456,7 @@ export default class EditorStoryboard extends React.Component {
       id,
       cover,
       files,
+      gridview,
       editorState,
       windowSize,
       onMomentCreate,
@@ -410,6 +466,7 @@ export default class EditorStoryboard extends React.Component {
 
     const {
       scrollLeft,
+      scrollTop,
     } = this.state;
 
     const {
@@ -421,9 +478,15 @@ export default class EditorStoryboard extends React.Component {
     const size = this.size(ids.length);
     const { card: { mode } } = size;
 
-    const className = mode === 'mobile'
-      ? 'base base-mobile'
-      : 'base';
+    const className = gridview
+      ? ( mode === 'mobile'
+          ? 'base base-grid'
+          : 'base base-grid'
+        )
+      : ( mode === 'mobile'
+          ? 'base base-mobile'
+          : 'base'
+        )
 
     return <div ref={n => this.n = n} className={className} data-moments={true} onScroll={this.handleScroll}>
       <style jsx>{`
@@ -439,6 +502,13 @@ export default class EditorStoryboard extends React.Component {
           overflow-x: hidden!important;
           overflow-y: hidden!important;
         }
+        .base-grid {
+          margin-top: 0px;
+          padding-top: 60px;
+          overflow-y: auto!important;
+          overflow-x: hidden!important;
+          align-items: inherit;
+        }
       `}</style>
       <EditorContextualToolBar
         root={id}
@@ -452,11 +522,13 @@ export default class EditorStoryboard extends React.Component {
         ids={ids}
         count={count}
         cover={cover}
+        gridview={gridview}
         moments={moments}
         size={size}
         state={editorState}
         files={files}
         scrollLeft={scrollLeft}
+        scrollTop={scrollTop}
         onCreate={onMomentCreate}
         onChange={onMomentChange}
         onProgress={onMomentProgress}

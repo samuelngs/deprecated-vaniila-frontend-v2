@@ -44,8 +44,10 @@ export default class EditorMomentCards extends React.Component {
         height      : PropTypes.number,
       }),
     }),
+    gridview        : PropTypes.bool,
     // scroll state
     scrollLeft      : PropTypes.number,
+    scrollTop       : PropTypes.number,
     // editor state
     state           : PropTypes.object,
     files           : PropTypes.object,
@@ -62,7 +64,9 @@ export default class EditorMomentCards extends React.Component {
     cover           : { data: { } },
     moments         : { },
     size            : { },
+    gridview        : false,
     scrollLeft      : 0,
+    scrollTop       : 0,
     state           : { },
     files           : { },
     onCreate        : _ => null,
@@ -95,7 +99,7 @@ export default class EditorMomentCards extends React.Component {
       && this.cards[id].contextReceiveEvent(type, event, data);
   }
 
-  handleOnCreate(e) {
+  handleOnCreate = e => {
     const { id: root, onCreate } = this.props;
     const { store: { dispatch } } = this.context;
     return onCreate().then(({ name, block }) => {
@@ -103,20 +107,28 @@ export default class EditorMomentCards extends React.Component {
     });
   }
 
-  willEnter(o) {
-    const { style: { x: ox } } = o;
+  willEnter = o => {
+    const { gridview } = this.props;
+    const { style: { x: ox, y: oy } } = o;
     const x = typeof ox === 'object'
       ? ox.val
       : ox;
-    return { x, y: 10, opacity: 1 };
+    const y = typeof oy === 'object'
+      ? oy.val
+      : oy;
+    return { x, y: gridview ? y : 10, opacity: 1 };
   }
 
-  willLeave(o) {
-    const { style: { x: ox } } = o;
+  willLeave = o => {
+    const { gridview } = this.props;
+    const { style: { x: ox, y: oy } } = o;
     const x = typeof ox === 'object'
       ? ox.val
       : ox;
-    return { x: spring(x), y: spring(-10), opacity: spring(0) };
+    const y = typeof oy === 'object'
+      ? oy.val
+      : oy;
+    return { x: spring(x), y: spring(gridview ? y : -10), opacity: spring(0) };
   }
 
   getDefaultStyles() {
@@ -124,10 +136,15 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       moments,
+      gridview,
       scrollLeft,
+      scrollTop,
       state,
       files,
-      size: { card: { width, height, padding, ratio: scale } },
+      size: {
+        card: { width, height, padding, space, ratio: scale },
+        list: { columns }
+      },
       onCreate,
       onChange,
       onProgress,
@@ -142,17 +159,23 @@ export default class EditorMomentCards extends React.Component {
         ref         : n => this.cards[id] = n,
         key         : id,
         moment      : moments[id],
-        editmode    : true,
+        editmode    : !gridview,
         editorState : state,
+        gridview,
         scrollLeft,
+        scrollTop,
         files,
         onCreate,
         onChange,
         onProgress,
       },
       style     : {
-        x       : ( i + 1 ) * (width + padding),
-        y       : 0,
+        x       : gridview
+          ? ( ( i + 1 ) % columns ) * ( width + padding )
+          : ( i + 1 ) * (width + padding),
+        y       : gridview
+          ? Math.abs( Math.floor( ( i + 1 ) / columns ) * ( height + padding + space ) ) + padding
+          : 0,
         opacity : 1,
         scale,
         width,
@@ -167,10 +190,15 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       moments,
+      gridview,
       scrollLeft,
+      scrollTop,
       state,
       files,
-      size: { card: { width, height, padding, ratio: scale } },
+      size: {
+        card: { width, height, padding, space, ratio: scale },
+        list: { columns }
+      },
       onCreate,
       onChange,
       onProgress,
@@ -190,19 +218,27 @@ export default class EditorMomentCards extends React.Component {
         ref         : n => this.cards[id] = n,
         key         : id,
         moment      : moments[id],
-        editmode    : true,
+        editmode    : !gridview,
         editorState : state,
+        gridview,
         scrollLeft,
+        scrollTop,
         files,
         onCreate,
         onChange,
         onProgress,
       },
       style     : {
-        x       : editorMoment === id
-          ? ( i + 1 ) * (width + padding)
-          : spring(( i + 1 ) * (width + padding)),
-        y       : spring(0),
+        x       : gridview
+          ? spring(( ( i + 1 ) % columns ) * ( width + padding ))
+          : (
+            editorMoment === id
+            ? ( i + 1 ) * (width + padding)
+            : spring(( i + 1 ) * (width + padding))
+          ),
+        y       : gridview
+          ? spring( Math.abs( Math.floor( ( i + 1 ) / columns ) * ( height + padding + space ) ) + padding )
+          : spring( 0 ),
         opacity : spring(1),
         scale,
         width,
@@ -224,10 +260,17 @@ export default class EditorMomentCards extends React.Component {
   }
 
   renderCard = ({ key, data: props, style }) => {
-    const { scrollLeft, size: { screen: { width }, card: { padding: cardPadding }, list: { padding: listPadding } } } = this.props;
+    const { scrollLeft, scrollTop, gridview, size: { screen: { width, height }, card: { padding: cardPadding }, list: { padding: listPadding } } } = this.props;
     if (
-      style.x >= ( scrollLeft - style.width - listPadding - cardPadding * 2 ) &&
-      style.x <= scrollLeft + width + style.width + listPadding + cardPadding * 2
+      (
+        !gridview &&
+        style.x >= ( scrollLeft - style.width - listPadding - cardPadding * 2 ) &&
+        style.x <= scrollLeft + width + style.width + listPadding + cardPadding * 2
+      ) || (
+        gridview &&
+        style.y >= scrollTop - style.height - cardPadding * 2 &&
+        style.y <= scrollTop + height
+      )
     ) {
       return [
         <MomentCard
@@ -239,7 +282,7 @@ export default class EditorMomentCards extends React.Component {
           width={style.width}
           height={style.height}
         />,
-        <EditorInsertCard
+        !gridview && <EditorInsertCard
           key={style.x}
           x={style.x - cardPadding + cardPadding / 4}
           y={style.y}
@@ -258,9 +301,10 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       cover,
+      gridview,
       moments,
       state,
-      size: { card: { width, height, padding, ratio } },
+      size: { card: { width, height, padding, ratio, space }, list: { columns, rows } },
       onChange,
     } = this.props;
 
@@ -271,8 +315,8 @@ export default class EditorMomentCards extends React.Component {
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}
-      willLeave={::this.willLeave}
-      willEnter={::this.willEnter}>
+      willLeave={this.willLeave}
+      willEnter={this.willEnter}>
       { styles => <Motion defaultStyle={{ opacity: 0 }} style={{ opacity: spring(initialized ? 1 : 0) }}>
         { style => <div className="base" style={this.getListStyle(style)}>
           <style jsx>{`
@@ -286,6 +330,7 @@ export default class EditorMomentCards extends React.Component {
             total={ids.length}
             cover={true}
             moment={cover}
+            y={ gridview ? padding : 0 }
             scale={ratio}
             width={width}
             height={height}
@@ -296,10 +341,11 @@ export default class EditorMomentCards extends React.Component {
           />
           { styles.map(this.renderCard) }
           <EditorCreateCard
-            x={((ids.length + 1) * width + (ids.length + 1) * padding)}
-            y={0}
+            x={ gridview ? ( ( ids.length + 1 ) % columns) * ( width + padding ) : ((ids.length + 1) * width + (ids.length + 1) * padding) }
+            y={ gridview ? ( rows - 1 ) * ( height + padding + space ) + padding : 0 }
+            width={ gridview ? width : 250 }
             height={height}
-            onClick={::this.handleOnCreate}
+            onClick={this.handleOnCreate}
           />
         </div> }
       </Motion> }

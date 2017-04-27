@@ -214,7 +214,7 @@ function hookPatchWithHashState(histories, { id, state }) {
   doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
   histories[id].present = doc;
 
-  return histories;
+  return patcher.clone(histories);
 }
 
 /**

@@ -55,10 +55,10 @@ export default class MomentCardImage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick() {
+  handleClick = e => {
+    e.preventDefault && e.preventDefault();
     const { block, onSelect } = this.props;
     const { key, type } = block;
     return onSelect(key, type);

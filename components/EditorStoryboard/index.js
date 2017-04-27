@@ -51,7 +51,8 @@ export default class EditorStoryboard extends React.Component {
     cx      : 0,      // current x
     cy      : 0,      // current y
 
-    scrollLeft: 0,
+    scrollLeft: 0,    // current scroll left
+
   }
 
   componentDidMount() {
@@ -73,8 +74,8 @@ export default class EditorStoryboard extends React.Component {
     window.removeEventListener('mouseup', this.handleMouseUp);
   }
 
-  componentDidUpdate({ editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
-    const { editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
+  componentDidUpdate({ doc: prevDoc, editorState: { editorMoment: prevMoment, editorNextMoment: prevNextMoment, editorHasFocus: prevHasFocus } }) {
+    const { doc, editorState: { editorMoment, editorNextMoment, editorHasFocus } } = this.props;
     const { dragging, moved } = this.state;
     if (
       !(dragging && moved)
@@ -84,6 +85,8 @@ export default class EditorStoryboard extends React.Component {
       )
     ) {
       this.refocus(editorMoment);
+    } else if ( doc !== prevDoc ) {
+      this.refocus(editorMoment, false);
     }
   }
 
@@ -283,7 +286,7 @@ export default class EditorStoryboard extends React.Component {
   /**
    * refocus on a moment card
    */
-  refocus = id => {
+  refocus = (id, animate = true) => {
     if ( !id ) return;
     const { ids } = this.doc();
     const { card: { width, padding } } = this.size(0);
@@ -292,7 +295,11 @@ export default class EditorStoryboard extends React.Component {
       const offset = ids.map(
         (n, i) => (i + 1) * (width + padding),
       )[idx];
-      this.scroll(offset);
+      if ( animate ) {
+        this.scroll(offset);
+      } else {
+        this.n.scrollLeft = offset;
+      }
     }
   }
 

@@ -46,3 +46,24 @@ export function isMedia(blockOrBlockType) {
   const type = extractBlockType(blockOrBlockType);
   return media.indexOf(type) > -1;
 }
+
+export function hasAnyTitle(moment) {
+
+}
+
+/**
+ * function to check if it's a title
+ */
+export function isTitle(blockOrBlockType) {
+  const type = extractBlockType(blockOrBlockType);
+  return type === 'header-one';
+}
+
+/**
+ * function to check if it's subtitle
+ */
+export function isSubtitle(blockOrBlockType) {
+  const type = extractBlockType(blockOrBlockType);
+  return type === 'header-two';
+}
+

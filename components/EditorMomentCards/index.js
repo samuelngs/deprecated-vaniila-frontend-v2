@@ -102,13 +102,19 @@ export default class EditorMomentCards extends React.Component {
   }
 
   willEnter(o) {
-    const { style: { x } } = o;
+    const { style: { x: ox } } = o;
+    const x = typeof ox === 'object'
+      ? ox.val
+      : ox;
     return { x, y: 10, opacity: 1 };
   }
 
   willLeave(o) {
-    const { style: { x } } = o;
-    return { x, y: spring(-10), opacity: spring(0) };
+    const { style: { x: ox } } = o;
+    const x = typeof ox === 'object'
+      ? ox.val
+      : ox;
+    return { x: spring(x), y: spring(-10), opacity: spring(0) };
   }
 
   getDefaultStyles() {
@@ -143,7 +149,7 @@ export default class EditorMomentCards extends React.Component {
         onProgress,
       },
       style     : {
-        x       : ( i + 1 ) * width + ( i + 1 ) * padding,
+        x       : ( i + 1 ) * (width + padding),
         y       : 0,
         opacity : 1,
         scale,
@@ -185,7 +191,7 @@ export default class EditorMomentCards extends React.Component {
         onProgress,
       },
       style     : {
-        x       : ( i + 1 ) * width + ( i + 1 ) * padding,
+        x       : spring(( i + 1 ) * (width + padding)),
         y       : spring(0),
         opacity : spring(1),
         scale,

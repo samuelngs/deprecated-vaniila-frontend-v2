@@ -11,34 +11,39 @@ import EditorMomentCardMediaFullscreen from '../EditorMomentCardMediaFullscreen'
 export default class MomentCardMediaControls extends React.Component {
 
   static propTypes = {
-    active    : PropTypes.bool,
-    fullscreen: PropTypes.bool,
-    onChange  : PropTypes.func,
+    active      : PropTypes.bool,
+    fullscreen  : PropTypes.bool,
+    allowRemove : PropTypes.bool,
+    onChange    : PropTypes.func,
   }
 
   static defaultProps = {
-    active    : false,
-    fullscreen: false,
-    onChange  : _ => null,
+    active      : false,
+    fullscreen  : false,
+    allowRemove : true,
+    onChange    : _ => null,
   }
 
   handleInline = e => {
+    e.preventDefault && e.preventDefault();
     const { onChange } = this.props;
     return onChange('inline-media');
   }
 
   handleFullscreen = e => {
+    e.preventDefault && e.preventDefault();
     const { onChange } = this.props;
     return onChange('fullscreen-media');
   }
 
   handleDelete = e => {
+    e.preventDefault && e.preventDefault();
     const { onChange } = this.props;
     return onChange('delete-image');
   }
 
   render() {
-    const { active, fullscreen, onChange } = this.props;
+    const { active, fullscreen, allowRemove, onChange } = this.props;
     return active ? <div className="image-controls">
       <style jsx>{`
         .image-controls {
@@ -79,9 +84,9 @@ export default class MomentCardMediaControls extends React.Component {
         <EditorMomentCardMediaFullscreen />
       </Tooltip> }
       <div className="image-control-separator" />
-      <Tooltip tag="button" className="image-control-btn" title="Delete" position={ fullscreen ? 'bottom' : 'top' } onClick={this.handleDelete}>
+      { allowRemove && <Tooltip tag="button" className="image-control-btn" title="Delete" position={ fullscreen ? 'bottom' : 'top' } onClick={this.handleDelete}>
         <EditorMomentCardMediaDelete />
-      </Tooltip>
+      </Tooltip> }
     </div> : null
   }
 

@@ -96,7 +96,7 @@ function hookAppendChange(histories, { id, state }) {
     past.splice(past.length - MAX_CHANGES, past.length);
   }
 
-  return histories;
+  return patcher.clone(histories);
 }
 
 /**
@@ -123,7 +123,7 @@ function hookRevertChange(histories, { id }) {
   future.push(diff);
   past.pop();
 
-  return histories;
+  return patcher.clone(histories);
 }
 
 /**
@@ -151,7 +151,7 @@ function hookReplayChange(histories, { id }) {
   past.push(diff);
   future.pop();
 
-  return histories;
+  return patcher.clone(histories);
 }
 
 /**
@@ -161,6 +161,10 @@ function hookReplayChange(histories, { id }) {
 function hookPatchWithHashState(histories, { id, state }) {
 
   const { present } = histories[id];
+
+  const diff = patcher.diff(present, state);
+  if ( !diff ) return histories;
+
   const doc = patcher.clone(present);
 
   doc.data = (doc.data || { });
@@ -227,7 +231,7 @@ function hookPatchState(histories, { id, diff, state, checksHash }) {
       doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
       histories[id].present = doc;
     }
-    return histories;
+    return patcher.clone(histories);
   }
 
   // full patch with document state
@@ -240,7 +244,7 @@ function hookPatchState(histories, { id, diff, state, checksHash }) {
       doc && doc.data && doc.data.slides && (doc.data.slides = hookMomentsSort(doc.data.slides));
       histories[id].present = doc;
     }
-    return histories;
+    return patcher.clone(histories);
   }
 
   return histories;
@@ -257,7 +261,7 @@ function hookRemoveChanges(histories, { id }) {
   past.splice(0, past.length);
   future.splice(0, future.length);
 
-  return histories;
+  return patcher.clone(histories);
 }
 
 /**
@@ -283,31 +287,31 @@ function editorHistories (histories = defaults.histories, action = defaults.acti
      * record changes
      */
     case actions.AppendEditorChange:
-      return patcher.clone(hookAppendChange(histories, action));
+      return hookAppendChange(histories, action);
 
     /**
      * undo changes
      */
     case actions.RevertEditorChange:
-      return patcher.clone(hookRevertChange(histories, action));
+      return hookRevertChange(histories, action);
 
     /**
      * redo changes
      */
     case actions.ReplayEditorChange:
-      return patcher.clone(hookReplayChange(histories, action));
+      return hookReplayChange(histories, action);
 
     /**
      * patch editor state
      */
     case actions.PatchEditorState:
-      return patcher.clone(hookPatchState(histories, action));
+      return hookPatchState(histories, action);
 
     /**
      * clear changes store
      */
     case actions.RemoveEditorChanges:
-      return patcher.clone(hookRemoveChanges(histories, action));
+      return hookRemoveChanges(histories, action);
 
     default:
       return histories;

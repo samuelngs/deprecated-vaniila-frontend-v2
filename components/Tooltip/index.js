@@ -44,7 +44,7 @@ export default class Tooltip extends React.Component {
     if ( typeof render === 'function' ) {
       return render();
     }
-    return <div className="overlay">
+    return <div className="overlay no-select">
       <style jsx>{`
         .overlay {
           display: flex;
@@ -65,15 +65,15 @@ export default class Tooltip extends React.Component {
           font-weight: 300;
         }
       `}</style>
-      <span className="title">{ title }</span>
-      { description && <span className="description">{ description }</span> }
+      <span className="title no-select">{ title }</span>
+      { description && <span className="description no-select">{ description }</span> }
     </div>
   }
 
   render() {
     const { tag: HTMLTag, title, description, render, position, className, children, ...props } = this.props;
     const { active } = this.state;
-    return <HTMLTag { ...props } className={className ? `tooltip ${className}` : className} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
+    return <HTMLTag { ...props } className={className ? `tooltip no-select ${className}` : 'tooltip no-select'} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
       <style jsx global>{`
         .tooltip {
           position: relative;

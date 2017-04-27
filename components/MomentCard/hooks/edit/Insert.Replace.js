@@ -111,7 +111,7 @@ export default function onTextInsertReplace(data) {
 
     mergeText = `${textA}${character}${textB}`;
 
-    newStartBlock = { ...blockTemplate, key: startBlock.key, data: mergeText, styles };
+    newStartBlock = { ...blockTemplate, type: startBlock.type, key: startBlock.key, data: mergeText, styles };
     newStartBlock.styles = simplify(newStartBlock);
     blocks[startBlockIndex] = newStartBlock;
 

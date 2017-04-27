@@ -64,12 +64,10 @@ export default class MomentCardFallbackImage extends React.Component {
           max-width: 100%;
           width: 300px;
           height: 202px;
-          background-image: url('/static/editor/dot.png');
-          background-repeat: repeat;
-          background-position: center;
+          background-color: #eee;
         }
-        .image-1x { background-size: 25px; }
-        .image-2x { background-size: 12.5px; }
+        .image-1x {  }
+        .image-2x {  }
         .reload-btn {
           position: absolute;
           top: 50%;
@@ -85,7 +83,6 @@ export default class MomentCardFallbackImage extends React.Component {
           background-color: #fff;
           border: 1px solid #eee;
           border-radius: 2px;
-          box-shadow: 0 1px 1px 0 rgba(200, 200, 200, 0.2);
           outline: none;
           cursor: pointer;
         }

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { MomentEditHandler, MomentCompositionHandler, defaultState } from './handlers';
 import MomentEditorHook from './hooks';
 import MomentCardControls from '../MomentCardControls';
+import MomentCardDetails from '../MomentCardDetails';
 import MomentCardText from '../MomentCardText';
 import MomentCardImage from '../MomentCardImage';
 import MomentCardTwitter from '../MomentCardTwitter';
@@ -34,7 +35,7 @@ export default class MomentCard extends React.Component {
     cover       : PropTypes.bool,
     placeholder : PropTypes.string,
     editmode    : PropTypes.bool,
-    editable    : PropTypes.bool,
+    gridview    : PropTypes.bool,
     moment      : PropTypes.object,
     files       : PropTypes.object,
     editorState : PropTypes.object,
@@ -57,7 +58,7 @@ export default class MomentCard extends React.Component {
     cover       : false,
     placeholder : 'What\'s happening?',
     editmode    : false,
-    editable    : false,
+    gridview    : false,
     moment      : {
       data      : {
         blocks  : [ ],
@@ -270,7 +271,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlocks(blocks) {
 
-    const { scale, editmode, editable, editorState } = this.props;
+    const { scale, editmode, editorState } = this.props;
 
     const groups = [ ];
     for ( let i = 0; i < blocks.length; i++ ) {
@@ -328,7 +329,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, placeholder, moment: { parent }, editmode, editable, width, height, files, editorState } = this.props;
+    const { scale, placeholder, moment: { parent }, editmode, width, height, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -347,7 +348,6 @@ export default class MomentCard extends React.Component {
           scale={scale}
           placeholder={placeholder}
           editmode={editmode}
-          editable={editable}
           files={files}
           editorState={editorState}
         />
@@ -359,7 +359,6 @@ export default class MomentCard extends React.Component {
           total={blocks.length}
           scale={scale}
           editmode={editmode}
-          editable={editable}
           width={width}
           height={height}
           fullscreen={parent === key}
@@ -376,7 +375,6 @@ export default class MomentCard extends React.Component {
           total={blocks.length}
           scale={scale}
           editmode={editmode}
-          editable={editable}
           width={width}
           height={height}
           fullscreen={parent === key}
@@ -393,7 +391,6 @@ export default class MomentCard extends React.Component {
           total={blocks.length}
           scale={scale}
           editmode={editmode}
-          editable={editable}
           width={width}
           height={height}
           fullscreen={parent === key}
@@ -411,7 +408,7 @@ export default class MomentCard extends React.Component {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, editmode, editable, moment, editorState, width } = this.props;
+    const { id, no, total, scale, cover, editmode, gridview, moment, editorState, width } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const when = moment.when;
     const fullscreen = !!moment.parent;
@@ -419,7 +416,7 @@ export default class MomentCard extends React.Component {
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
     const contentStyle = this.getContentStyle();
-    const handlers = id
+    const handlers = editmode && id
       ? (id === editorMoment && editorIsCompositionMode)
         ? this.compositionHandler
         : this.editHandler
@@ -446,6 +443,8 @@ export default class MomentCard extends React.Component {
           flex: 1;
           flex-direction: column;
           outline: none;
+        }
+        .base-editable {
           -webkit-user-modify: read-write-plaintext-only;
         }
         .base-inner {
@@ -477,13 +476,24 @@ export default class MomentCard extends React.Component {
         total={total}
         editmode={editmode && !cover}
         fullscreen={fullscreen}
-        active={id === editorMoment}
+        active={!gridview && id === editorMoment}
         onAction={this.handleControlAction}
+      />
+      <MomentCardDetails
+        id={id}
+        no={no}
+        when={when}
+        total={total}
+        active={gridview}
       />
       <div
         { ...handlers }
         ref={n => this.n = n}
-        className={cover || align === 1 ? "base-content base-word" : "base-content base-word"}
+        className={(
+          editmode
+          ? 'base-content base-word base-editable'
+          : 'base-content base-word'
+        )}
         aria-label="moment-content"
         data-moment-contenteditable={id}
         autoComplete="off"
@@ -491,7 +501,6 @@ export default class MomentCard extends React.Component {
         autoCapitalize="off"
         spellCheck="false"
         contentEditable={editmode}
-        autoFocus={editmode}
         suppressContentEditableWarning={true}
         style={contentStyle}
       >

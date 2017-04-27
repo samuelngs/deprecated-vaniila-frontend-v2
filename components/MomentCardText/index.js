@@ -20,7 +20,6 @@ export default class MomentCardText extends React.Component {
     scale       : PropTypes.number,
     placeholder : PropTypes.string,
     editmode    : PropTypes.bool,
-    editable    : PropTypes.bool,
     editorState : PropTypes.object,
   }
 
@@ -36,7 +35,6 @@ export default class MomentCardText extends React.Component {
     scale       : 1,
     placeholder : '',
     editmode    : false,
-    editable    : false,
     editorState : { },
   }
 

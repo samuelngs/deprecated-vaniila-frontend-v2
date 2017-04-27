@@ -312,6 +312,7 @@ class EditMoment extends React.Component {
       slides: {
         [name]: {
           hash  : `${Date.now()}`,
+          when  : Date.now(),
           data  : {
             blocks: [
               {

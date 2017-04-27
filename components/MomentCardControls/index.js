@@ -20,6 +20,7 @@ export default class MomentCardControls extends React.Component {
   static propTypes = {
     id          : PropTypes.string,
     no          : PropTypes.number,
+    when        : PropTypes.number,
     total       : PropTypes.number,
     editmode    : PropTypes.bool,
     active      : PropTypes.bool,
@@ -30,6 +31,7 @@ export default class MomentCardControls extends React.Component {
   static defaultProps = {
     id          : '',
     no          : 1,
+    when        : -1,
     total       : 0,
     editmode    : false,
     active      : false,
@@ -117,8 +119,20 @@ export default class MomentCardControls extends React.Component {
     return arr.map(o => ({ ...o, style: { opacity: spring(1), y: spring(-32) } }));
   }
 
+  getTime() {
+    const { when } = this.props;
+    const date = new Date(when);
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
   renderCardControls = ({ key, style, data }) => {
-    const { id, no, total, editmode, active, fullscreen, onAction } = this.props;
+    const { id, no, when, total, editmode, active, fullscreen, onAction } = this.props;
     return <div key={key} className="base" style={{ opacity: style.opacity, transform: `translate3d(0px, ${style.y}px, 0px) scale(1)` }} data-controls>
       <style jsx>{`
         .base {
@@ -166,6 +180,9 @@ export default class MomentCardControls extends React.Component {
         }
       `}</style>
       { no !== -1 && <div className="column" data-controls>{ no } of { total }</div> }
+      { when !== -1 && <div className="column" data-controls>
+        { this.getTime() }
+      </div> }
       { !fullscreen && <div className="column" data-controls>
         { id !== 'cover' && <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
           <EditorMomentCardControlAlign />

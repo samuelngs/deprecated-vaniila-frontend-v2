@@ -413,6 +413,7 @@ export default class MomentCard extends React.Component {
   render() {
     const { id, no, total, scale, cover, editmode, editable, moment, editorState, width } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
+    const when = moment.when;
     const fullscreen = !!moment.parent;
     const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
@@ -472,6 +473,7 @@ export default class MomentCard extends React.Component {
       <MomentCardControls
         id={id}
         no={no}
+        when={when}
         total={total}
         editmode={editmode && !cover}
         fullscreen={fullscreen}

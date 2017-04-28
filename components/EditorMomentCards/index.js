@@ -334,7 +334,7 @@ export default class EditorMomentCards extends React.Component {
             scale={ratio}
             width={width}
             height={height}
-            editmode={true}
+            editmode={!gridview}
             editorState={state}
             placeholder="What's this all about? (~ﾟ∀ﾟ)~"
             onChange={onChange}

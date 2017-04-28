@@ -125,9 +125,19 @@ export default class MomentCardFallbackImage extends React.Component {
     return <div { ...props } style={styles} />
   }
 
-  renderImage() {
+  renderPlaceholderImage() {
     const { src, cover, ...props } = this.props;
     return <div { ...props } />
+  }
+
+  renderImage() {
+    const { src, cover, ...props } = this.props;
+    return <img
+      { ...props }
+      src={src}
+      onLoad={this.onLoad}
+      onError={this.onError}
+    />
   }
 
   render() {
@@ -139,7 +149,10 @@ export default class MomentCardFallbackImage extends React.Component {
     if ( loadedSuccessful === true && cover === true ) {
       return this.renderCoverImage();
     }
-    return this.renderImage();
+    if ( loadedSuccessful === true && cover === false ) {
+      return this.renderImage();
+    }
+    return this.renderPlaceholderImage();
   }
 
 }

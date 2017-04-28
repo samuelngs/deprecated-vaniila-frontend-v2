@@ -176,6 +176,7 @@ export default class MomentCardFallbackImage extends React.Component {
   renderCoverImage() {
     const { src, srchd, cover, width, height, style, ...props } = this.props;
     const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful, progressiveHasCache, regularHasCache } = this.state;
+    const source = srchd || src;
     return <div style={{
       ...style,
       width,
@@ -183,16 +184,16 @@ export default class MomentCardFallbackImage extends React.Component {
       position: 'relative',
       backgroundColor: '#000',
     }}>
-      { srchd && <Motion style={{ opacity: spring(regularLoadedSuccessful === true ? 1 : 0) }}>
+      { source && <Motion style={{ opacity: spring(regularLoadedSuccessful === true || source.indexOf('data:') === 0 ? 1 : 0) }}>
         {({ opacity }) => (
           <div { ...props } style={{
             width,
             height,
             opacity: progressiveHasCache && regularHasCache ? 1 : opacity,
-            backgroundImage: regularLoadedSuccessful && `url(${srchd})`,
-            backgroundPosition: regularLoadedSuccessful && 'center',
-            backgroundSize: regularLoadedSuccessful && 'contain',
-            backgroundRepeat: regularLoadedSuccessful && 'no-repeat',
+            backgroundImage: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && `url(${source})`,
+            backgroundPosition: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'center',
+            backgroundSize: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'contain',
+            backgroundRepeat: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'no-repeat',
           }} />
         )}
       </Motion> }
@@ -200,13 +201,14 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderImage() {
-    const { src, srchd, cover, ...props } = this.props;
-    return <img
-      { ...props }
-      src={srchd || src}
-      onLoad={this.onLoad}
-      onError={this.onError}
-    />
+    const { src, srchd, cover, width, height, style, ...props } = this.props;
+    const { regularLoadedSuccessful } = this.state;
+    const source = srchd || src;
+    return <Motion style={{ opacity: spring(regularLoadedSuccessful === true || source.indexOf('data:') === 0 ? 1 : 0) }}>
+      {({ opacity }) => (
+        <img { ...props } src={source} style={{ ...style, opacity }} />
+      )}
+    </Motion>
   }
 
   render() {

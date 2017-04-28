@@ -53,7 +53,7 @@ export default class EditorSync extends React.Component {
     this.bind();
     this.auto();
     this.addEventListener();
-    this.interval = setInterval(this.auto, 5000);
+    this.interval = setInterval(this.auto, 10000);
   }
 
   componentWillUnmount() {
@@ -396,7 +396,7 @@ export default class EditorSync extends React.Component {
           continue;
         }
         const expired = ( now - when ) / 1000.0;
-        if ( expired > 10.0 ) {
+        if ( expired > 20.0 ) {
           continue;
         }
         peers.push(peer);

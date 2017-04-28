@@ -54,12 +54,18 @@ export default function onImageInsert(blob) {
 
   if ( typeof blockIndex === 'undefined' ) return;
 
+  const { dimensions: { width, height } } = blob;
+
   const shouldFullscreen = (
     blocks.length === 1 &&
     typeof blocks[0] === 'object' &&
     blocks[0] !== null &&
     isText(blocks[0]) &&
-    blocks[0].data.length === 0
+    blocks[0].data.length === 0 &&
+    (
+      width >= 300 ||
+      height >= 300
+    )
   );
 
   const addTextBlockAfterImage = !(

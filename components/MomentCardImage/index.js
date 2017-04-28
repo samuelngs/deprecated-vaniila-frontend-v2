@@ -140,7 +140,7 @@ export default class MomentCardImage extends React.Component {
       ? file.base64
       : `${CDN_URL}/${data}/progressive`;
 
-    const srchd = !(isLocal && file) && `${CDN_URL}/${data}/regular`;
+    const srchd = !(isLocal && file) ? `${CDN_URL}/${data}/regular` : undefined;
 
     let progress = isLocal && file && file.progress;
     if ( typeof progress !== 'number' ) progress = 0;

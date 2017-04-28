@@ -98,8 +98,9 @@ export default class MomentCardImage extends React.Component {
       display: 'block',
       marginLeft: !fullscreen && 'auto',
       marginRight: !fullscreen && 'auto',
-      minWidth: fullscreen && width,
-      minHeight: fullscreen && height,
+      height: 'auto',
+      maxWidth: fullscreen && width,
+      maxHeight: fullscreen && height,
       opacity: isUploading ? .5 : null,
       ...args,
     }
@@ -112,7 +113,7 @@ export default class MomentCardImage extends React.Component {
 
   render() {
 
-    const { position, block, files, fullscreen, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
+    const { position, block, files, width, height, fullscreen, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
     const isImageSelected = (
@@ -137,7 +138,9 @@ export default class MomentCardImage extends React.Component {
 
     const src = isLocal && file
       ? file.base64
-      : `${CDN_URL}/${data}/regular`;
+      : `${CDN_URL}/${data}/progressive`;
+
+    const srchd = !(isLocal && file) && `${CDN_URL}/${data}/regular`;
 
     let progress = isLocal && file && file.progress;
     if ( typeof progress !== 'number' ) progress = 0;
@@ -148,7 +151,10 @@ export default class MomentCardImage extends React.Component {
         <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
         <MomentCardFallbackImage
           src={src}
+          srchd={srchd}
           cover={fullscreen}
+          width={width}
+          height={height}
           data-offset-key={key}
           data-offset-position={position}
           data-offset-group={0}

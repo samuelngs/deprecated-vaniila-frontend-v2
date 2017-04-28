@@ -2,13 +2,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Motion, spring } from 'react-motion';
+
 function isHighDensity() {
   return (
     typeof window !== 'undefined' &&
     (window.matchMedia && (window.matchMedia('only screen and (min-resolution: 124dpi), only screen and (min-resolution: 1.3dppx), only screen and (min-resolution: 48.8dpcm)').matches || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 2.6/2), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (min-device-pixel-ratio: 1.3)').matches)) || (window.devicePixelRatio && window.devicePixelRatio > 1.3)
   );
 }
-
 
 function isRetina() {
   return (
@@ -21,50 +22,97 @@ export default class MomentCardFallbackImage extends React.Component {
 
   static propTypes = {
     src   : PropTypes.string,
+    srchd : PropTypes.string,
     cover : PropTypes.bool,
+    width : PropTypes.number,
+    height: PropTypes.number,
   }
 
   static defaultProps = {
     src   : null,
+    srchd : null,
     cover : false,
+    width : 0,
+    height: 0,
   }
 
   state = {
-    loadedSuccessful: undefined,
-  }
-
-  onLoad = e => {
-    this.setState({ loadedSuccessful: true });
-  }
-
-  onError = e => {
-    this.setState({ loadedSuccessful: false });
+    progressiveLoadedSuccessful: undefined,
+    progressiveHasCache: false,
+    regularLoadedSuccessful: undefined,
+    regularHasCache: false,
+    allLoadedSuccessful: undefined,
   }
 
   componentDidMount() {
-    this.componentFetchImage();
+    this.mounted = true;
+    this.componentFetchProgressive();
   }
 
-  componentWillUpdate({ src: next }) {
-    const { src: prev } = this.props;
-    if ( prev !== next ) {
-      this.componentFetchImage(next);
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  componentDidUpdate({ src: psrc, srchd: psrchd }) {
+    const { src: nsrc, srchd: nsrchd } = this.props;
+    if ( psrc !== nsrc || psrchd !== nsrchd ) {
+      this.componentFetchProgressive();
     }
   }
 
-  componentFetchImage(src = this.props.src) {
-    const { loadedSuccessful } = this.state;
-    if ( typeof loadedSuccessful !== 'undefined' ) {
-      this.setState({ loadedSuccessful: undefined });
-    }
+  componentFetchProgressive(src = this.props.src) {
+    this.setState(state => state.progressiveLoadedSuccessful !== undefined && state.regularLoadedSuccessful !== undefined && state.allLoadedSuccessful !== undefined && { progressiveLoadedSuccessful: undefined, regularLoadedSuccessful: undefined, allLoadedSuccessful: undefined }, _ => {
+      if ( !src ) return;
+      const img = new Image();
+      img.onload = this.onProgressiveLoad;
+      img.onerror = this.onProgressiveError;
+      img.src = src;
+      if ( img.complete || ( img.width + img.height ) > 0 ) {
+        this.setState({ progressiveHasCache: true });
+      } else {
+        this.setState({ progressiveHasCache: false });
+      }
+    });
+  }
+
+  componentFetchRegular(src = this.props.srchd) {
+    const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful } = this.state;
+    if ( !src || !progressiveLoadedSuccessful || regularLoadedSuccessful || allLoadedSuccessful ) return;
     const img = new Image();
-    img.onload = this.onLoad;
-    img.onerror = this.onError;
+    img.onload = this.onRegularLoad;
+    img.onerror = this.onRegularError;
     img.src = src;
+    if ( img.complete || ( img.width + img.height ) > 0 ) {
+      this.setState({ regularHasCache: true });
+    } else {
+      this.setState({ regularHasCache: false });
+    }
+  }
+
+  onProgressiveLoad = e => {
+    this.mounted && this.setState(state => !state.progressiveLoadedSuccessful && { progressiveLoadedSuccessful: true }, _ => {
+      this.componentFetchRegular();
+    });
+  }
+
+  onProgressiveError = e => {
+    this.mounted && this.setState(state => state.progressiveLoadedSuccessful && { progressiveLoadedSuccessful: false });
+  }
+
+  onRegularLoad = e => {
+    this.mounted && this.setState(state => !state.regularLoadedSuccessful && { regularLoadedSuccessful: true }, _ => {
+      setImmediate(_ => {
+        this.mounted && this.setState(state => !state.allLoadedSuccessful && { allLoadedSuccessful: true });
+      });
+    });
+  }
+
+  onRegularError = e => {
+    this.mounted && this.setState(state => state.regularLoadedSuccessful && { regularLoadedSuccessful: false });
   }
 
   renderFallback() {
-    const { src, cover, className, ...props } = this.props;
+    const { src, srchd, cover, className, ...props } = this.props;
     const scale = isHighDensity()
       ? 'image-2x'
       : 'image-1x';
@@ -113,32 +161,55 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderCoverImage() {
-    const { src, cover, style, ...props } = this.props;
-    const styles = {
+    const { src, srchd, cover, width, height, style, ...props } = this.props;
+    const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful, progressiveHasCache, regularHasCache } = this.state;
+    return <div style={{
       ...style,
-      backgroundImage: `url(${src})`,
-      backgroundPosition: 'center',
-      backgroundSize: 'contain',
-      backgroundRepeat: 'no-repeat',
+      width,
+      height,
+      position: 'relative',
       backgroundColor: '#000',
-    };
-    return <div { ...props } style={styles} />
-  }
-
-  renderPlaceholderImage() {
-    const { src, cover, style, ...props } = this.props;
-    const styles = {
-      ...style,
-      backgroundColor: '#000',
-    };
-    return <div { ...props } style={styles} />
+    }}>
+      { src && <Motion style={{ opacity: spring(progressiveLoadedSuccessful === true && !allLoadedSuccessful ? 1 : 0) }}>
+        {({ opacity }) => (
+          <div { ...props } style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+            width,
+            height,
+            opacity: progressiveHasCache && !regularHasCache ? 1 : opacity,
+            backgroundImage: progressiveLoadedSuccessful && `url(${src})`,
+            backgroundPosition: progressiveLoadedSuccessful && 'center',
+            backgroundSize: progressiveLoadedSuccessful && 'contain',
+            backgroundRepeat: progressiveLoadedSuccessful && 'no-repeat',
+          }} />
+        )}
+      </Motion> }
+      { srchd && <Motion defaultStyle={{ opacity: 0 }} style={{ opacity: spring(progressiveLoadedSuccessful === true && regularLoadedSuccessful === true ? 1 : 0) }}>
+        {({ opacity }) => (
+          <div { ...props } style={{
+            width,
+            height,
+            opacity: progressiveHasCache && regularHasCache ? 1 : opacity,
+            backgroundImage: progressiveLoadedSuccessful && `url(${srchd})`,
+            backgroundPosition: progressiveLoadedSuccessful && 'center',
+            backgroundSize: progressiveLoadedSuccessful && 'contain',
+            backgroundRepeat: progressiveLoadedSuccessful && 'no-repeat',
+          }} />
+        )}
+      </Motion> }
+    </div>
   }
 
   renderImage() {
-    const { src, cover, ...props } = this.props;
+    const { src, srchd, cover, ...props } = this.props;
     return <img
       { ...props }
-      src={src}
+      src={srchd || src}
       onLoad={this.onLoad}
       onError={this.onError}
     />
@@ -146,17 +217,14 @@ export default class MomentCardFallbackImage extends React.Component {
 
   render() {
     const { cover } = this.props;
-    const { loadedSuccessful } = this.state;
-    if ( loadedSuccessful === false ) {
+    const { progressiveLoadedSuccessful } = this.state;
+    if ( progressiveLoadedSuccessful === false ) {
       return this.renderFallback();
     }
-    if ( loadedSuccessful === true && cover === true ) {
-      return this.renderCoverImage();
-    }
-    if ( loadedSuccessful === true && cover === false ) {
+    if ( cover === false ) {
       return this.renderImage();
     }
-    return this.renderPlaceholderImage();
+    return this.renderCoverImage();
   }
 
 }

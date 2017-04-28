@@ -68,6 +68,7 @@ export default class MomentCardFallbackImage extends React.Component {
 
   componentFetchProgressive(src = this.props.src) {
     this.setState(state => state.progressiveLoadedSuccessful !== undefined && state.regularLoadedSuccessful !== undefined && state.allLoadedSuccessful !== undefined && { progressiveLoadedSuccessful: undefined, regularLoadedSuccessful: undefined, allLoadedSuccessful: undefined }, _ => {
+      return this.componentFetchRegular();
       if ( !src ) return;
       this.$$_fetch_progressive_$$ && clearTimeout(this.$$_fetch_progressive_$$);
       this.$$_fetch_progressive_$$ = setTimeout(_ => {
@@ -86,7 +87,7 @@ export default class MomentCardFallbackImage extends React.Component {
 
   componentFetchRegular(src = this.props.srchd) {
     const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful } = this.state;
-    if ( !src || !progressiveLoadedSuccessful || regularLoadedSuccessful || allLoadedSuccessful ) return;
+    if ( !src || regularLoadedSuccessful || allLoadedSuccessful ) return;
     this.$$_fetch_regular_$$ && clearTimeout(this.$$_fetch_regular_$$);
     this.$$_fetch_regular_$$ = setTimeout(_ => {
       const img = new Image();
@@ -182,35 +183,16 @@ export default class MomentCardFallbackImage extends React.Component {
       position: 'relative',
       backgroundColor: '#000',
     }}>
-      { src && <Motion style={{ opacity: spring(progressiveLoadedSuccessful === true && !allLoadedSuccessful ? 1 : 0) }}>
-        {({ opacity }) => (
-          <div { ...props } style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1,
-            width,
-            height,
-            opacity: progressiveHasCache && !regularHasCache ? 1 : opacity,
-            backgroundImage: progressiveLoadedSuccessful && `url(${src})`,
-            backgroundPosition: progressiveLoadedSuccessful && 'center',
-            backgroundSize: progressiveLoadedSuccessful && 'contain',
-            backgroundRepeat: progressiveLoadedSuccessful && 'no-repeat',
-          }} />
-        )}
-      </Motion> }
-      { srchd && <Motion defaultStyle={{ opacity: 0 }} style={{ opacity: spring(progressiveLoadedSuccessful === true && regularLoadedSuccessful === true ? 1 : 0) }}>
+      { srchd && <Motion style={{ opacity: spring(regularLoadedSuccessful === true ? 1 : 0) }}>
         {({ opacity }) => (
           <div { ...props } style={{
             width,
             height,
             opacity: progressiveHasCache && regularHasCache ? 1 : opacity,
-            backgroundImage: progressiveLoadedSuccessful && `url(${srchd})`,
-            backgroundPosition: progressiveLoadedSuccessful && 'center',
-            backgroundSize: progressiveLoadedSuccessful && 'contain',
-            backgroundRepeat: progressiveLoadedSuccessful && 'no-repeat',
+            backgroundImage: regularLoadedSuccessful && `url(${srchd})`,
+            backgroundPosition: regularLoadedSuccessful && 'center',
+            backgroundSize: regularLoadedSuccessful && 'contain',
+            backgroundRepeat: regularLoadedSuccessful && 'no-repeat',
           }} />
         )}
       </Motion> }

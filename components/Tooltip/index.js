@@ -2,7 +2,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Motion, spring } from 'react-motion';
+import { TransitionMotion, spring } from 'react-motion';
+
+const active   = [ { key: 'tooltip-context' } ];
+const inactive = [ ];
 
 export default class Tooltip extends React.Component {
 
@@ -30,6 +33,30 @@ export default class Tooltip extends React.Component {
     super(props);
     this.onEnter = this.onEnter.bind(this);
     this.onLeave = this.onLeave.bind(this);
+  }
+
+  willEnter = o => {
+    return { opacity: 0, y: 15 }
+  }
+
+  willLeave = o => {
+    return { opacity: spring(0), y: spring(15) }
+  }
+
+  getDefaultStyles() {
+    const { active: hovered } = this.state;
+    const arr = hovered
+      ? active
+      : inactive;
+    return arr.map(o => ({ ...o, style: { y: 15, opacity: 0 } }));
+  }
+
+  getStyles() {
+    const { active: hovered } = this.state;
+    const arr = hovered
+      ? active
+      : inactive;
+    return arr.map(o => ({ ...o, style: { y: spring(10), opacity: spring(1) } }));
   }
 
   onEnter(e) {
@@ -72,62 +99,65 @@ export default class Tooltip extends React.Component {
 
   render() {
     const { tag: HTMLTag, title, description, render, position, className, children, ...props } = this.props;
-    const { active } = this.state;
-    return <HTMLTag { ...props } className={className ? `tooltip no-select ${className}` : 'tooltip no-select'} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
-      <style jsx global>{`
-        .tooltip {
-          position: relative;
-        }
-        .tooltip-overlay {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          position: absolute;
-          margin: 0;
-          padding: 0;
-          padding-top: 6px;
-          padding-bottom: 6px;
-          padding-left: 8px;
-          padding-right: 8px;
-          border-radius: 2px;
-          background-color: rgba(0, 0, 0, 0.95);
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 12px;
-          font-weight: 400;
-          color: #fff;
-          white-space: nowrap;
-          pointer-events: none;
-          z-index: 5;
-        }
-        .tooltip-arrow-pt {
-          position: absolute;
-          top: -4px;
-          width: 0;
-          height: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid rgba(0, 0, 0, 0.95);
-        }
-        .tooltip-arrow-pb {
-          position: absolute;
-          bottom: -4px;
-          width: 0;
-          height: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-top: 5px solid rgba(0, 0, 0, 0.95);
-        }
-      `}</style>
-      <Motion style={{ y: spring(active ? 10 : 15), opacity: spring(active ? 1 : 0) }}>
-        {({ y, opacity }) => <div className="tooltip-overlay" style={position === 'top' ? { bottom: `calc(100% + ${y}px)`, opacity } : { top: `calc(100% + ${y}px)`, opacity }}>
+    return <TransitionMotion
+      defaultStyles={this.getDefaultStyles()}
+      styles={this.getStyles()}
+      willLeave={::this.willLeave}
+      willEnter={::this.willEnter}>
+      { ([ motion, ...etc ]) => <HTMLTag { ...props } className={className ? `tooltip no-select ${className}` : 'tooltip no-select'} onMouseEnter={this.onEnter} onMouseLeave={this.onLeave}>
+        <style jsx global>{`
+          .tooltip {
+            position: relative;
+          }
+          .tooltip-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border-radius: 2px;
+            background-color: rgba(0, 0, 0, 0.95);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 400;
+            color: #fff;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 5;
+          }
+          .tooltip-arrow-pt {
+            position: absolute;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid rgba(0, 0, 0, 0.95);
+          }
+          .tooltip-arrow-pb {
+            position: absolute;
+            bottom: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(0, 0, 0, 0.95);
+          }
+        `}</style>
+        { motion ? <div className="tooltip-overlay" style={position === 'top' ? { bottom: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity } : { top: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity }}>
           <div className={ position === 'bottom' ? 'tooltip-arrow-pt' : 'tooltip-arrow-pb' } />
           { this.renderTips(title, description, render) }
-        </div> }
-      </Motion>
-      { children }
-    </HTMLTag>
+        </div> : null }
+        { children }
+      </HTMLTag> }
+    </TransitionMotion>
   }
 
 }

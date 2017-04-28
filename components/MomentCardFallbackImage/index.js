@@ -18,6 +18,8 @@ function isRetina() {
   );
 }
 
+const delay = 300;
+
 export default class MomentCardFallbackImage extends React.Component {
 
   static propTypes = {
@@ -51,11 +53,15 @@ export default class MomentCardFallbackImage extends React.Component {
 
   componentWillUnmount() {
     this.mounted = false;
+    this.$$_fetch_regular_$$ && clearTimeout(this.$$_fetch_regular_$$);
+    this.$$_fetch_progressive_$$ && clearTimeout(this.$$_fetch_progressive_$$);
   }
 
   componentDidUpdate({ src: psrc, srchd: psrchd }) {
     const { src: nsrc, srchd: nsrchd } = this.props;
     if ( psrc !== nsrc || psrchd !== nsrchd ) {
+      this.$$_fetch_regular_$$ && clearTimeout(this.$$_fetch_regular_$$);
+      this.$$_fetch_progressive_$$ && clearTimeout(this.$$_fetch_progressive_$$);
       this.componentFetchProgressive();
     }
   }
@@ -63,30 +69,36 @@ export default class MomentCardFallbackImage extends React.Component {
   componentFetchProgressive(src = this.props.src) {
     this.setState(state => state.progressiveLoadedSuccessful !== undefined && state.regularLoadedSuccessful !== undefined && state.allLoadedSuccessful !== undefined && { progressiveLoadedSuccessful: undefined, regularLoadedSuccessful: undefined, allLoadedSuccessful: undefined }, _ => {
       if ( !src ) return;
-      const img = new Image();
-      img.onload = this.onProgressiveLoad;
-      img.onerror = this.onProgressiveError;
-      img.src = src;
-      if ( img.complete || ( img.width + img.height ) > 0 ) {
-        this.setState({ progressiveHasCache: true });
-      } else {
-        this.setState({ progressiveHasCache: false });
-      }
+      this.$$_fetch_progressive_$$ && clearTimeout(this.$$_fetch_progressive_$$);
+      this.$$_fetch_progressive_$$ = setTimeout(_ => {
+        const img = new Image();
+        img.onload = this.onProgressiveLoad;
+        img.onerror = this.onProgressiveError;
+        img.src = src;
+        if ( img.complete || ( img.width + img.height ) > 0 ) {
+          this.setState({ progressiveHasCache: true });
+        } else {
+          this.setState({ progressiveHasCache: false });
+        }
+      }, delay);
     });
   }
 
   componentFetchRegular(src = this.props.srchd) {
     const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful } = this.state;
     if ( !src || !progressiveLoadedSuccessful || regularLoadedSuccessful || allLoadedSuccessful ) return;
-    const img = new Image();
-    img.onload = this.onRegularLoad;
-    img.onerror = this.onRegularError;
-    img.src = src;
-    if ( img.complete || ( img.width + img.height ) > 0 ) {
-      this.setState({ regularHasCache: true });
-    } else {
-      this.setState({ regularHasCache: false });
-    }
+    this.$$_fetch_regular_$$ && clearTimeout(this.$$_fetch_regular_$$);
+    this.$$_fetch_regular_$$ = setTimeout(_ => {
+      const img = new Image();
+      img.onload = this.onRegularLoad;
+      img.onerror = this.onRegularError;
+      img.src = src;
+      if ( img.complete || ( img.width + img.height ) > 0 ) {
+        this.setState({ regularHasCache: true });
+      } else {
+        this.setState({ regularHasCache: false });
+      }
+    }, delay);
   }
 
   onProgressiveLoad = e => {

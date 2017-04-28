@@ -185,13 +185,13 @@ export default class MomentCard extends React.Component {
         return onCreate().then(({ name, block }) => {
           const { root } = this.props;
           const { store: { dispatch } } = this.context;
-          return dispatch(api.setEditorState(root, { nextId: name, focus: true }));
+          return dispatch(api.setEditorState(root, { grid: false, nextId: name, focus: true }));
         });
       case 'insert-moment':
         return onCreate(data).then(({ name, block }) => {
           const { root } = this.props;
           const { store: { dispatch } } = this.context;
-          return dispatch(api.setEditorState(root, { nextId: name, focus: true }));
+          return dispatch(api.setEditorState(root, { grid: false, nextId: name, focus: true }));
         });
     }
   }

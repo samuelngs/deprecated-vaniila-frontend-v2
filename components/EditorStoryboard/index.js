@@ -92,7 +92,7 @@ export default class EditorStoryboard extends React.Component {
       this.refocus(editorMoment);
     } else if ( doc !== prevDoc ) {
       this.refocus(editorMoment, false);
-    } else if ( gridview !== prevGridview && gridview ) {
+    } else if ( gridview !== prevGridview && gridview && editorMoment ) {
       this.refocus(editorMoment, false);
     } else if ( gridview !== prevGridview && !gridview && editorMoment ) {
       this.refocus(editorMoment, false);

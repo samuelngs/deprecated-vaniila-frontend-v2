@@ -93,7 +93,9 @@ export default class EditorStoryboard extends React.Component {
     } else if ( doc !== prevDoc ) {
       this.refocus(editorMoment, false);
     } else if ( gridview !== prevGridview && gridview ) {
-      if ( this.n ) this.n.scrollLeft = 0;
+      this.refocus(editorMoment, false);
+    } else if ( gridview !== prevGridview && !gridview && editorMoment ) {
+      this.refocus(editorMoment, false);
     }
   }
 
@@ -305,21 +307,34 @@ export default class EditorStoryboard extends React.Component {
     if ( !id ) return;
     const { gridview } = this.props;
     const { ids } = this.doc();
-    const { card: { width, padding } } = this.size(0);
+    const { card: { width, height, padding, space }, list: { columns } } = this.size(ids.length);
     const idx = ids.indexOf(id);
     if ( id === 'cover' || idx > -1 ) {
 
-      const offset = id === 'cover'
-        ? 0
-        : ids.map(
-          (n, i) => (i + 1) * (width + padding),
-        )[idx];
+      const offset = gridview
+        ? (
+          id === 'cover'
+          ? 0
+          : ids.map(
+            (n, i) => Math.abs( Math.floor( ( i + 1 ) / columns ) * ( height + padding + space ) )
+          )[idx]
+        )
+        : (
+          id === 'cover'
+          ? 0
+          : ids.map(
+            (n, i) => (i + 1) * (width + padding),
+          )[idx]
+        );
 
       if ( animate ) {
         this.scroll(offset);
       } else {
         if ( gridview ) {
+          this.n.scrollTop = offset;
+          this.n.scrollLeft = 0;
         } else {
+          this.n.scrollTop = 0;
           this.n.scrollLeft = offset;
         }
       }

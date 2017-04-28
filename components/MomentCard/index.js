@@ -140,6 +140,7 @@ export default class MomentCard extends React.Component {
     this.handleControlAction = this.handleControlAction.bind(this);
     this.handleSelectAction = this.handleSelectAction.bind(this);
     this.handleChangeAction = this.handleChangeAction.bind(this);
+    this.handleToggleAction = this.handleToggleAction.bind(this);
   }
 
   /**
@@ -226,6 +227,20 @@ export default class MomentCard extends React.Component {
       focusOffset       : 0,
       selectionRecovery : false,
     }));
+  }
+
+  handleToggleAction() {
+    const { id, root, gridview } = this.props;
+    const { store: { dispatch, getState } } = this.context;
+    if ( !gridview ) return;
+    const { editorMoment } = getState().editorStates[root];
+    if ( editorMoment !== id ) {
+      return dispatch(api.setEditorState(root, {
+        id,
+        grid: false,
+      }));
+    }
+    return dispatch(api.setEditorState(root, { grid: false }));
   }
 
   /**
@@ -468,6 +483,9 @@ export default class MomentCard extends React.Component {
           word-break: break-word;
           word-wrap: break-word;
         }
+        .base-grid {
+          cursor: pointer;
+        }
       `}</style>
       <MomentCardControls
         id={id}
@@ -492,7 +510,11 @@ export default class MomentCard extends React.Component {
         className={(
           editmode
           ? 'base-content base-word base-editable'
-          : 'base-content base-word'
+          : (
+            gridview
+            ? 'base-content base-word base-grid'
+            : 'base-content base-word'
+          )
         )}
         aria-label="moment-content"
         data-moment-contenteditable={id}
@@ -503,6 +525,7 @@ export default class MomentCard extends React.Component {
         contentEditable={editmode}
         suppressContentEditableWarning={true}
         style={contentStyle}
+        onClick={gridview && this.handleToggleAction}
       >
         <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width, paddingTop: fullscreen && 0, paddingBottom: fullscreen && 0 }}>
           { this.renderBlocks(blocks) }

@@ -17,6 +17,7 @@ import deepClone from '../utils/clone';
 
 import { api as accountReducerApi } from '../reducers/account';
 import { api as momentReducerApi } from '../reducers/moment';
+import { api as editorReducerApi } from '../reducers/editor';
 import { api as historiesReducerApi } from '../reducers/histories';
 
 import withRedux from '../storage';
@@ -45,8 +46,6 @@ class EditMoment extends React.Component {
     connected : false,
     peers     : [ ],
     err       : this.props.err,
-
-    gridview  : false,
 
     cover     : {
       hash    : `${Date.now()}`,
@@ -129,8 +128,9 @@ class EditMoment extends React.Component {
     return this.setState({ err: null });
   }
 
-  onModeChange(gridview) {
-    return this.setState({ gridview });
+  onModeChange(grid) {
+    const { id, dispatch } = this.props;
+    return dispatch(editorReducerApi.setEditorState(id, { grid }));
   }
 
   /**
@@ -358,9 +358,10 @@ class EditMoment extends React.Component {
 
   render () {
     const { id, username, moment, editorHistories, editorStates, files, windowSize } = this.props;
-    const { err, peers, cover, gridview } = this.state;
+    const { err, peers, cover } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
+    const { editorGrid } = editorState;
     return <div>
       <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F8F8F8; }`}</style>
       <Head>
@@ -381,7 +382,7 @@ class EditMoment extends React.Component {
         />
         <EditorHeader
           peers={peers}
-          gridview={gridview}
+          gridview={editorGrid}
           onModeChange={::this.onModeChange}
           onMomentCreate={::this.onMomentCreate}
         />
@@ -390,7 +391,7 @@ class EditMoment extends React.Component {
           doc={doc}
           cover={cover}
           files={files}
-          gridview={gridview}
+          gridview={editorGrid}
           windowSize={windowSize}
           editorState={editorState}
           onMomentCreate={::this.onMomentCreate}

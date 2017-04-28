@@ -17,6 +17,9 @@ const defaults = {
     // editor next moment
     editorNextMoment: null,
 
+    // editor grid view
+    editorGrid: false,
+
     // selection start point (usually the anchor point)
     editorStartKey: null,
     editorStartGroup: null,
@@ -66,6 +69,8 @@ const defaults = {
 
     id: undefined,
     nextId: undefined,
+
+    grid: undefined,
 
     anchorKey: undefined,
     anchorGroup: undefined,
@@ -123,6 +128,7 @@ function hookSetEditorState(states, { id, options: opts }, store) {
   // update state
   conditionReset(state, present, opts);
   conditionUpdateNext(state, present, opts);
+  conditionUpdateGridview(state, present, opts);
   conditionUpdateAnchorPoint(state, present, opts);
   conditionUpdateFocusPoint(state, present, opts);
   conditionUpdateFocus(state, present, opts);
@@ -153,6 +159,12 @@ function conditionUpdateNext(state, doc, opts) {
   const { nextId } = opts;
   if ( typeof nextId !== 'string' ) return;
   state.editorNextMoment = nextId;
+}
+
+function conditionUpdateGridview(state, doc, opts) {
+  const { grid } = opts;
+  if ( typeof grid !== 'boolean' ) return;
+  state.editorGrid = grid;
 }
 
 function conditionUpdateAnchorPoint(state, doc, opts) {

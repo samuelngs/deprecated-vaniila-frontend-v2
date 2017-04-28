@@ -112,7 +112,7 @@ export default class MomentCardImage extends React.Component {
 
   render() {
 
-    const { position, block, files, fullscreen, editorState: { editorStartKey, editorEndKey } } = this.props;
+    const { position, block, files, fullscreen, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
     const isImageSelected = (
@@ -144,7 +144,7 @@ export default class MomentCardImage extends React.Component {
 
     if ( ( isLocal && file && file.base64 ) || !isLocal ) {
       return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
-        <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} />
+        { editmode && <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} /> }
         <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
         <MomentCardFallbackImage
           src={src}
@@ -160,7 +160,7 @@ export default class MomentCardImage extends React.Component {
     }
 
     return <figure { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
-      <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} />
+      { editmode && <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} /> }
       <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
       <div
         data-offset-key={key}

@@ -35,10 +35,10 @@ export default ({ headerHeight, onPress, gridview }) => <div className="header-n
       cursor: pointer;
     }
   `}</style>
-  <Tooltip tag="button" className="header-nav-mode-button" title="Grid" position="bottom" data-contextual-menu onClick={e => onPress(true)}>
+  <Tooltip tag="button" className="header-nav-mode-button" title="Your Moments" position="bottom" data-contextual-menu onClick={e => onPress(true)}>
     <EditorModeGrid active={gridview} />
   </Tooltip>
-  <Tooltip tag="button" className="header-nav-mode-button" title="Slider" position="bottom" data-contextual-menu onClick={e => onPress(false)}>
+  <Tooltip tag="button" className="header-nav-mode-button" title="What's happening?" position="bottom" data-contextual-menu onClick={e => onPress(false)}>
     <EditorModeSlider active={!gridview} />
   </Tooltip>
 </div>

@@ -34,7 +34,7 @@ export default class EditorHeader extends React.Component {
   static cssVariables = {
     headerHeight: 46,
     headerBackgroundColor: '#fff',
-    headerTransparentBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+    headerTransparentBackgroundColor: 'rgba(255, 255, 255, 0.88)',
     headerIconColor: '#8aa7b1',
   }
 
@@ -71,7 +71,7 @@ export default class EditorHeader extends React.Component {
           z-index: 7;
         }
         .header-grid {
-          background-color: ${EditorHeader.cssVariables.headerTransparentBackgroundColor};
+          background-color: ${EditorHeader.cssVariables.headerBackgroundColor};
         }
         .header-nav {
           flex: 1;

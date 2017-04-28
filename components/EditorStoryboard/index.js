@@ -503,8 +503,7 @@ export default class EditorStoryboard extends React.Component {
           overflow-y: hidden!important;
         }
         .base-grid {
-          margin-top: 0px;
-          padding-top: 60px;
+          padding-top: 10px;
           overflow-y: auto!important;
           overflow-x: hidden!important;
           align-items: inherit;

@@ -126,8 +126,12 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderPlaceholderImage() {
-    const { src, cover, ...props } = this.props;
-    return <div { ...props } />
+    const { src, cover, style, ...props } = this.props;
+    const styles = {
+      ...style,
+      backgroundColor: '#000',
+    };
+    return <div { ...props } style={styles} />
   }
 
   renderImage() {

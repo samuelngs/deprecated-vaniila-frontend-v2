@@ -1,7 +1,9 @@
 
 import React from 'react';
 
-export default ({ headerHeight, headerIconColor }) => <button className="header-nav-button nav-button-back" style={{ height: headerHeight }}>
+const onPressDefault = e => { };
+
+export default ({ headerHeight, headerIconColor, onPress = onPressDefault }) => <button className="header-nav-button nav-button-back" style={{ height: headerHeight }} onClick={onPress}>
   <style jsx>{`
     .header-nav-button {
       margin-top: 0;

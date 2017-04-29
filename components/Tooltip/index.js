@@ -11,6 +11,7 @@ export default class Tooltip extends React.Component {
 
   static propTypes = {
     tag         : PropTypes.string,
+    offset      : PropTypes.number,
     title       : PropTypes.string,
     description : PropTypes.string,
     render      : PropTypes.node,
@@ -19,6 +20,7 @@ export default class Tooltip extends React.Component {
 
   static defaultProps = {
     tag         : '',
+    offset      : 0,
     title       : '',
     description : '',
     render      : null,
@@ -98,7 +100,7 @@ export default class Tooltip extends React.Component {
   }
 
   render() {
-    const { tag: HTMLTag, title, description, render, position, className, children, ...props } = this.props;
+    const { tag: HTMLTag, offset, title, description, render, position, className, children, ...props } = this.props;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}
@@ -151,8 +153,8 @@ export default class Tooltip extends React.Component {
             border-top: 5px solid rgba(0, 0, 0, 0.95);
           }
         `}</style>
-        { motion ? <div className="tooltip-overlay" style={position === 'top' ? { bottom: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity } : { top: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity }}>
-          <div className={ position === 'bottom' ? 'tooltip-arrow-pt' : 'tooltip-arrow-pb' } />
+        { motion ? <div className="tooltip-overlay" style={position === 'top' ? { bottom: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity, left: !!offset && `calc(50% + ${offset}px)` } : { top: `calc(100% + ${motion.style.y}px)`, opacity: motion.style.opacity, left: !!offset && `calc(50% + ${offset}px)` }}>
+          <div className={ position === 'bottom' ? 'tooltip-arrow-pt' : 'tooltip-arrow-pb' } style={{ right: !!offset && `calc(50% + ${offset + (offset < 0 ? -2.5 : 2.5)}px)` }} />
           { this.renderTips(title, description, render) }
         </div> : null }
         { children }

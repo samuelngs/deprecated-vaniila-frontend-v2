@@ -7,6 +7,7 @@ import EditorHeaderLogo from '../EditorHeaderLogo';
 import EditorHeaderBack from '../EditorHeaderBack';
 import EditorHeaderMode from '../EditorHeaderMode';
 import EditorHeaderDetails from '../EditorHeaderDetails';
+import EditorHeaderLiveStream from '../EditorHeaderLiveStream';
 import EditorPeersList from '../EditorPeersList';
 
 export default class EditorHeader extends React.Component {
@@ -99,13 +100,7 @@ export default class EditorHeader extends React.Component {
             headerIconColor={EditorHeader.cssVariables.headerIconColor}
           />
           <div className="header-separator" />
-          <EditorHeaderMode
-            headerHeight={EditorHeader.cssVariables.headerHeight}
-            onPress={this.onModeChange}
-            gridview={gridview}
-          />
-          <div className="header-separator" />
-          <EditorHeaderDetails
+          <EditorHeaderLiveStream
             headerHeight={EditorHeader.cssVariables.headerHeight}
           />
         </div>
@@ -117,6 +112,12 @@ export default class EditorHeader extends React.Component {
           <EditorPeersList
             headerHeight={EditorHeader.cssVariables.headerHeight}
             peers={peers}
+          />
+          <div className="header-separator" />
+          <EditorHeaderMode
+            headerHeight={EditorHeader.cssVariables.headerHeight}
+            onPress={this.onModeChange}
+            gridview={gridview}
           />
         </div>
       </nav>

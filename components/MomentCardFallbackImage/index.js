@@ -121,7 +121,7 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   onRegularError = e => {
-    this.mounted && this.setState(state => state.regularLoadedSuccessful && { regularLoadedSuccessful: false });
+    this.mounted && this.setState(state => state.regularLoadedSuccessful !== false && { regularLoadedSuccessful: false });
   }
 
   renderFallback() {
@@ -213,8 +213,8 @@ export default class MomentCardFallbackImage extends React.Component {
 
   render() {
     const { cover } = this.props;
-    const { progressiveLoadedSuccessful } = this.state;
-    if ( progressiveLoadedSuccessful === false ) {
+    const { progressiveLoadedSuccessful, regularLoadedSuccessful } = this.state;
+    if ( progressiveLoadedSuccessful === false || regularLoadedSuccessful === false ) {
       return this.renderFallback();
     }
     if ( cover === false ) {

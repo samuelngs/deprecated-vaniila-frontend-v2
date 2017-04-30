@@ -108,7 +108,7 @@ function retrieveMomentDocument(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
     const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
-    return fetch(`${BACKEND_URL}/i/plot/${id}`, {
+    return fetch(`${BACKEND_URL}/i/moment/anyone/${id}`, {
       method      : 'get',
       credentials : 'include',
       headers,

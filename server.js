@@ -14,8 +14,8 @@ const routes = {
   '/signout'                : '/signout',
   '/new'                    : '/new-moment',
   '/:username'              : '/list-moments',
-  '/:username/:moment'      : '/view-moment',
-  '/:username/:moment/edit' : '/edit-moment',
+  '/:username/:id'          : '/view-moment',
+  '/:username/:id/edit'     : '/edit-moment',
 };
 
 const router = (() => {

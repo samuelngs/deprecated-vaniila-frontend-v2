@@ -32,7 +32,7 @@ class NewMoment extends React.Component {
     body.append('name', momentName);
     body.append('description', momentDesc);
     body.append('private', 'false');
-    fetch(`${BACKEND_URL}/i/plot`, {
+    fetch(`${BACKEND_URL}/i/moment`, {
       method      : 'post',
       credentials : 'include',
       body,

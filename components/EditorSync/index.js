@@ -141,8 +141,7 @@ export default class EditorSync extends React.Component {
    * emit synchronous request to server
    */
   latest() {
-    const { username, moment: plotname } = this.props;
-    this.emit({ action: 'sync', username, plotname }, false);
+    this.emit({ action: 'sync' }, false);
   }
 
   /**
@@ -152,13 +151,10 @@ export default class EditorSync extends React.Component {
     const { store } = this.context;
     const { accountUsername, accountFullname, accountAvatar } = store.getState();
     const { id, background } = this.state;
-    const { username, moment: plotname } = this.props;
     const { platform = 'Device' } = typeof navigator === 'object' ? navigator : { };
     const accountFullnameParts = accountFullname.split(' ');
     this.emit({
       action: 'signal',
-      username,
-      plotname,
       platform,
       id,
       background,
@@ -382,7 +378,7 @@ export default class EditorSync extends React.Component {
     const peers = [ ];
     const now = Date.now();
 
-    const { action, username, plotname, ...details } = data;
+    const { action, ...details } = data;
     const user = { ...details, when: now, initial: now };
 
     let added = false;

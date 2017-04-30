@@ -17,7 +17,7 @@ class ListMoments extends React.Component {
       internal      : 'TRUE',
       'Access-Token': authenticationToken,
     };
-    const moments = await fetch(`${BACKEND_URL}/i/plot/${username}`, {
+    const moments = await fetch(`${BACKEND_URL}/i/moment/${username}`, {
       method      : 'get',
       credentials : 'include',
       headers,
@@ -35,7 +35,7 @@ class ListMoments extends React.Component {
     };
   }
 
-  renderMomentItem({ Owner: author, Name: name, Description: description }, i) {
+  renderMomentItem({ id, author, name }, i) {
     return <li key={i} className="item">
       <style jsx>{`
         .item + .item {
@@ -43,8 +43,7 @@ class ListMoments extends React.Component {
         }
       `}</style>
       <h3>{ name }</h3>
-      <p>{ description }</p>
-      <Link href={{ pathname: '/view-moment', query: { username: author, moment: name }}} as={`/${author}/${name}`}><a>Go to moment</a></Link>
+      <Link href={{ pathname: '/view-moment', query: { username: author, id }}} as={`/${author}/${id}`}><a>Go to moment</a></Link>
     </li>
   }
 

@@ -24,17 +24,16 @@ import withRedux from '../storage';
 
 class EditMoment extends React.Component {
 
-  static async getInitialProps ({ query: { username, moment }, store, isServer }) {
-    const id = `${username}/${moment}`;
+  static async getInitialProps ({ query: { username, id }, store, isServer }) {
     {
       const { err } = await store.dispatch(momentReducerApi.retrieveMomentDocument(id));
-      if ( err ) return { id, username, moment, err };
+      if ( err ) return { id, username, err };
     }
     {
       const { err } = await store.dispatch(historiesReducerApi.retrieveEditableState(id, true));
-      if ( err ) return { id, username, moment, err };
+      if ( err ) return { id, username, err };
     }
-    return { id, username, moment };
+    return { username, id };
   }
 
   static observe ({ authenticationToken, momentDocuments, editorHistories, editorStates, files, windowSize }) {
@@ -151,11 +150,8 @@ class EditMoment extends React.Component {
    * handler for moment file progress
    */
   onMomentProgress(moment, state) {
-    const { username, moment: plotname } = this.props;
     const payload = {
       action: 'progress',
-      plotname,
-      username,
       moment,
       state,
     };
@@ -174,7 +170,7 @@ class EditMoment extends React.Component {
     }
 
     // retrieve moments document
-    const { id, username, moment: plotname, editorHistories, dispatch } = this.props;
+    const { id, editorHistories, dispatch } = this.props;
     if ( !editorHistories[id] ) return;
     const { present: doc } = editorHistories[id] || { };
     const clone = { };
@@ -195,8 +191,6 @@ class EditMoment extends React.Component {
     // prepare websocket payload for 'update' event
     const payload = {
       action  : remove ? 'delete' : 'update',
-      username,
-      plotname,
       time    : new Date(),
       slides: {
         [moment]: state,
@@ -228,7 +222,7 @@ class EditMoment extends React.Component {
   onMomentReorder(n) {
 
     // retrieve moments document
-    const { id, username, moment: plotname, editorHistories, dispatch } = this.props;
+    const { id, editorHistories, dispatch } = this.props;
     if ( !editorHistories[id] ) return;
     const { present: doc } = editorHistories[id] || { };
     const clone = { };
@@ -243,8 +237,6 @@ class EditMoment extends React.Component {
 
     const payload = {
       action  : 'update',
-      username,
-      plotname,
       time    : new Date(),
       slides: { },
     };
@@ -286,7 +278,7 @@ class EditMoment extends React.Component {
     const { parent, blocks } = opts;
 
     // retrieve moments from histories
-    const { id, username, moment: plotname, editorHistories } = this.props;
+    const { id, editorHistories } = this.props;
     if ( !editorHistories[id] ) return;
     const { present: doc } = editorHistories[id] || { };
     const data = (doc.data || { });
@@ -315,8 +307,6 @@ class EditMoment extends React.Component {
     const payload = {
       action  : 'add',
       time    : new Date(),
-      plotname,
-      username,
       slides: {
         [name]: {
           hash  : `${Date.now()}`,
@@ -357,7 +347,7 @@ class EditMoment extends React.Component {
   }
 
   render () {
-    const { id, username, moment, editorHistories, editorStates, files, windowSize } = this.props;
+    const { id, username, editorHistories, editorStates, files, windowSize } = this.props;
     const { err, peers, cover } = this.state;
     const { present: doc, future, past } = editorHistories[id] || { };
     const editorState = editorStates[id] || { };
@@ -373,7 +363,7 @@ class EditMoment extends React.Component {
         <EditorSync
           ref={n => this.sync = n}
           username={username}
-          moment={moment}
+          moment={id}
           onOpen={::this.onWebsocketOpen}
           onClose={::this.onWebsocketClose}
           onSync={::this.onSync}

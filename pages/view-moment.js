@@ -50,14 +50,13 @@ class ViewMoment extends React.Component {
     </div>
   }
 
-  renderMoment({ id, path, author: { username } }) {
+  renderMoment({ id, author: { username } }) {
     return <div className="container">
       <style jsx>{`
         .container {
           padding-top: 80px;
         }
       `}</style>
-      <h1>{ path }</h1>
       <Link href={{ pathname: '/edit-moment', query: { username, id }}} as={`/${username}/${id}/edit`}><a>Edit</a></Link>
     </div>
   }

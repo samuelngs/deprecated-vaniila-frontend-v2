@@ -6,6 +6,7 @@ import UUID from 'uuid';
 import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
 import { api as HistoryApi } from '../../reducers/histories';
+import { api as MomentApi } from '../../reducers/moment';
 import { api as FileApi } from '../../reducers/file';
 
 export default class EditorSync extends React.Component {
@@ -22,6 +23,7 @@ export default class EditorSync extends React.Component {
     onSubscribe   : PropTypes.func,
     onUnsubscribe : PropTypes.func,
     onSync        : PropTypes.func,
+    onCover       : PropTypes.func,
     onSignal      : PropTypes.func,
   }
 
@@ -33,6 +35,7 @@ export default class EditorSync extends React.Component {
     onSubscribe   : ({ type, name }) => null,
     onUnsubscribe : ({ type, name }) => null,
     onSync        : ({ type, name, data }) => null,
+    onCover       : ({ type, name, data }) => null,
     onSignal      : ({ type, name, user, peers }) => null,
   }
 
@@ -257,7 +260,7 @@ export default class EditorSync extends React.Component {
    */
   onVisibilityChange() {
     const { hidden } = this.pageVisibilityApi();
-    setImmediate(_ => this.setState({ background: document[hidden] }));
+    setImmediate(_ => this.setState({ background: document[hidden] }, this.auto));
   }
 
   /**
@@ -283,6 +286,7 @@ export default class EditorSync extends React.Component {
     const { onSubscribe } = this.props;
     const channels = this.websocket.channels();
     const { attributes: { error } } = packet;
+    if ( !error ) this.auto();
     return onSubscribe({ type, name, error, channels });
   }
 
@@ -315,6 +319,10 @@ export default class EditorSync extends React.Component {
         // debounce repeated message
         clearImmediate(this.editorSyncImmediate);
         return this.editorSyncImmediate = setImmediate(_ => this.onEditorSync(type, name, data));
+      case 'cover':
+        if ( data._sid === id ) return;
+        if ( typeof data.title !== 'string' ) return;
+        return this.onEditorCoverChange(type, name, data);
       case 'change':
         if ( data._sid === id ) return;
         if ( !data.changes ) return;
@@ -328,27 +336,61 @@ export default class EditorSync extends React.Component {
       case 'progress':
         if ( !data.state ) return;
         return this.onEditorProgress(type, name, data);
+      case 'started':
+        return this.onEditorLiveStart(type, name, data);
+      case 'ended':
+        return this.onEditorLiveEnd(type, name, data);
     }
+  }
+
+  /**
+   * trigger when the live stream starts
+   */
+  onEditorLiveStart(type, name, data) {
+    const { store } = this.context;
+    const { moment } = this.props;
+    store.dispatch(MomentApi.retrieveMomentDocument(moment));
+  }
+
+  /**
+   * trigger when the live stream ends
+   */
+  onEditorLiveEnd(type, name, data) {
+    const { store } = this.context;
+    const { moment } = this.props;
+    store.dispatch(MomentApi.retrieveMomentDocument(moment));
   }
 
   /**
    * trigger when the receive message is a synchronous response
    */
   onEditorSync(type, name, data) {
+    if ( typeof name !== 'string' ) return;
+    const { moment } = this.props;
     const { store } = this.context;
     const { onSync } = this.props;
-    store.dispatch(HistoryApi.replaceState(name, data, true)).then(
+    store.dispatch(HistoryApi.replaceState(moment, data, true)).then(
       data => onSync({ type, name, data }),
     );
+  }
+
+  /**
+   * trigger when the cover title or image changed
+   */
+  onEditorCoverChange(type, name, data) {
+    const { onCover } = this.props;
+    return onCover({ type, name, data });
   }
 
   /**
    * trigger when websocket receive peer to peer changes
    */
   onEditorChange(type, name, data) {
+    if ( typeof name !== 'string' ) return;
+    const { moment } = this.props;
     const { store } = this.context;
     const { changes } = data;
-    store.dispatch(HistoryApi.patchState(name, changes));
+    store.dispatch(HistoryApi.patchState(moment, changes));
   }
 
   /**

@@ -3,6 +3,7 @@ import 'isomorphic-fetch';
 
 import React from 'react';
 import Head from 'next/head';
+import Router from 'next/router';
 
 import UUID from 'uuid';
 
@@ -27,11 +28,11 @@ class EditMoment extends React.Component {
   static async getInitialProps ({ query: { username, id }, store, isServer }) {
     {
       const { err } = await store.dispatch(momentReducerApi.retrieveMomentDocument(id));
-      if ( err ) return { id, username, err };
+      if ( err ) return { err, id, username, err };
     }
     {
       const { err } = await store.dispatch(historiesReducerApi.retrieveEditableState(id, true));
-      if ( err ) return { id, username, err };
+      if ( err ) return { err, id, username, err };
     }
     return { username, id };
   }
@@ -62,6 +63,27 @@ class EditMoment extends React.Component {
       align   : 1,
       order   : -1,
     },
+  }
+
+  componentWillMount() {
+
+    const { err, username, id, momentDocuments } = this.props;
+    const { cover: { data: { blocks: [ { data: title }, ...etc ] } } } = this.state;
+
+    if ( !momentDocuments[id] ) return;
+
+    const { name, path, author: { username: author } } = momentDocuments[id];
+
+    if ( typeof window !== 'undefined' && `${username}/${id}/edit` !== `${author}/${id}/edit` ) {
+      return Router.replace({
+        pathname: `/edit-moment`,
+        query   : { username: author, id },
+      }, `/${path}/edit`);
+    }
+
+    if ( title !== name ) {
+      return this.onCover({ data: { title: name } })
+    }
   }
 
   /**
@@ -108,6 +130,21 @@ class EditMoment extends React.Component {
   }
 
   /**
+   * handler for the moment cover sync event
+   */
+  onCover({ data: { title } }) {
+
+    const { cover } = this.state;
+
+    const clone = { };
+    deepClone(clone, cover);
+
+    clone.data.blocks[0].data = title;
+
+    return this.setState({ cover: clone });
+  }
+
+  /**
    * retry handler for re-fetch account and moment data
    */
   async onRetry() {
@@ -127,6 +164,25 @@ class EditMoment extends React.Component {
     return this.setState({ err: null });
   }
 
+  /**
+   * trigger when back button is pressed
+   */
+  onBack() {
+
+    const { id, momentDocuments } = this.props;
+    if ( !momentDocuments[id] ) return;
+
+    const { author: { username: author } } = momentDocuments[id];
+
+    return Router.replace({
+      pathname: `/view-moment`,
+      query   : { username: author, id },
+    }, `/${author}/${id}`);
+  }
+
+  /**
+   * trigger when mode changes
+   */
   onModeChange(grid) {
     const { id, dispatch } = this.props;
     return dispatch(editorReducerApi.setEditorState(id, { grid }));
@@ -166,7 +222,7 @@ class EditMoment extends React.Component {
     if ( !window.getSelection ) return;
 
     if ( moment === 'cover' ) {
-      return this.setState({ cover: state });
+      return this.onMomentCoverChange(moment, state);
     }
 
     // retrieve moments document
@@ -214,6 +270,25 @@ class EditMoment extends React.Component {
     return dispatch(historiesReducerApi.updateState(id, clone))
       .then(changes => this.emit({ action: 'change', changes }))
       .then(_ => this.emit(payload));
+  }
+
+  /**
+   * handler for moment cover change
+   */
+  onMomentCoverChange(moment, state) {
+
+    const { data: { blocks: [ { data: title }, ...etc ] } } = state;
+
+    // prepare websocket payload for 'cover' event
+    const payload = {
+      action  : 'cover',
+      time    : new Date(),
+      title,
+    };
+
+    return this.setState({ cover: state }, e => {
+      return this.emit(payload);
+    });
   }
 
   /**
@@ -346,16 +421,88 @@ class EditMoment extends React.Component {
       .then(_ => this.latest()).then(_ => ({ name, block }));
   }
 
+  onMomentLiveStart() {
+
+    const {
+      id,
+      momentDocuments,
+      dispatch,
+    } = this.props;
+
+    const {
+      livestream,
+      started_at: startedAt,
+    } = momentDocuments[id] || { };
+
+    if (
+      !livestream
+      || typeof startedAt !== 'string'
+      || startedAt.indexOf('000') !== 0
+    ) return;
+
+    this.emit({ action: 'started' })
+  }
+
+  onMomentLiveEnd() {
+
+    const {
+      id,
+      momentDocuments,
+      dispatch,
+    } = this.props;
+
+    const {
+      livestream,
+      ended_at: endedAt,
+    } = momentDocuments[id] || { };
+
+    if (
+      !livestream
+      || typeof endedAt !== 'string'
+      || endedAt.indexOf('000') !== 0
+    ) return;
+
+    this.emit({ action: 'ended' })
+  }
+
   render () {
-    const { id, username, editorHistories, editorStates, files, windowSize } = this.props;
-    const { err, peers, cover } = this.state;
-    const { present: doc, future, past } = editorHistories[id] || { };
+
+    const {
+      id,
+      username,
+      momentDocuments,
+      editorHistories,
+      editorStates,
+      files,
+      windowSize
+    } = this.props;
+
+    const {
+      err,
+      peers,
+      cover
+    } = this.state;
+
+    const {
+      name,
+      livestream,
+      started_at: startedAt,
+      ended_at: endedAt
+    } = momentDocuments[id] || { };
+
+    const {
+      present: doc,
+      future,
+      past
+    } = editorHistories[id] || { };
+
     const editorState = editorStates[id] || { };
     const { editorGrid } = editorState;
+
     return <div>
       <style jsx>{`div { height: 100vh; width: 100vw; background-color: #F8F8F8; }`}</style>
       <Head>
-        <title>Moment</title>
+        <title>{ name || 'Draft' }</title>
       </Head>
       <WindowObserver />
       <EditorLaunchFail err={err} retry={::this.onRetry} />
@@ -369,12 +516,19 @@ class EditMoment extends React.Component {
           onSync={::this.onSync}
           onUpdate={::this.onUpdate}
           onSignal={::this.onSignal}
+          onCover={::this.onCover}
         />
         <EditorHeader
           peers={peers}
           gridview={editorGrid}
+          livestream={livestream}
+          livestreamStartedAt={startedAt}
+          livestreamEndedAt={endedAt}
+          onBack={::this.onBack}
           onModeChange={::this.onModeChange}
           onMomentCreate={::this.onMomentCreate}
+          onMomentLiveStart={::this.onMomentLiveStart}
+          onMomentLiveEnd={::this.onMomentLiveEnd}
         />
         <EditorStoryboard
           id={id}

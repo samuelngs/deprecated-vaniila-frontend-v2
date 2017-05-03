@@ -42,7 +42,7 @@ class ListMoments extends React.Component {
           margin-top: 20px;
         }
       `}</style>
-      <h3>{ name }</h3>
+      <h3>{ name || 'Draft' }</h3>
       <Link href={{ pathname: '/view-moment', query: { username: author, id }}} as={`/${author}/${id}`}><a>Go to moment</a></Link>
     </li>
   }

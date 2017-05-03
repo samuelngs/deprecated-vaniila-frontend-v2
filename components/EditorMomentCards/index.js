@@ -248,13 +248,15 @@ export default class EditorMomentCards extends React.Component {
   }
 
   getListStyle({ opacity }) {
-    const { size: { list: { width, height, padding } } } = this.props;
+    const { size: { list: { width, height, padding, offset } } } = this.props;
     return {
       opacity,
-      width,
+      width       : width + offset,
       height,
-      minWidth    : width,
+      minWidth    : width + offset,
       minHeight   : height,
+      maxWidth    : width + offset,
+      maxHeight   : height,
       paddingLeft : padding,
     };
   }

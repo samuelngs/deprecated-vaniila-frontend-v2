@@ -67,7 +67,10 @@ export default class EditorStoryboard extends React.Component {
     window.addEventListener('mousedown', this.handleMouseDown);
     window.addEventListener('mousemove', this.handleMouseMove);
     window.addEventListener('mouseup', this.handleMouseUp);
-    if ( this.n && this.n.lastChild ) this.n.scrollLeft = this.n.lastChild.offsetWidth;
+    // if ( typeof window !== 'undefined' && this.n && this.n.lastChild ) {
+    //   this.n.scrollLeft = this.n.lastChild.offsetWidth;
+    //   window.setTimeout(_ => ( this.n.scrollLeft = this.n.lastChild.offsetWidth ), 0);
+    // }
   }
 
   componentWillUnmount() {
@@ -387,7 +390,7 @@ export default class EditorStoryboard extends React.Component {
 
     const res = {
       card  : { width: ( width - defaults.padding ), height: ( height - defaults.offsetHeight ), padding: defaults.padding, ratio: ( width - defaults.padding ) / defaults.maxWidth, mode: 'desktop' },
-      list  : { width: 0, height: 0, padding: 0 },
+      list  : { width: 0, height: 0, padding: 0, offset: 0 },
       screen,
     };
 
@@ -395,8 +398,8 @@ export default class EditorStoryboard extends React.Component {
 
       case true:
 
-        if ( defaults.gridWidth > width - ( defaults.padding * 2 ) ) {
-          res.card.width = width - defaults.padding * 2;
+        if ( defaults.gridWidth > width - defaults.padding ) {
+          res.card.width = width - defaults.padding;
           res.card.height = defaults.gridWidth / defaults.maxWidth * defaults.maxHeight;
           res.card.mode = 'mobile';
         } else {
@@ -446,6 +449,7 @@ export default class EditorStoryboard extends React.Component {
         res.list.height = ( res.card.height );
         res.list.padding = ( width - res.card.width ) / 2;
         res.list.columns = -1;
+        res.list.offset = 0;
 
         return res;
     }

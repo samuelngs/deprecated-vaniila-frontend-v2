@@ -1,10 +1,13 @@
 
 import React from 'react';
+import Router from 'next/router';
 import MemoryStorage from './memory';
 import localforage from 'localforage';
 
+import url from 'url';
 import { connect, Provider } from 'react-redux';
 import { createPersistor, persistStore } from 'redux-persist';
+
 import { prefix as keyPrefix, blacklist } from './config';
 import { syncCookies } from './store';
 import { actions } from '../reducers/server';
@@ -173,6 +176,29 @@ export default function(createStore) {
               return await false;
             }));
           }
+        } else {
+
+          if (
+            typeof context === 'object'
+            && context !== null
+            && typeof context.query === 'object'
+            && context.query !== null
+          ) {
+            const { query } = context;
+            context.store.dispatch({ type: actions.SetServerQuery, query });
+          } else {
+            context.store.dispatch({ type: actions.SetServerQuery, query: { } });
+          }
+
+          if (
+            typeof context === 'object'
+            && context !== null
+            && typeof context.pathname === 'string'
+          ) {
+            const { pathname } = context;
+            context.store.dispatch({ type: actions.SetServerPathname, pathname });
+          }
+
         }
 
         // get the `initialProps` from the ComposedComponent
@@ -201,6 +227,16 @@ export default function(createStore) {
           : initStore(createStore, { }, { }, initialState);
         const state = this.store.getState()
         this.persistStore(this.store, state);
+      }
+
+      componentDidMount() {
+        Router.onRouteChangeStart = path => {
+          this.store.dispatch({ type: actions.SetServerPath, path });
+        }
+      }
+
+      componentWillUnmount() {
+        Router.onRouteChangeStart = null;
       }
 
       async persistStore(store, state) {

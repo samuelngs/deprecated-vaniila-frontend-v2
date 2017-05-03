@@ -7,8 +7,10 @@ const defaults = {
   hostname        : typeof location !== 'undefined' ? location.hostname : '',
   ip              : '',
   path            : typeof location !== 'undefined' ? location.pathname : '',
+  pathname        : '',
   originalUrl     : '',
   baseUrl         : '',
+  query           : { },
   params          : { },
   cookies         : { },
   signedCookies   : { },
@@ -23,8 +25,10 @@ export const actions = {
   SetServerHostname     : 'set_server_hostname',
   SetServerIp           : 'set_server_ip',
   SetServerPath         : 'set_server_path',
+  SetServerPathname     : 'set_server_pathname',
   SetServerOriginalUrl  : 'set_server_original_url',
   SetServerBaseUrl      : 'set_server_base_url',
+  SetServerQuery        : 'set_server_query',
   SetServerParams       : 'set_server_params',
   SetServerCookies      : 'set_server_cookies',
   SetServerSignedCookies: 'set_server_signed_cookies',
@@ -93,6 +97,15 @@ function serverPath (path = defaults.path, action = defaults.action) {
   }
 }
 
+function serverPathname (pathname = defaults.pathname, action = defaults.action) {
+  switch ( action.type ) {
+    case actions.SetServerPathname:
+      return action.pathname;
+    default:
+      return pathname;
+  }
+}
+
 function serverOriginalUrl (originalUrl = defaults.originalUrl, action = defaults.action) {
   switch ( action.type ) {
     case actions.SetServerOriginalUrl:
@@ -108,6 +121,15 @@ function serverBaseUrl (baseUrl = defaults.baseUrl, action = defaults.action) {
       return action.baseUrl;
     default:
       return baseUrl;
+  }
+}
+
+function serverQuery (query = defaults.query, action = defaults.action) {
+  switch ( action.type ) {
+    case actions.SetServerQuery:
+      return action.query;
+    default:
+      return query;
   }
 }
 
@@ -166,12 +188,20 @@ async function serverPathMiddleware ({ req: { path }, store }) {
   store.dispatch({ type: actions.SetServerPath, path });
 }
 
+async function serverPathnameMiddleware ({ pathname, store }) {
+  store.dispatch({ type: actions.SetServerPathname, pathname });
+}
+
 async function serverOriginalUrlMiddleware ({ req: { originalUrl }, store }) {
   store.dispatch({ type: actions.SetServerOriginalUrl, originalUrl });
 }
 
 async function serverBaseUrlMiddleware ({ req: { baseUrl }, store }) {
   store.dispatch({ type: actions.SetServerBaseUrl, baseUrl });
+}
+
+async function serverQueryMiddleware ({ req: { query }, store }) {
+  store.dispatch({ type: actions.SetServerQuery, query });
 }
 
 async function serverParamsMiddleware ({ req: { params }, store }) {
@@ -204,8 +234,10 @@ export const middleware = [
   serverHostnameMiddleware,
   serverIpMiddleware,
   serverPathMiddleware,
+  serverPathnameMiddleware,
   serverOriginalUrlMiddleware,
   serverBaseUrlMiddleware,
+  serverQueryMiddleware,
   serverParamsMiddleware,
   serverCookiesMiddleware,
   serverSignedCookiesMiddleware,
@@ -219,8 +251,10 @@ export default {
   serverHostname,
   serverIp,
   serverPath,
+  serverPathname,
   serverOriginalUrl,
   serverBaseUrl,
+  serverQuery,
   serverParams,
   serverCookies,
   serverSignedCookies,

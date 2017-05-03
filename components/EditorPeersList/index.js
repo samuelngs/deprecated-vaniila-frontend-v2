@@ -105,7 +105,7 @@ export default class EditorPeersList extends React.Component {
           filter: none;
           opacity: 1;
         }
-        .peer:nth-child(1) .container { background-color: #4d95fa; }
+        .peer:nth-child(1) .container { background-color: #185be7; }
         .peer:nth-child(2) .container { background-color: #4db1d4; }
         .peer:nth-child(3) .container { background-color: #4dceae; }
         .peer:nth-child(4) .container { background-color: #4deb88; }

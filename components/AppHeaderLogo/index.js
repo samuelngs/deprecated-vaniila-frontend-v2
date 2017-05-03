@@ -3,8 +3,8 @@ import React from 'react';
 
 export default ({ headerHeight = 45 }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style={{ height: headerHeight, width: headerHeight }}>
   <style jsx>{`
-    .st0 { fill: #0084FF; }
-    .st1 { fill: #88f6ff; }
+    .st0 { fill: #185BE7; }
+    .st1 { fill: #94FFF5; }
     .st2 { fill: #FEE434; }
   `}</style>
   <path d="M45 75.7h-5c-2.8 0-5.2-2.3-5.2-5.2 0-2.8 2.3-5.2 5.2-5.2h5c2.8 0 5.2 2.3 5.2 5.2 0 2.8-2.3 5.2-5.2 5.2z" className="st0"/>

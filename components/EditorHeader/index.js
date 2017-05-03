@@ -3,6 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 
+import AppModal from '../AppModal';
+import EditorModalStartLive from '../EditorModalStartLive';
+import EditorModalEndLive from '../EditorModalEndLive';
 import EditorHeaderLogo from '../EditorHeaderLogo';
 import EditorHeaderBack from '../EditorHeaderBack';
 import EditorHeaderMode from '../EditorHeaderMode';
@@ -17,19 +20,34 @@ export default class EditorHeader extends React.Component {
   }
 
   static propTypes = {
-    doc           : PropTypes.object,
-    peers         : PropTypes.array,
-    gridview      : PropTypes.bool,
-    onModeChange  : PropTypes.func,
-    onMomentCreate: PropTypes.func,
+    peers               : PropTypes.array,
+    gridview            : PropTypes.bool,
+    livestream          : PropTypes.bool,
+    livestreamStartedAt : PropTypes.string,
+    livestreamEndedAt   : PropTypes.string,
+    onBack              : PropTypes.func,
+    onModeChange        : PropTypes.func,
+    onMomentCreate      : PropTypes.func,
+    onMomentLiveStart   : PropTypes.func,
+    onMomentLiveEnd     : PropTypes.func,
   }
 
   static defaultProps = {
-    doc           : null,
-    peers         : [ ],
-    gridview      : false,
-    onModeChange  : _ => null,
-    onMomentCreate: _ => null,
+    peers               : [ ],
+    gridview            : false,
+    livestream          : false,
+    livestreamStartedAt : '0001-01-01T00:00:00Z',
+    livestreamEndedAt   : '0001-01-01T00:00:00Z',
+    onBack              : _ => null,
+    onModeChange        : _ => null,
+    onMomentCreate      : _ => null,
+    onMomentLiveStart   : _ => null,
+    onMomentLiveEnd     : _ => null,
+  }
+
+  state = {
+    startConfirmation: false,
+    endConfirmation  : false,
   }
 
   static cssVariables = {
@@ -39,19 +57,70 @@ export default class EditorHeader extends React.Component {
     headerIconColor: '#8aa7b1',
   }
 
-  onModeChange = gridview => {
+  handleOnBack = e => {
+    const { onBack } = this.props;
+    return onBack();
+  }
+
+  handleModeChange = gridview => {
     const { gridview: current, onModeChange } = this.props;
     if ( current === gridview ) return;
     return onModeChange(gridview);
   }
 
+  handleStartConfirmationPress = startConfirmation => {
+    this.setState({ startConfirmation });
+  }
+
+  handleStartConfirmationDismiss = e => {
+    e.preventDefault();
+    this.setState({ startConfirmation: false });
+  }
+
+  handleStartConfirm = e => {
+    const { onMomentLiveStart } = this.props;
+    this.handleStartConfirmationDismiss(e);
+    onMomentLiveStart();
+  }
+
+  handleEndConfirmationPress = endConfirmation => {
+    this.setState({ endConfirmation });
+  }
+
+  handleEndConfirmationDismiss = e => {
+    e.preventDefault();
+    this.setState({ endConfirmation: false });
+  }
+
+  handleEndConfirm = e => {
+    const { onMomentLiveEnd } = this.props;
+    this.handleEndConfirmationDismiss(e);
+    onMomentLiveEnd();
+  }
+
   render() {
-    const { peers, gridview, onMomentCreate } = this.props;
+
+    const {
+      peers,
+      gridview,
+      livestream,
+      livestreamStartedAt,
+      livestreamEndedAt,
+      onMomentCreate
+    } = this.props;
+
+    const {
+      startConfirmation,
+      endConfirmation
+    } = this.state;
+
     const { store: { getState } } = this.context;
     const { authenticationToken } = getState();
+
     const className = gridview
       ? 'header header-grid'
       : 'header';
+
     return <header className={className}>
       <style jsx>{`
         .header {
@@ -98,15 +167,21 @@ export default class EditorHeader extends React.Component {
           <EditorHeaderBack
             headerHeight={EditorHeader.cssVariables.headerHeight}
             headerIconColor={EditorHeader.cssVariables.headerIconColor}
+            onPress={this.handleOnBack}
           />
           <div className="header-separator" />
-          <EditorHeaderLiveStream
+          { livestream && <EditorHeaderLiveStream
             headerHeight={EditorHeader.cssVariables.headerHeight}
-          />
+            livestreamStartedAt={livestreamStartedAt}
+            livestreamEndedAt={livestreamEndedAt}
+            livestreamStartConfirmation={startConfirmation}
+            livestreamEndConfirmation={endConfirmation}
+            onStartConfirmationPress={this.handleStartConfirmationPress}
+            onEndConfirmationPress={this.handleEndConfirmationPress}
+          /> }
         </div>
-        <div className="header-grid-column-4 header-grid-column-ac">
+        <div className="header-grid-column-1 header-grid-column-ac">
           <EditorHeaderLogo headerHeight={EditorHeader.cssVariables.headerHeight} />
-          { false && <button onClick={onMomentCreate}>Create Moment</button> }
         </div>
         <div className="header-grid-column-4 header-grid-column-ar">
           <EditorPeersList
@@ -116,11 +191,17 @@ export default class EditorHeader extends React.Component {
           <div className="header-separator" />
           <EditorHeaderMode
             headerHeight={EditorHeader.cssVariables.headerHeight}
-            onPress={this.onModeChange}
+            onPress={this.handleModeChange}
             gridview={gridview}
           />
         </div>
       </nav>
+      <AppModal color="#fff" active={startConfirmation} dismiss={this.handleStartConfirmationDismiss}>
+        <EditorModalStartLive onPress={this.handleStartConfirm} />
+      </AppModal>
+      <AppModal color="#fff" active={endConfirmation} dismiss={this.handleEndConfirmationDismiss}>
+        <EditorModalEndLive onPress={this.handleEndConfirm} />
+      </AppModal>
     </header>
   }
 

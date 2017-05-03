@@ -22,6 +22,12 @@ export default ({ headerHeight, headerIconColor, onPress = onPressDefault }) => 
       background-color: transparent;
       cursor: pointer;
     }
+    .header-nav-button:hover {
+      background-color: rgb(245, 245, 245);
+    }
+    .header-nav-button:active {
+      background-color: rgb(239, 239, 239);
+    }
     .nav-button-back {
       width: 40px;
     }

@@ -75,7 +75,7 @@ export default class AppHeader extends React.Component {
           display: flex;
           background-color: ${AppHeader.cssVariables.headerBackgroundColor};
           box-shadow: rgba(0, 0, 0, 0.05) 0px 1px;
-          z-index: 7;
+          z-index: 21;
         }
         .header-grid {
           background-color: ${AppHeader.cssVariables.headerBackgroundColor};

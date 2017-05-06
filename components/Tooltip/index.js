@@ -73,6 +73,9 @@ export default class Tooltip extends React.Component {
     if ( typeof render === 'function' ) {
       return render();
     }
+    if ( typeof render === 'object' && render !== null ) {
+      return render;
+    }
     return <div className="overlay no-select">
       <style jsx>{`
         .overlay {

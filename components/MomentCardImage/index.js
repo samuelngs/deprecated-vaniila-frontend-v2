@@ -115,7 +115,7 @@ export default class MomentCardImage extends React.Component {
 
   render() {
 
-    const { position, block, files, width, height, fullscreen, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
+    const { position, block, files, width, height, fullscreen, player, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
     const isImageSelected = (
@@ -154,6 +154,7 @@ export default class MomentCardImage extends React.Component {
         <MomentCardFallbackImage
           src={src}
           srchd={srchd}
+          player={player}
           cover={fullscreen}
           width={width}
           height={height}

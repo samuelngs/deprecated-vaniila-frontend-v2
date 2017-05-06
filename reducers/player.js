@@ -47,7 +47,17 @@ function hookMomentsSort(moments) {
     }
     return a - b;
   }).forEach((name, i) => {
-    momentsOrdered[name] = moments[name];
+    const moment = moments[name];
+    const blocks = ((moment.data || { }).blocks || [ ]);
+    const blank = (_ => {
+      for ( const block of blocks ) {
+        if ( (block.data || '').length > 0 ) {
+          return false;
+        }
+      }
+      return true;
+    })();
+    if ( !blank ) momentsOrdered[name] = moment;
   });
   return momentsOrdered;
 }

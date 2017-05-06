@@ -25,6 +25,7 @@ export default class MomentCardFallbackImage extends React.Component {
   static propTypes = {
     src   : PropTypes.string,
     srchd : PropTypes.string,
+    player: PropTypes.bool,
     cover : PropTypes.bool,
     width : PropTypes.number,
     height: PropTypes.number,
@@ -33,6 +34,7 @@ export default class MomentCardFallbackImage extends React.Component {
   static defaultProps = {
     src   : null,
     srchd : null,
+    player: false,
     cover : false,
     width : 0,
     height: 0,
@@ -174,7 +176,7 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderCoverImage() {
-    const { src, srchd, cover, width, height, style, ...props } = this.props;
+    const { src, srchd, cover, player, width, height, style, ...props } = this.props;
     const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful, progressiveHasCache, regularHasCache } = this.state;
     const source = srchd || src;
     return <div style={{
@@ -182,7 +184,7 @@ export default class MomentCardFallbackImage extends React.Component {
       width,
       height,
       position: 'relative',
-      backgroundColor: '#000',
+      backgroundColor: player ? '#fff' : '#000',
     }}>
       { source && <Motion style={{ opacity: spring(regularLoadedSuccessful === true || source.indexOf('data:') === 0 ? 1 : 0) }}>
         {({ opacity }) => (

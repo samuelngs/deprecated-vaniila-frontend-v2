@@ -22,11 +22,12 @@ export default class EditorCreateCard extends React.Component {
     onClick : _ => null,
   }
 
-  shouldComponentUpdate({ x, y, height }) {
+  shouldComponentUpdate({ x, y, height, active }) {
     return (
       x !== this.props.x ||
       y !== this.props.y ||
-      height !== this.props.height
+      height !== this.props.height ||
+      active !== this.props.active
     )
   }
 

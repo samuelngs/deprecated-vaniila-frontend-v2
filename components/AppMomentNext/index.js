@@ -63,8 +63,8 @@ export default class AppMomentNext extends React.Component {
             margin-right: 0;
             padding-top: 0;
             padding-bottom: 0;
-            padding-left: 14px;
-            padding-right: 14px;
+            padding-left: 0px;
+            padding-right: 0px;
             background-color: transparent;
             border: none;
             cursor: pointer;
@@ -76,13 +76,15 @@ export default class AppMomentNext extends React.Component {
             margin-bottom: 0;
             margin-left: 0;
             margin-right: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            padding-left: 0;
-            padding-right: 0;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            padding-left: 16px;
+            padding-right: 16px;
             width: 24px;
             height: 24px;
-            fill: #aaa;
+            fill: #83c8e1;
+            background-color: #f0fbfc;
+            border-radius: 50px;
           }
           @media (min-width: 768px) {
             .button {

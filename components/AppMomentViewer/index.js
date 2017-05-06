@@ -127,7 +127,7 @@ export default class AppMomentViewer extends React.Component {
           padding-left: 0;
           padding-bottom: 0;
           padding-right: 0;
-          background-color: #f8f8f8;
+          background-color: #fff;
         }
       `}</style>
       <div className="player-container">

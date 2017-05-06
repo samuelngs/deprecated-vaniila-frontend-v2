@@ -34,6 +34,7 @@ export default class MomentCard extends React.Component {
     height      : PropTypes.number,
     cover       : PropTypes.bool,
     placeholder : PropTypes.string,
+    player      : PropTypes.bool,
     editmode    : PropTypes.bool,
     gridview    : PropTypes.bool,
     moment      : PropTypes.object,
@@ -57,6 +58,7 @@ export default class MomentCard extends React.Component {
     height      : 0,
     cover       : false,
     placeholder : 'What\'s happening?',
+    player      : false,
     editmode    : false,
     gridview    : false,
     moment      : {
@@ -344,7 +346,7 @@ export default class MomentCard extends React.Component {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, placeholder, moment: { parent }, editmode, width, height, files, editorState } = this.props;
+    const { scale, placeholder, moment: { parent }, player, editmode, width, height, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -362,6 +364,7 @@ export default class MomentCard extends React.Component {
           total={blocks.length}
           scale={scale}
           placeholder={placeholder}
+          player={player}
           editmode={editmode}
           files={files}
           editorState={editorState}
@@ -373,6 +376,7 @@ export default class MomentCard extends React.Component {
           block={block}
           total={blocks.length}
           scale={scale}
+          player={player}
           editmode={editmode}
           width={width}
           height={height}
@@ -389,6 +393,7 @@ export default class MomentCard extends React.Component {
           block={block}
           total={blocks.length}
           scale={scale}
+          player={player}
           editmode={editmode}
           width={width}
           height={height}
@@ -405,6 +410,7 @@ export default class MomentCard extends React.Component {
           block={block}
           total={blocks.length}
           scale={scale}
+          player={player}
           editmode={editmode}
           width={width}
           height={height}
@@ -423,7 +429,7 @@ export default class MomentCard extends React.Component {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, editmode, gridview, moment, editorState, width } = this.props;
+    const { id, no, total, scale, cover, player, editmode, gridview, moment, editorState, width } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const when = moment.when;
     const fullscreen = !!moment.parent;
@@ -436,7 +442,7 @@ export default class MomentCard extends React.Component {
         ? this.compositionHandler
         : this.editHandler
       : null;
-    return <article aria-label="moment-card" className={[ 'base', editmode && 'base-editor', id === editorMoment && 'base-editor-focus' ].filter(n => n).join(' ')} style={cardStyle}>
+    return <article aria-label="moment-card" className={[ 'base', editmode && 'base-editor', player && 'base-player', id === editorMoment && 'base-editor-focus' ].filter(n => n).join(' ')} style={cardStyle}>
       <style jsx>{`
         .base {
           background-color: #fff;
@@ -445,6 +451,10 @@ export default class MomentCard extends React.Component {
           transition: box-shadow ease .2s;
           position: absolute;
           display: flex;
+        }
+        .base-player {
+          box-shadow: none;
+          border-radius: 0;
         }
         .base-dragging {
           box-shadow: rgba(0, 0, 0, 0.2) 0px 16px 32px 0px;

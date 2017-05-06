@@ -20,6 +20,7 @@ export default class EditorStoryboard extends React.Component {
     cover           : PropTypes.object,
     files           : PropTypes.object,
     gridview        : PropTypes.bool,
+    livestream      : PropTypes.bool,
     editorState     : PropTypes.object,
     windowSize      : PropTypes.shape({
       width         : PropTypes.number,
@@ -36,6 +37,7 @@ export default class EditorStoryboard extends React.Component {
     cover           : { data: { } },
     files           : { },
     gridview        : false,
+    livestream      : false,
     editorState     : { },
     windowSize      : {
       width         : typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -476,6 +478,7 @@ export default class EditorStoryboard extends React.Component {
       cover,
       files,
       gridview,
+      livestream,
       editorState,
       windowSize,
       onMomentCreate,
@@ -541,6 +544,7 @@ export default class EditorStoryboard extends React.Component {
         count={count}
         cover={cover}
         gridview={gridview}
+        livestream={livestream}
         moments={moments}
         size={size}
         state={editorState}

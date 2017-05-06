@@ -45,6 +45,7 @@ export default class EditorMomentCards extends React.Component {
       }),
     }),
     gridview        : PropTypes.bool,
+    livestream      : PropTypes.bool,
     // scroll state
     scrollLeft      : PropTypes.number,
     scrollTop       : PropTypes.number,
@@ -65,6 +66,7 @@ export default class EditorMomentCards extends React.Component {
     moments         : { },
     size            : { },
     gridview        : false,
+    livestream      : false,
     scrollLeft      : 0,
     scrollTop       : 0,
     state           : { },
@@ -137,6 +139,8 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       gridview,
+      cover: { data: { blocks: [ { data: title }, ...etc ] } },
+      livestream,
       scrollLeft,
       scrollTop,
       state,
@@ -159,7 +163,7 @@ export default class EditorMomentCards extends React.Component {
         ref         : n => this.cards[id] = n,
         key         : id,
         moment      : moments[id],
-        editmode    : !gridview,
+        editmode    : !gridview && ( !livestream || livestream && title.trim().length > 0 ),
         editorState : state,
         gridview,
         scrollLeft,
@@ -176,7 +180,15 @@ export default class EditorMomentCards extends React.Component {
         y       : gridview
           ? Math.abs( Math.floor( ( i + 1 ) / columns ) * ( height + padding + space ) ) + padding
           : 0,
-        opacity : 1,
+        opacity : (
+          livestream
+          ? (
+            title.trim().length === 0
+            ? 0.3
+            : 1
+          )
+          : 1
+        ),
         scale,
         width,
         height,
@@ -191,6 +203,8 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       gridview,
+      cover: { data: { blocks: [ { data: title }, ...etc ] } },
+      livestream,
       scrollLeft,
       scrollTop,
       state,
@@ -218,7 +232,7 @@ export default class EditorMomentCards extends React.Component {
         ref         : n => this.cards[id] = n,
         key         : id,
         moment      : moments[id],
-        editmode    : !gridview,
+        editmode    : !gridview && ( !livestream || livestream && title.trim().length > 0 ),
         editorState : state,
         gridview,
         scrollLeft,
@@ -239,7 +253,15 @@ export default class EditorMomentCards extends React.Component {
         y       : gridview
           ? spring( Math.abs( Math.floor( ( i + 1 ) / columns ) * ( height + padding + space ) ) + padding )
           : spring( 0 ),
-        opacity : spring(1),
+        opacity : spring(
+          livestream
+          ? (
+            title.trim().length === 0
+            ? 0.3
+            : 1
+          )
+          : 1
+        ),
         scale,
         width,
         height,
@@ -303,6 +325,8 @@ export default class EditorMomentCards extends React.Component {
       id: root,
       ids,
       cover,
+      cover: { data: { blocks: [ { data: title }, ...etc ] } },
+      livestream,
       gridview,
       moments,
       state,
@@ -348,6 +372,7 @@ export default class EditorMomentCards extends React.Component {
             y={ gridview ? ( rows - 1 ) * ( height + padding + space ) + padding : 0 }
             width={ gridview ? width : 250 }
             height={height}
+            active={( !livestream || livestream && title.trim().length > 0 )}
             onClick={this.handleOnCreate}
           />
         </div> }

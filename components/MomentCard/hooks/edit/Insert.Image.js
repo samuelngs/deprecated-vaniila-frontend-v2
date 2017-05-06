@@ -39,6 +39,10 @@ export default function onImageInsert(blob) {
   clone.data = (clone.data || { });
   clone.data.blocks = (clone.data.blocks || [ ]);
 
+  if ( id === 'cover' ) {
+    return;
+  }
+
   // retrieve moment blocks
   const blocks = clone.data.blocks;
 

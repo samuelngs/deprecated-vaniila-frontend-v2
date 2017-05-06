@@ -19,6 +19,7 @@ export default class MomentCardImage extends React.Component {
     }),
     total       : PropTypes.number,
     scale       : PropTypes.number,
+    player      : PropTypes.bool,
     editmode    : PropTypes.bool,
     width       : PropTypes.number,
     height      : PropTypes.number,
@@ -39,6 +40,7 @@ export default class MomentCardImage extends React.Component {
     },
     total       : 0,
     scale       : 1,
+    player      : false,
     editmode    : false,
     width       : 0,
     height      : 0,
@@ -63,7 +65,7 @@ export default class MomentCardImage extends React.Component {
   }
 
   getStyle(type) {
-    const { fullscreen, height, width } = this.props;
+    const { player, fullscreen, height, width } = this.props;
     return {
       position: 'relative',
       marginTop: fullscreen ? 0 : 10,
@@ -76,7 +78,7 @@ export default class MomentCardImage extends React.Component {
       paddingRight: 0,
       width: fullscreen ? width : '100%',
       height: fullscreen && height,
-      borderRadius: fullscreen && 4,
+      borderRadius: !player && fullscreen && 4,
       overflow: fullscreen && 'hidden',
       display: fullscreen && 'flex',
       alignItems: fullscreen && 'center',

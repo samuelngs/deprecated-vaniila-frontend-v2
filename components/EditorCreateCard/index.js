@@ -9,6 +9,7 @@ export default class EditorCreateCard extends React.Component {
     y       : PropTypes.number,
     width   : PropTypes.number,
     height  : PropTypes.number,
+    active  : PropTypes.bool,
     onClick : PropTypes.func,
   }
 
@@ -17,6 +18,7 @@ export default class EditorCreateCard extends React.Component {
     y       : 0,
     width   : 250,
     height  : 200,
+    active  : true,
     onClick : _ => null,
   }
 
@@ -29,16 +31,17 @@ export default class EditorCreateCard extends React.Component {
   }
 
   getStyle() {
-    const { x, y, width, height } = this.props;
+    const { x, y, width, height, active } = this.props;
     return {
       width,
       height,
+      opacity: active ? 1 : 0.3,
       transform: `translate3d(${x}px, ${y}px, 0px) scale(1)`,
     }
   }
 
   render() {
-    const { width, onClick } = this.props;
+    const { width, active, onClick } = this.props;
     return <div className="base" style={this.getStyle()}>
       <style jsx>{`
         .base {
@@ -86,7 +89,7 @@ export default class EditorCreateCard extends React.Component {
           margin-top: 5px;
         }
       `}</style>
-      <button onClick={onClick} style={{ width }}>
+      <button onClick={active && onClick} style={{ width }}>
         <div className="container" style={{ width }}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
             <path d="M30.4 4.1c-.7-.3-1.5-.1-2.1.4-.1.1-.2.2-.3.4L15.3 26.4c-.3.6-.4 1.3 0 1.9.3.6 1 1 1.7 1h5.1l-3.6 14.5c-.2.9.2 1.8 1.1 2.2.2.1.5.1.7.1.5 0 1-.2 1.3-.6.1-.1.2-.2.3-.4L34.7 24c.4-.6.4-1.3 0-1.9-.3-.6-1-1-1.7-1h-5.1l3.6-15c.3-.8-.2-1.7-1.1-2zm-.2 1.8l-4 16.7h6.9c.2 0 .3.1.4.2.1.1.1.3 0 .5L20.7 44.4s0 .1-.1.1c-.1.1-.2.1-.3.1h-.2c-.2-.1-.3-.3-.3-.6l4-16.3h-6.9c-.2 0-.3-.1-.4-.2-.1-.1-.1-.3 0-.5L29.3 5.6s0-.1.1-.1c.1-.1.3-.2.5-.1s.3.3.3.5z"/>

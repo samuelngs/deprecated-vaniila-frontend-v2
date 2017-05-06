@@ -43,9 +43,9 @@ export default class MomentCardText extends React.Component {
   getFontSize(type) {
     switch ( type ) {
       case 'header-one':
-        return '.90em';
+        return '1.20em';
       case 'header-two':
-        return '.75em';
+        return '.85em';
       case 'blockquote':
         return '.65em';
       case 'code':

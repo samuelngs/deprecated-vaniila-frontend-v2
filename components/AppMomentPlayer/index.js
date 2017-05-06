@@ -166,7 +166,7 @@ export default class AppMomentPlayer extends React.PureComponent {
         willLeave={this.willLeave}
         willEnter={this.willEnter}>
         { cards => <div className="player" style={{ width, height }}>
-          { cards.map(({ key, data: { id }, data: moment, style: { opacity } }, i) => <MomentCard
+          { cards.map(({ key, data: { id }, data, style: { opacity } }, i) => <MomentCard
             key={key}
             root={root}
             id={id}
@@ -177,8 +177,9 @@ export default class AppMomentPlayer extends React.PureComponent {
             height={height}
             player={true}
             editmode={false}
-            moment={moment}
+            moment={data}
             opacity={opacity}
+            visible={moment.id === id}
           />) }
         </div> }
       </TransitionMotion>

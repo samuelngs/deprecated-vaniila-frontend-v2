@@ -32,12 +32,14 @@ export default class AppMomentWhen extends React.PureComponent {
     moments : [ ],
   }
 
+  direction = 1;
+
   willEnter = o => {
-    return { opacity: 0, y: 10 }
+    return { opacity: 0, y: this.direction * 10 }
   }
 
   willLeave = o => {
-    return { opacity: spring(0), y: spring(-10) }
+    return { opacity: spring(0), y: spring(this.direction * -10) }
   }
 
   getDefaultStyles = o => {
@@ -50,7 +52,7 @@ export default class AppMomentWhen extends React.PureComponent {
         const date = isToday(when)
           ? 'Today'
           : `${distanceInWordsStrict(when, now)} ago`
-        return { key: o.id, data: { date, when: this.getTime(o) }, style: { opacity: 0, y: 10 } }
+        return { key: o.id, data: { date, when: this.getTime(o) }, style: { opacity: 0, y: this.direction * 10 } }
       });
   }
 
@@ -81,6 +83,13 @@ export default class AppMomentWhen extends React.PureComponent {
     hours = hours ? hours : 12;
     minutes = minutes < 10 ? `0${minutes}` : minutes;
     return `${hours}:${minutes} ${ampm}`;
+  }
+
+  componentWillUpdate({ current: next }) {
+    const { current: prev } = this.props;
+    if ( next !== prev ) {
+      this.direction = next.order > prev.order ? 1 : -1;
+    }
   }
 
   render() {

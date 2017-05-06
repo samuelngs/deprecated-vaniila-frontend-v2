@@ -29,6 +29,7 @@ export default class MomentCard extends React.PureComponent {
     no          : PropTypes.number,
     total       : PropTypes.number,
     opacity     : PropTypes.number,
+    visible     : PropTypes.bool,
     scale       : PropTypes.number,
     width       : PropTypes.number,
     height      : PropTypes.number,
@@ -53,6 +54,7 @@ export default class MomentCard extends React.PureComponent {
     no          : 0,
     total       : 0,
     opacity     : 1,
+    visible     : true,
     scale       : 1,
     width       : 0,
     height      : 0,
@@ -257,12 +259,13 @@ export default class MomentCard extends React.PureComponent {
    * get card style
    */
   getCardStyle() {
-    const { width, height, x, y, opacity } = this.props;
+    const { width, height, x, y, opacity, visible } = this.props;
     return {
       width,
       height,
       opacity,
-      transform: `translate3d(${x}px, ${y}px, 0px) scale(1)`,
+      pointerEvents: visible ? 'all' : 'none',
+      transform: `translate3d(${x}px, ${y}px, 0px)`,
     };
   }
 

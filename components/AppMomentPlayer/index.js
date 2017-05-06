@@ -155,8 +155,8 @@ export default class AppMomentPlayer extends React.Component {
       `}</style>
 
       <div className="live-indicator">
-        <AppMomentPulse color="rgba(127, 127, 127, 0.8)" active={live && pulse} />
-        { live && <AppLiveIndicator color="rgba(127, 127, 127, 0.5)" fill={true} tint="#fff" /> }
+        <AppMomentPulse color="#59b7ff" active={live && pulse} />
+        { live && <AppLiveIndicator color="#59b7ff" fill={true} tint="#fff" /> }
       </div>
 
       <TransitionMotion

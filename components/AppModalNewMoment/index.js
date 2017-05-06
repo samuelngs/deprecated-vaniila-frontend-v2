@@ -2,7 +2,7 @@
 import React from 'react';
 import AppNewMoment from '../AppNewMoment';
 
-export default class AppModalNewMoment extends React.Component {
+export default class AppModalNewMoment extends React.PureComponent {
 
   render() {
     return <div className="base">

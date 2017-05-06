@@ -7,7 +7,7 @@ import { TransitionMotion, spring } from 'react-motion';
 const active   = [ { key: 'modal-context' } ];
 const inactive = [ ];
 
-export default class AppModal extends React.Component {
+export default class AppModal extends React.PureComponent {
 
   static propTypes = {
     color   : PropTypes.string,

@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class AppLiveIndicator extends React.Component {
+export default class AppLiveIndicator extends React.PureComponent {
 
   static propTypes = {
 
@@ -16,6 +16,9 @@ export default class AppLiveIndicator extends React.Component {
 
   static defaultProps = {
     color: '#185be7',
+
+    fill : true,
+    tint : '#fff',
   }
 
   render() {

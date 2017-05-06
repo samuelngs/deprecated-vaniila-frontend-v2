@@ -7,7 +7,7 @@ import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
 import { api as PlayerApi } from '../../reducers/player';
 
-export default class AppMomentSync extends React.Component {
+export default class AppMomentSync extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,

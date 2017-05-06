@@ -6,7 +6,7 @@ import { TransitionMotion, spring, presets } from 'react-motion';
 const active   = [ { key: 'insert-card' } ];
 const inactive = [ ];
 
-export default class EditorInsertCard extends React.Component {
+export default class EditorInsertCard extends React.PureComponent {
 
   static propTypes = {
     root        : PropTypes.string,

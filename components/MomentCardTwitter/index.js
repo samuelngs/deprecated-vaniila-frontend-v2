@@ -18,7 +18,7 @@ function addScript (src, cb) {
   }
 }
 
-export default class MomentCardTwitter extends React.Component {
+export default class MomentCardTwitter extends React.PureComponent {
 
   static propTypes = {
     position    : PropTypes.number,

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import AppMomentPlayer from '../AppMomentPlayer';
 
-export default class AppMomentViewer extends React.Component {
+export default class AppMomentViewer extends React.PureComponent {
 
   static propTypes = {
     id            : PropTypes.string,

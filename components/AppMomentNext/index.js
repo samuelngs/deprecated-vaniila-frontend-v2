@@ -7,7 +7,7 @@ import { TransitionMotion, spring } from 'react-motion';
 const active   = [ { key: 'control' } ];
 const inactive = [ ];
 
-export default class AppMomentNext extends React.Component {
+export default class AppMomentNext extends React.PureComponent {
 
   static propTypes = {
     active  : PropTypes.bool,

@@ -7,7 +7,7 @@ import MomentCardFallbackImage from '../MomentCardFallbackImage';
 import MomentCardMediaControls from '../MomentCardMediaControls';
 import MomentCardImageProgress from '../MomentCardImageProgress';
 
-export default class MomentCardImage extends React.Component {
+export default class MomentCardImage extends React.PureComponent {
 
   static propTypes = {
     position    : PropTypes.number,

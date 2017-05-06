@@ -8,7 +8,7 @@ import EditorMomentCardMediaDelete from '../EditorMomentCardMediaDelete';
 import EditorMomentCardMediaInline from '../EditorMomentCardMediaInline';
 import EditorMomentCardMediaFullscreen from '../EditorMomentCardMediaFullscreen';
 
-export default class MomentCardMediaControls extends React.Component {
+export default class MomentCardMediaControls extends React.PureComponent {
 
   static propTypes = {
     active      : PropTypes.bool,

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import MomentCardMediaControls from '../MomentCardMediaControls';
 
-export default class MomentCardYoutube extends React.Component {
+export default class MomentCardYoutube extends React.PureComponent {
 
   static propTypes = {
     position    : PropTypes.number,

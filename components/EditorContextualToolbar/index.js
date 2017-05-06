@@ -19,7 +19,7 @@ import EditorContextualToolbarNumber from '../EditorContextualToolbarNumber';
 const active   = [ { key: 'contextual-toolbar' } ];
 const inactive = [ ];
 
-export default class EditorContextualToolBar extends React.Component {
+export default class EditorContextualToolBar extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,

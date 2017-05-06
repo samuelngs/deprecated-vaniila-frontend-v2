@@ -15,7 +15,7 @@ const compress = new Compress();
 const active   = [ { key: 'card-controls' } ];
 const inactive = [ ];
 
-export default class MomentCardControls extends React.Component {
+export default class MomentCardControls extends React.PureComponent {
 
   static propTypes = {
     id          : PropTypes.string,

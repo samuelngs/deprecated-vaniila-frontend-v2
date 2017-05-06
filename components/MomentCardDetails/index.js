@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class MomentCardDetails extends React.Component {
+export default class MomentCardDetails extends React.PureComponent {
 
   static propTypes = {
     id          : PropTypes.string,

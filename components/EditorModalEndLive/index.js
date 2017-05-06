@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class EditorModalEndLive extends React.Component {
+export default class EditorModalEndLive extends React.PureComponent {
 
   static propTypes = {
     onPress: PropTypes.func,

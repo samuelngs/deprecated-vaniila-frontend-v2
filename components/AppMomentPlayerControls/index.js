@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class AppMomentPlayerControls extends React.Component {
+export default class AppMomentPlayerControls extends React.PureComponent {
 
   render() {
     return <div>

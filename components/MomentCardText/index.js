@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { collection } from './utils';
 import MomentCardTextSpan from '../MomentCardTextSpan';
 
-export default class MomentCardText extends React.Component {
+export default class MomentCardText extends React.PureComponent {
 
   static propTypes = {
     position    : PropTypes.number,

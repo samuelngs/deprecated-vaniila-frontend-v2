@@ -5,13 +5,14 @@ import PropTypes from 'prop-types';
 import { TransitionMotion, spring } from 'react-motion';
 
 import AppLiveIndicator from '../AppLiveIndicator';
+import AppMomentWhen from '../AppMomentWhen';
 import AppMomentPulse from '../AppMomentPulse';
 import AppMomentPrevious from '../AppMomentPrevious';
 import AppMomentNext from '../AppMomentNext';
 import AppMomentPlayerControls from '../AppMomentPlayerControls';
 import MomentCard from '../MomentCard';
 
-export default class AppMomentPlayer extends React.Component {
+export default class AppMomentPlayer extends React.PureComponent {
 
   static propTypes = {
     id          : PropTypes.string,
@@ -104,6 +105,8 @@ export default class AppMomentPlayer extends React.Component {
       id: root,
 
       moment,
+      nextMoment,
+      prevMoment,
       live,
       pulse,
       sizes: { player: { width, height, ratio, mode } },
@@ -116,6 +119,8 @@ export default class AppMomentPlayer extends React.Component {
     } = this.props;
 
     const { hover } = this.state;
+
+    const { when } = moment;
 
     return <div
       className="base"
@@ -138,6 +143,15 @@ export default class AppMomentPlayer extends React.Component {
           max-width: 100%;
           max-height: calc(100vh - 47px);
         }
+        .event-when {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          z-index: 20;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
         .live-indicator {
           position: absolute;
           top: 20px;
@@ -153,6 +167,10 @@ export default class AppMomentPlayer extends React.Component {
           overflow: hidden;
         }
       `}</style>
+
+      <div className="event-when">
+        <AppMomentWhen color="#000" fill={true} tint="#fff" current={moment} moments={[ prevMoment, moment, nextMoment ].filter(n => !!n)} />
+      </div>
 
       <div className="live-indicator">
         <AppMomentPulse color="#59b7ff" active={live && pulse} />

@@ -15,7 +15,7 @@ import MomentCardYoutube from '../MomentCardYoutube';
 import { analyze } from '../MomentCardText/utils';
 import { api } from '../../reducers/editor';
 
-export default class MomentCard extends React.Component {
+export default class MomentCard extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,

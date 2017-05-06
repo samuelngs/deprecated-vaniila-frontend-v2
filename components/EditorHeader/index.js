@@ -13,7 +13,7 @@ import EditorHeaderDetails from '../EditorHeaderDetails';
 import EditorHeaderLiveStream from '../EditorHeaderLiveStream';
 import EditorPeersList from '../EditorPeersList';
 
-export default class EditorHeader extends React.Component {
+export default class EditorHeader extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,

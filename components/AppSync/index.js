@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Sphere from './sphere';
 
-export default class AppSync extends React.Component {
+export default class AppSync extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,

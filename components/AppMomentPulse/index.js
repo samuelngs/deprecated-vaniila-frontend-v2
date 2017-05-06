@@ -7,7 +7,7 @@ import { TransitionMotion, spring } from 'react-motion';
 const active   = [ { key: 'pulse' } ];
 const inactive = [ ];
 
-export default class AppMomentPulse extends React.Component {
+export default class AppMomentPulse extends React.PureComponent {
 
   static propTypes = {
     active: PropTypes.bool,

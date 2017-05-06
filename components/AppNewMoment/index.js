@@ -7,7 +7,7 @@ import Router from 'next/router';
 import AppNewLiveMoment from '../AppNewLiveMoment';
 import AppNewOfflineMoment from '../AppNewOfflineMoment';
 
-export default class AppNewMoment extends React.Component {
+export default class AppNewMoment extends React.PureComponent {
 
   handleCreateAction = (e, live = false) => {
 

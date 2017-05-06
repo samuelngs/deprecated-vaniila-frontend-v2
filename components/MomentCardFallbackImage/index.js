@@ -20,7 +20,7 @@ function isRetina() {
 
 const delay = 300;
 
-export default class MomentCardFallbackImage extends React.Component {
+export default class MomentCardFallbackImage extends React.PureComponent {
 
   static propTypes = {
     src   : PropTypes.string,
@@ -127,7 +127,7 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderFallback() {
-    const { src, srchd, cover, className, ...props } = this.props;
+    const { src, srchd, cover, player, className, ...props } = this.props;
     const scale = isHighDensity()
       ? 'image-2x'
       : 'image-1x';
@@ -203,7 +203,7 @@ export default class MomentCardFallbackImage extends React.Component {
   }
 
   renderImage() {
-    const { src, srchd, cover, width, height, style, ...props } = this.props;
+    const { src, srchd, cover, player, width, height, style, ...props } = this.props;
     const { regularLoadedSuccessful } = this.state;
     const source = srchd || src;
     return <Motion style={{ opacity: spring(regularLoadedSuccessful === true || source.indexOf('data:') === 0 ? 1 : 0) }}>

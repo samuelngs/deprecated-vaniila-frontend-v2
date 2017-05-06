@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export default class MomentCardImageProgress extends React.Component {
+export default class MomentCardImageProgress extends React.PureComponent {
 
   static propTypes = {
     active    : PropTypes.bool,

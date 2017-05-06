@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Motion, spring } from 'react-motion';
 import MomentCardMediaControls from '../MomentCardMediaControls';
 
 const callbacks = [ ];
@@ -62,6 +63,10 @@ export default class MomentCardTwitter extends React.PureComponent {
 
   _forceFlag = false;
 
+  state = {
+    rendered: false,
+  }
+
   componentDidMount() {
     if ( !window.twttr ) {
       const isLocal = window.location.protocol.indexOf('file') >= 0
@@ -72,26 +77,45 @@ export default class MomentCardTwitter extends React.PureComponent {
     }
   }
 
-  renderTweet = e => {
-    const { width, height, fullscreen, block: { data } } = this.props;
-    const opts = {
-      conversation: 'none',
-      width: width < 250
-        ? 250
-        : (
-          width > 550
-          ? 550
-          : width - 40
-        ),
-      align: 'center',
-      dnt: true,
-    };
-    if ( fullscreen && height < 500.0 ) {
-      opts.cards = 'hidden';
+  componentWillUpdate({ width, height }) {
+    if ( this.props.width !== width || this.props.height !== height ) {
+      // By flipping this flag, we also keep flipping keys which forces
+      // React to remount this node every time it rerenders.
+      this._forceFlag = !this._forceFlag;
     }
-    window.twttr.ready().then(({ widgets }) => {
-      widgets
-        .createTweetEmbed(data, this.n, opts);
+  }
+
+  componentDidUpdate({ width, height }) {
+    if ( this.props.width !== width || this.props.height !== height ) {
+      this.renderTweet();
+    }
+  }
+
+  renderTweet = e => {
+    this.setState(state => state.rendered && { rendered: false }, () => {
+      const { width, height, fullscreen, block: { data } } = this.props;
+      const opts = {
+        conversation: 'none',
+        width: width < 250
+          ? 250
+          : (
+            width > 550
+            ? 550
+            : width - 40
+          ),
+        align: 'center',
+        dnt: true,
+      };
+      if ( fullscreen && height < 500.0 ) {
+        opts.cards = 'hidden';
+      }
+      window.twttr.ready().then(({ widgets }) => {
+        widgets
+          .createTweetEmbed(data, this.n, opts)
+          .then(_ => {
+            this.setState(state => !state.rendered && { rendered: true });
+          });
+      });
     });
   }
 
@@ -130,6 +154,7 @@ export default class MomentCardTwitter extends React.PureComponent {
 
   render() {
 
+    const { rendered } = this.state;
     const { position, block, files, editmode, fullscreen, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
@@ -176,7 +201,9 @@ export default class MomentCardTwitter extends React.PureComponent {
         }
       `}</style>
       <MomentCardMediaControls active={isSelected} fullscreen={fullscreen} onChange={this.onChange} />
-      <blockquote className={className} ref={n => this.n = n} />
+      <Motion defaultStyle={{ opacity: 0 }} style={{ opacity: spring(rendered ? 1 : 0) }}>
+        { ({ opacity }) => <blockquote className={className} style={{ opacity }} ref={n => this.n = n} /> }
+      </Motion>
     </div>
   }
 

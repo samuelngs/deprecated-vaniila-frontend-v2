@@ -53,7 +53,7 @@ class EditMoment extends React.Component {
         blocks: [
           {
             key   : 'cover',
-            type  : 'header-one',
+            type  : 'header-two',
             data  : '',
             styles: [ ],
           }

@@ -44,9 +44,15 @@ export default class AppMomentViewer extends React.PureComponent {
 
   cover() {
     const { doc } = this.props;
+    const { livestream, created_at, started_at } = doc;
     return {
       id      : 'cover',
       hash    : `${Date.now()}`,
+      when    : new Date(
+        livestream && started_at.indexOf('000') !== 0
+        ? started_at
+        : created_at
+      ).getTime(),
       data    : {
         blocks: [
           {

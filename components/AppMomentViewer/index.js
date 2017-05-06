@@ -42,6 +42,18 @@ export default class AppMomentViewer extends React.PureComponent {
     onNext        : e => null,
   }
 
+  state = {
+    hover: false,
+  }
+
+  onPlayerEnter = e => {
+    this.setState(state => !state.hover && { hover: true });
+  }
+
+  onPlayerLeave = e => {
+    this.setState(state => state.hover && { hover: false });
+  }
+
   cover() {
     const { doc } = this.props;
     const { livestream, created_at, started_at } = doc;
@@ -111,6 +123,7 @@ export default class AppMomentViewer extends React.PureComponent {
 
   render() {
     const { id, sizes, live, pulse, hasNext, hasPrevious, onNext, onPrevious } = this.props;
+    const { hover } = this.state;
     const { moment, next, previous } = this.doc();
     return <div className="base">
       <style jsx>{`
@@ -136,11 +149,17 @@ export default class AppMomentViewer extends React.PureComponent {
           background-color: #fff;
         }
       `}</style>
-      <div className="player-container">
+      <div
+        className="player-container"
+        onMouseEnter={this.onPlayerEnter}
+        onMouseLeave={this.onPlayerLeave}
+        onMouseMove={this.onPlayerEnter}
+      >
         <AppMomentPlayer
           id={id}
           live={live}
           pulse={pulse}
+          hover={hover}
           moment={moment}
           nextMoment={next}
           previousMoment={previous}

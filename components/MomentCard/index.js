@@ -537,7 +537,7 @@ export default class MomentCard extends React.PureComponent {
         style={contentStyle}
         onClick={gridview && this.handleToggleAction}
       >
-        <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width, paddingTop: fullscreen && 0, paddingBottom: fullscreen && 0 }}>
+        <div className={cover || align === 1 ? "base-inner base-hcenter" : "base-inner"} style={{ width, paddingTop: fullscreen && 0, paddingBottom: fullscreen && 0, alignItems: align ? 'center' : 'initial', textAlign: align ? 'center' : 'initial' }}>
           { this.renderBlocks(blocks) }
         </div>
       </div>

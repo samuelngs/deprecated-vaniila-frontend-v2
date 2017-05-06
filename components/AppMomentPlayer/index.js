@@ -18,6 +18,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     id          : PropTypes.string,
     live        : PropTypes.bool,
     pulse       : PropTypes.bool,
+    hover       : PropTypes.bool,
     moment      : PropTypes.object,
     nextMoment  : PropTypes.object,
     prevMoment  : PropTypes.object,
@@ -32,24 +33,13 @@ export default class AppMomentPlayer extends React.PureComponent {
     id          : '',
     live        : false,
     pulse       : false,
+    hover       : false,
     moment      : { },
     sizes       : { },
     hasPrevious : false,
     hasNext     : false,
     onPrevious  : e => null,
     onNext      : e => null,
-  }
-
-  state = {
-    hover: false,
-  }
-
-  onPlayerEnter = e => {
-    this.setState(state => !state.hover && { hover: true });
-  }
-
-  onPlayerLeave = e => {
-    this.setState(state => state.hover && { hover: false });
   }
 
   willEnter = o => {
@@ -104,6 +94,7 @@ export default class AppMomentPlayer extends React.PureComponent {
 
       id: root,
 
+      hover,
       moment,
       nextMoment,
       prevMoment,
@@ -118,17 +109,9 @@ export default class AppMomentPlayer extends React.PureComponent {
 
     } = this.props;
 
-    const { hover } = this.state;
-
     const { when } = moment;
 
-    return <div
-      className="base"
-      style={{ width, height }}
-      onMouseEnter={this.onPlayerEnter}
-      onMouseLeave={this.onPlayerLeave}
-      onMouseMove={this.onPlayerEnter}
-    >
+    return <div className="base" style={{ width, height }}>
       <style jsx>{`
         .base {
           position: relative;

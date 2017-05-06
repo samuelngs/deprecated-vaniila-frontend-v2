@@ -56,7 +56,7 @@ export default class AppMomentPrevious extends React.PureComponent {
             position: absolute;
             top: 0;
             bottom: 0;
-            left: 0px;
+            left: -60px;
             margin-top: 0;
             margin-bottom: 0;
             margin-left: 0;

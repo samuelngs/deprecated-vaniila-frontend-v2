@@ -10,6 +10,7 @@ const inactive = [ ];
 export default class AppModal extends React.PureComponent {
 
   static propTypes = {
+    props   : PropTypes.object,
     color   : PropTypes.string,
     theme   : PropTypes.oneOf(['light', 'dark']),
     active  : PropTypes.bool,
@@ -19,6 +20,7 @@ export default class AppModal extends React.PureComponent {
   }
 
   static defaultProps = {
+    props   : { },
     color   : undefined,
     theme   : 'light',
     active  : false,
@@ -87,23 +89,24 @@ export default class AppModal extends React.PureComponent {
   }
 
   getDefaultStyles() {
-    const { active: visible } = this.props;
+    const { active: visible, props: data } = this.props;
     const arr = visible
       ? active
       : inactive;
-    return arr.map(o => ({ ...o, style: { y: 15, opacity: 0 } }));
+    return arr.map(o => ({ ...o, data, style: { y: 15, opacity: 0 } }));
   }
 
   getStyles() {
-    const { active: visible } = this.props;
+    const { active: visible, props: data } = this.props;
     const arr = visible
       ? active
       : inactive;
-    return arr.map(o => ({ ...o, style: { y: spring(0), opacity: spring(1) } }));
+    return arr.map(o => ({ ...o, data, style: { y: spring(0), opacity: spring(1) } }));
   }
 
-  renderModal({ key, style: { opacity, y } }) {
+  renderModal({ key, data, style: { opacity, y } }) {
     const { active, dismiss, children, color: backgroundColor, theme, control } = this.props;
+    const el = React.Children.map(children, child => React.cloneElement(child, data));
     return <div ref={n => this.shim = n} key={key} className={`shim shim-${theme} shim-${active ? 'active' : 'inactive'}`} style={{ opacity, backgroundColor }} onClick={this.handleOnDismiss}>
       <style jsx>{`
         .shim {
@@ -114,7 +117,7 @@ export default class AppModal extends React.PureComponent {
           right: 0;
           top: 0;
           bottom: 0;
-          z-index: 20;
+          z-index: 25;
           overflow: auto;
         }
         .shim-light {
@@ -160,7 +163,7 @@ export default class AppModal extends React.PureComponent {
       <div ref={n => this.modal = n} className="modal" style={{
         transform: `translate3d(-50%, calc(-50% + ${y}px), 0px)`
       }}>
-        { children }
+        { el }
       </div>
       { control === true && <button className="control" onClick={dismiss}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" className="icon">

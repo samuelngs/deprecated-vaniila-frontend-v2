@@ -10,6 +10,7 @@ export default class AppMomentViewer extends React.PureComponent {
     id            : PropTypes.string,
     doc           : PropTypes.object,
 
+    modal         : PropTypes.bool,
     live          : PropTypes.bool,
     pulse         : PropTypes.bool,
     current       : PropTypes.string,
@@ -28,6 +29,7 @@ export default class AppMomentViewer extends React.PureComponent {
     id            : '',
     doc           : { },
 
+    modal         : false,
     live          : false,
     pulse         : false,
     current       : null,
@@ -122,10 +124,10 @@ export default class AppMomentViewer extends React.PureComponent {
   }
 
   render() {
-    const { id, sizes, live, pulse, hasNext, hasPrevious, onNext, onPrevious } = this.props;
+    const { id, sizes, modal, live, pulse, hasNext, hasPrevious, onNext, onPrevious } = this.props;
     const { hover } = this.state;
     const { moment, next, previous } = this.doc();
-    return <div className="base">
+    return <div className={ modal ? "base base-modal" : "base" }>
       <style jsx>{`
         .base {
           margin-top: 0;
@@ -136,6 +138,9 @@ export default class AppMomentViewer extends React.PureComponent {
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
+        }
+        .base-modal {
+          padding-top: 0;
         }
         .player-container {
           margin-top: 0;

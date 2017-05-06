@@ -21,8 +21,8 @@ const defaults = {
 };
 
 export const actions = {
-  SetMomentDocument: 'set_moment_document',
-  RemoveMomentDocument: 'remove_moment_document',
+  SetMomentDocument: '@@moments/SET_MOMENT_DOCUMENT',
+  RemoveMomentDocument: '@@moments/REMOVE_MOMENT_DOCUMENT',
 };
 
 /**
@@ -52,9 +52,9 @@ function hookMomentsSort(moments) {
   const momentsOrdered = { };
   momentsNames.sort((a, b) => {
     const momentA = moments[a] || { };
-    const monentB = monents[b] || { };
-    if ( typeof monentA.order === 'number' && typeof monentB.order === 'number' ) {
-      return monentA.order - monentB.order;
+    const momentB = moments[b] || { };
+    if ( typeof momentA.order === 'number' && typeof momentB.order === 'number' ) {
+      return momentA.order - momentB.order;
     }
     return a - b;
   }).forEach((name, i) => {
@@ -119,6 +119,10 @@ function retrieveMomentDocument(id) {
       moment => dispatch({ type: actions.SetMomentDocument, id, moment }),
       err  => ({ err }),
     )
+    .then(o => {
+      dispatch({ type: '@@player/SYNC_PLAYER_STATE', id });
+      return o;
+    })
   }
 }
 

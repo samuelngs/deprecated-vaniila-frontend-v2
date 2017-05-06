@@ -6,6 +6,7 @@ import momentReducer from './moment';
 import historiesReducer from './histories';
 import editorReducer from './editor';
 import fileReducer from './file';
+import playerReducer from './player';
 import windowReducer from './window';
 import landingReducer from './landing';
 
@@ -17,6 +18,7 @@ export const collections = {
   ...historiesReducer,
   ...editorReducer,
   ...fileReducer,
+  ...playerReducer,
   ...windowReducer,
   ...landingReducer,
 };

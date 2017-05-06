@@ -414,11 +414,13 @@ class EditMoment extends React.Component {
     if ( reorder ) {
       return this.onMomentReorder(n)
         .then(_ => this.emit(payload))
-        .then(_ => this.latest()).then(_ => ({ name, block }));
+        .then(_ => this.latest())
+        .then(_ => ({ name, block }))
     }
 
     return this.emit(payload)
-      .then(_ => this.latest()).then(_ => ({ name, block }));
+      .then(_ => this.latest())
+      .then(_ => ({ name, block }))
   }
 
   onMomentLiveStart() {
@@ -535,6 +537,7 @@ class EditMoment extends React.Component {
           doc={doc}
           cover={cover}
           files={files}
+          livestream={livestream}
           gridview={editorGrid}
           windowSize={windowSize}
           editorState={editorState}

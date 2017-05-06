@@ -23,22 +23,32 @@ class NewMoment extends React.Component {
         .container {
           margin-top: 0;
           margin-bottom: 0;
-          margin-left: auto;
-          margin-right: auto;
+          margin-left: 0;
+          margin-right: 0;
           padding-top: 60px;
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
           display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: calc(100vh - 160px);
+          background-color: #fff;
+        }
+        .wrapper {
           width: 800px;
           max-width: calc(100% - 80px);
         }
         @media (min-width: 768px) {
-          padding-top: 160px;
+          .container {
+            padding-top: 160px;
+          }
         }
       `}</style>
       <div className="container">
-        <AppNewMoment />
+        <div className="wrapper">
+          <AppNewMoment />
+        </div>
       </div>
     </div>
   }

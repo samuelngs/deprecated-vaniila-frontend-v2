@@ -4,9 +4,15 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 
+import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
+import AppMomentSync from '../components/AppMomentSync';
+import AppMomentViewer from '../components/AppMomentViewer';
+import AppLaunchSuccess from '../components/AppLaunchSuccess';
+import AppLaunchFail from '../components/AppLaunchFail';
 
 import { api as momentReducerApi } from '../reducers/moment';
+import { api as playerReducerApi } from '../reducers/player';
 import withRedux from '../storage';
 
 class ViewMoment extends React.Component {
@@ -16,8 +22,8 @@ class ViewMoment extends React.Component {
     return { err, query };
   }
 
-  static observe ({ authenticationToken, momentDocuments, windowSize }) {
-    return { authenticationToken, momentDocuments, windowSize };
+  static observe ({ authenticationToken, momentDocuments, playerStates, windowSize }) {
+    return { authenticationToken, momentDocuments, playerStates, windowSize };
   }
 
   state = {
@@ -39,40 +45,101 @@ class ViewMoment extends React.Component {
     }
   }
 
-  renderNotFound() {
-    return <div className="container">
-      <style jsx>{`
-        .container {
-          padding-top: 80px;
-        }
-      `}</style>
-      <h1>Not Found</h1>
-    </div>
+  handleNextMoment = e => {
+    const { dispatch, query: { id } } = this.props;
+    dispatch(playerReducerApi.next(id));
   }
 
-  renderMoment({ id, author: { username } }) {
-    return <div className="container">
-      <style jsx>{`
-        .container {
-          padding-top: 80px;
-        }
-      `}</style>
-      <Link href={{ pathname: '/edit-moment', query: { username, id }}} as={`/${username}/${id}/edit`}><a>Edit</a></Link>
-    </div>
+  handlePreviousMoment = e => {
+    const { dispatch, query: { id } } = this.props;
+    dispatch(playerReducerApi.previous(id));
+  }
+
+  getSizes() {
+
+    const { windowSize: { width, height } } = this.props;
+
+    const defaults = {
+      maxWidth: 1440,
+      maxHeight: 810,
+    };
+
+    const res = {
+      screen: { width, height },
+      player: { width, height, ratio: 1, mode: 'desktop' },
+    };
+
+    if ( res.player.width >= defaults.maxHeight ) {
+      res.player.width = Math.ceil(res.player.width * .8);
+      res.player.ratio = res.player.width / defaults.maxWidth;
+      let h = Math.ceil(defaults.maxHeight * res.player.ratio);
+      res.player.height = res.player.height > h
+        ? h
+        : res.player.height;
+      res.player.mode = 'desktop';
+    } else {
+      let r = res.player.height / defaults.maxHeight;
+      res.player.ratio = res.player.ratio > r - 30
+        ? r - 30
+        : res.player.ratio;
+      res.player.height -= 47;
+      res.player.mode = 'mobile';
+    }
+
+    if ( res.player.width > defaults.maxWidth ) res.player.width = defaults.maxWidth;
+    if ( res.player.height > defaults.maxHeight ) res.player.height = defaults.maxHeight;
+    if ( res.player.width > width ) res.player.width = width;
+    if ( res.player.height > height ) res.player.height = height;
+
+    return res;
   }
 
   render () {
 
-    const { query: { id }, momentDocuments } = this.props;
-    const moment = momentDocuments[id];
+    const { query: { id }, momentDocuments, playerStates } = this.props;
+    const doc = momentDocuments[id];
+    const player = playerStates[id];
+
+    const { path, name } = doc;
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive } = player;
+
+    const sizes = this.getSizes();
 
     return <div>
+
       <Head>
-        <title>Moment</title>
+        <title>{ name }</title>
       </Head>
+
+      <WindowObserver />
       <AppHeader />
-      { moment  && this.renderMoment(moment) }
-      { !moment && this.renderNotFound() }
+
+      <AppLaunchSuccess success={doc}>
+        <AppMomentSync
+          id={id}
+          path={path}
+          pulse={playerPulse}
+        />
+        <AppMomentViewer
+          id={id}
+          doc={doc}
+          live={playerIsLive}
+          pulse={playerPulse}
+          current={current}
+          previous={playerPreviousMoment}
+          next={playerNextMoment}
+          hasNext={playerHasNext}
+          hasPrevious={playerHasPrevious}
+          onNext={this.handleNextMoment}
+          onPrevious={this.handlePreviousMoment}
+          sizes={sizes}
+        />
+      </AppLaunchSuccess>
+
+      <AppLaunchFail failure={!doc}>
+        <h1>Not Found</h1>
+      </AppLaunchFail>
+
     </div>
   }
 

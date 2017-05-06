@@ -9,7 +9,7 @@ import AppHeaderMenu from '../AppHeaderMenu';
 import AppModal from '../AppModal';
 import AppModalNewMoment from '../AppModalNewMoment';
 
-export default class AppHeader extends React.PureComponent {
+export default class AppHeader extends React.Component {
 
   static contextTypes = {
     store: PropTypes.object,

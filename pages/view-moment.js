@@ -100,12 +100,18 @@ class ViewMoment extends React.Component {
     const doc = momentDocuments[id];
     const player = playerStates[id];
 
-    const { path, name } = doc;
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive } = player;
+    const { path, name } = (doc || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive } = (player || { });
 
     const sizes = this.getSizes();
 
     return <div>
+
+      <style jsx>{`
+        .container-error {
+          padding-top: 47px;
+        }
+      `}</style>
 
       <Head>
         <title>{ name }</title>
@@ -137,7 +143,9 @@ class ViewMoment extends React.Component {
       </AppLaunchSuccess>
 
       <AppLaunchFail failure={!doc}>
-        <h1>Not Found</h1>
+        <div className="container container-error">
+          <h1>Not Found</h1>
+        </div>
       </AppLaunchFail>
 
     </div>

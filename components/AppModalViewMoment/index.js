@@ -6,6 +6,7 @@ import AppLaunchSuccess from '../AppLaunchSuccess';
 import AppLaunchFail from '../AppLaunchFail';
 import AppMomentSync from '../AppMomentSync';
 import AppMomentViewer from '../AppMomentViewer';
+import AppMomentDetails from '../AppMomentDetails';
 
 import { api as momentReducerApi } from '../../reducers/moment';
 import { api as playerReducerApi } from '../../reducers/player';
@@ -55,8 +56,9 @@ export default class AppModalViewMoment extends React.Component {
     const { windowSize: { width: ww, height: wh } } = this.props;
 
     const defaults = {
-      maxWidth: 800,
+      maxWidth: 600,
       maxHeight: 600,
+      sidebarWidth: 330,
     };
 
     let width = ww - 100;
@@ -66,8 +68,9 @@ export default class AppModalViewMoment extends React.Component {
     if ( height > defaults.maxHeight ) height = defaults.maxHeight;
 
     const res = {
-      screen: { width, height },
-      player: { width, height, ratio: 1, mode: 'desktop' },
+      screen    : { width, height },
+      player    : { width, height, ratio: 1, mode: 'desktop' },
+      container : { width: width + defaults.sidebarWidth, height },
     };
 
     if ( res.player.width >= defaults.maxHeight ) {
@@ -100,7 +103,7 @@ export default class AppModalViewMoment extends React.Component {
 
     const { id, momentDocuments, playerStates } = this.props;
     const sizes = this.getSizes();
-    const { screen: { width, height } } = sizes;
+    const { container: { width }, screen: { height } } = sizes;
 
     const doc = momentDocuments[id];
     const player = playerStates[id];
@@ -113,7 +116,6 @@ export default class AppModalViewMoment extends React.Component {
         .modal-container {
           display: flex;
           align-items: center;
-          justify-content: center;
           max-width: 100%;
           max-height: 100%;
           background-color: #fff;
@@ -121,7 +123,7 @@ export default class AppModalViewMoment extends React.Component {
           overflow: hidden;
         }
       `}</style>
-      <AppLaunchSuccess success={doc}>
+      <AppLaunchSuccess modal={true} success={doc}>
         <AppMomentSync
           id={id}
           path={path}
@@ -142,6 +144,7 @@ export default class AppModalViewMoment extends React.Component {
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
         />
+        <AppMomentDetails doc={doc} style={{ flex: 1 }} />
       </AppLaunchSuccess>
     </div>
   }

@@ -37,6 +37,8 @@ export default class AppSync extends React.PureComponent {
 
   componentWillUnmount() {
     this.appSyncRemoveListener();
+    this.appSyncUnsubscribeAll();
+    this.appSyncClose();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -129,6 +131,14 @@ export default class AppSync extends React.PureComponent {
     return onWebsocketUnsubscribe(type, name);
   }
 
+  appSyncUnsubscribeAll() {
+    this.websocket.channels().forEach(channel => channel.unsubscribe());
+  }
+
+  appSyncClose() {
+    this.websocket.close();
+  }
+
   appSyncChannelMessage(type, name, message) {
     const { onWebsocketChannelMessage } = this.props;
     return onWebsocketChannelMessage(type, name, message);
@@ -138,7 +148,7 @@ export default class AppSync extends React.PureComponent {
     return this.websocket.channel(type, name);
   }
 
-  channels() {
+  channels(subscribedOnly = true) {
     return this.websocket.channels().map( ({ attributes: { namespace, room } }) => `${namespace}:${room}`);
   }
 

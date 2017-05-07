@@ -16,6 +16,7 @@ module.exports = (function() {
         // state
         this.set('listened', false);
         this.set('connected', false);
+        this.set('closed', false);
         // events
         this._create();
         this._keepalive();
@@ -25,7 +26,11 @@ module.exports = (function() {
     WebSocket.prototype.constructor = WebSocket;
 
     WebSocket.prototype._keepalive = function() {
-        setInterval(function() {
+        this._i = setInterval(function() {
+            if (this.get('closed')) {
+              clearInterval(this._i);
+              return;
+            }
             if (!this.get('connected')) {
                 this._create();
             }
@@ -114,6 +119,12 @@ module.exports = (function() {
         }
         // receive event
         this.emit('message', packet);
+    };
+
+    WebSocket.prototype.close = function() {
+      this.set('closed', true)
+      this.get('ws').onclose = function () { }; // disable onclose handler first
+      this.get('ws').close();
     };
 
     WebSocket.prototype.send = function(packet) {

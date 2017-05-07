@@ -78,7 +78,7 @@ export default class AppMomentPrevious extends React.PureComponent {
           }
           .button-modal .svg {
             background-color: transparent;
-            fill: #185be7;
+            fill: #60696d;
           }
           .svg {
             margin-top: 0;

@@ -99,8 +99,8 @@ export default class MomentCardTwitter extends React.PureComponent {
         width: width < 250
           ? 250
           : (
-            width > 550
-            ? 550
+            width > 500
+            ? 500
             : width - 40
           ),
         align: 'center',

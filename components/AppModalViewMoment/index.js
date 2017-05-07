@@ -119,8 +119,11 @@ export default class AppModalViewMoment extends React.Component {
           max-width: 100%;
           max-height: 100%;
           background-color: #fff;
+          box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.09);
           border-radius: 3px;
           overflow: hidden;
+          z-index: 2;
+          position: relative;
         }
       `}</style>
       <AppLaunchSuccess modal={true} success={doc}>

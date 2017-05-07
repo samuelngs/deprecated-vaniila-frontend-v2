@@ -78,6 +78,7 @@ export default class AppModalViewMoment extends React.Component {
         ? h
         : res.player.height;
       res.player.mode = 'desktop';
+      res.player.ratio *= 0.7;
     } else {
       let r = res.player.height / defaults.maxHeight;
       res.player.ratio = res.player.ratio > r - 30

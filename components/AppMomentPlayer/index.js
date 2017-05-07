@@ -16,6 +16,7 @@ export default class AppMomentPlayer extends React.PureComponent {
 
   static propTypes = {
     id          : PropTypes.string,
+    modal       : PropTypes.bool,
     live        : PropTypes.bool,
     pulse       : PropTypes.bool,
     hover       : PropTypes.bool,
@@ -31,6 +32,7 @@ export default class AppMomentPlayer extends React.PureComponent {
 
   static defaultProps = {
     id          : '',
+    modal       : false,
     live        : false,
     pulse       : false,
     hover       : false,
@@ -95,6 +97,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       id: root,
 
       hover,
+      modal,
       moment,
       nextMoment,
       prevMoment,
@@ -184,8 +187,8 @@ export default class AppMomentPlayer extends React.PureComponent {
         </div> }
       </TransitionMotion>
 
-      <AppMomentPrevious active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
-      <AppMomentNext active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
+      <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
+      <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
       <AppMomentPlayerControls />
     </div>;

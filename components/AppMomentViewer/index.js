@@ -162,6 +162,7 @@ export default class AppMomentViewer extends React.PureComponent {
       >
         <AppMomentPlayer
           id={id}
+          modal={modal}
           live={live}
           pulse={pulse}
           hover={hover}

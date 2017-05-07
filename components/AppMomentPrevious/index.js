@@ -10,11 +10,13 @@ const inactive = [ ];
 export default class AppMomentPrevious extends React.PureComponent {
 
   static propTypes = {
+    modal   : PropTypes.bool,
     active  : PropTypes.bool,
     onPress : PropTypes.func,
   }
 
   static defaultProps = {
+    modal   : false,
     active  : false,
     onPress : null,
   }
@@ -44,13 +46,13 @@ export default class AppMomentPrevious extends React.PureComponent {
   }
 
   render() {
-    const { onPress } = this.props;
+    const { modal, onPress } = this.props;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}
       willLeave={this.willLeave}
       willEnter={this.willEnter}>
-      { styles => styles.length > 0 ? <button className="button" onClick={onPress} style={{ opacity: styles[0].style.opacity }}>
+      { styles => styles.length > 0 ? <button className={ modal ? "button button-modal" : "button" } onClick={onPress} style={{ opacity: styles[0].style.opacity }}>
         <style jsx>{`
           .button {
             position: absolute;
@@ -70,6 +72,13 @@ export default class AppMomentPrevious extends React.PureComponent {
             cursor: pointer;
             outline: none;
             display: none;
+          }
+          .button-modal {
+            left: 10px;
+          }
+          .button-modal .svg {
+            background-color: transparent;
+            fill: #185be7;
           }
           .svg {
             margin-top: 0;

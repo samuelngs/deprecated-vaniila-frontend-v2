@@ -133,7 +133,7 @@ export default class AppModalViewMoment extends React.Component {
 
       <AppLaunchSuccess modal={true} success={doc && !err}>
         <Head>
-          <title>{ name }</title>
+          <title>{ name || 'There\'s nothing here, yet 🙌' }</title>
         </Head>
         <AppMomentSync
           id={id}

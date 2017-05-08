@@ -115,7 +115,7 @@ class ViewMoment extends React.Component {
       `}</style>
 
       <Head>
-        <title>{ name }</title>
+        <title>{ name || 'There\'s nothing here, yet 🙌' }</title>
       </Head>
 
       <WindowObserver />

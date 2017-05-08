@@ -19,6 +19,11 @@ export default class WindowObserver extends React.Component {
     this.removeEventListener();
   }
 
+  isMobileOperatingSystem() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    return /windows phone/i.test(userAgent) || /android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+  }
+
   shouldOverrideHorizontalScroll() {
     return (
       navigator.userAgent.match(/Macintosh/) &&
@@ -88,7 +93,9 @@ export default class WindowObserver extends React.Component {
 
   resize = e => {
     const { store: { dispatch } } = this.context;
-    const size = { width: window.innerWidth, height: window.innerHeight };
+    const size = this.isMobileOperatingSystem() && window.screen
+      ? { width: window.screen.width || window.innerWidth, height: window.screen.height || window.innerHeight }
+      : { width: window.innerWidth, height: window.innerHeight };
     return dispatch({ type: actions.SetWindowSize, size });
   }
 

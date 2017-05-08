@@ -49,7 +49,7 @@ class ListMoments extends React.Component {
 
     return Router.push({
       pathname: serverPathname,
-      query   : { ...serverQuery, ...serverParams, id, author },
+      query   : { ...serverParams, ...serverQuery, id, author },
     }, `/${author}/${id}`);
   }
 

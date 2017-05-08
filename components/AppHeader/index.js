@@ -51,7 +51,7 @@ export default class AppHeader extends React.Component {
 
     return Router.push({
       pathname: serverPathname,
-      query   : { ...serverQuery, ...serverParams, new: 'modal' },
+      query   : { ...serverParams, ...serverQuery, new: 'modal' },
     }, '/new');
   }
 

@@ -101,7 +101,7 @@ class ViewMoment extends React.Component {
     const player = playerStates[id];
 
     const { path, name } = (doc || { });
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive } = (player || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
 
@@ -131,6 +131,7 @@ class ViewMoment extends React.Component {
           doc={doc}
           live={playerIsLive}
           pulse={playerPulse}
+          moments={playerMoments}
           current={current}
           previous={playerPreviousMoment}
           next={playerNextMoment}

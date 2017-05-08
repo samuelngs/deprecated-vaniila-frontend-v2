@@ -13,6 +13,7 @@ export default class AppMomentViewer extends React.PureComponent {
     modal         : PropTypes.bool,
     live          : PropTypes.bool,
     pulse         : PropTypes.bool,
+    moments       : PropTypes.arrayOf(PropTypes.string),
     current       : PropTypes.string,
     previous      : PropTypes.string,
     next          : PropTypes.string,
@@ -32,6 +33,7 @@ export default class AppMomentViewer extends React.PureComponent {
     modal         : false,
     live          : false,
     pulse         : false,
+    moments       : [ ],
     current       : null,
     previous      : '',
     next          : '',
@@ -88,21 +90,25 @@ export default class AppMomentViewer extends React.PureComponent {
    */
   doc() {
 
-    const { doc, current, next: nid, previous: pid, hasNext, hasPrevious } = this.props;
+    const { doc, moments: ids, current, next: nid, previous: pid, hasNext, hasPrevious } = this.props;
     const moments = ((((doc || { }).document || { }).data || { }).slides || { });
     const { livestream, created_at, started_at, ended_at } = doc;
 
+    const livestreamStartedAt = new Date(started_at || created_at).getTime();
+    const livestreamEndedAt = new Date(ended_at).getTime();
+    const { when: latestMomentWhen } = moments[ids[ids.length - 1]];
+
     const begins = livestream
-      ? new Date(started_at || created_at).getTime()
+      ? livestreamStartedAt
       : -1;
 
     const ends = livestream
       ? (
         ended_at
-        ? new Date(ended_at).getTime()
+        ? latestMomentWhen < livestreamEndedAt ? latestMomentWhen : livestreamEndedAt
         : new Date().getTime()
       )
-      : -1;
+      : latestMomentWhen;
 
     /**
      * retrieve current moment

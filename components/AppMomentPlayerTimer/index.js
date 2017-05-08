@@ -12,6 +12,7 @@ export default class AppMomentPlayerTimer extends React.PureComponent {
   static propTypes = {
     color   : PropTypes.string,
     active  : PropTypes.bool,
+    animated: PropTypes.bool,
     progress: PropTypes.number,
     children: PropTypes.node,
   }
@@ -19,6 +20,7 @@ export default class AppMomentPlayerTimer extends React.PureComponent {
   static defaultProps = {
     color   : 'rgba(0, 0, 0, 0.4)',
     active  : false,
+    animated: false,
     progress: 0,
     children: null,
   }
@@ -43,7 +45,7 @@ export default class AppMomentPlayerTimer extends React.PureComponent {
   }
 
   render() {
-    const { color, children } = this.props;
+    const { color, progress, animated, children } = this.props;
     return <TransitionMotion
       defaultStyles={this.getDefaultStyles()}
       styles={this.getStyles()}
@@ -54,7 +56,7 @@ export default class AppMomentPlayerTimer extends React.PureComponent {
         style={{
           opacity: styles[0].style.opacity,
           transform: `translate3d(-50%, ${styles[0].style.y}px, 0)`,
-          left: `${styles[0].style.x}%`,
+          left: `${animated ? styles[0].style.x : progress}%`,
           backgroundColor: color,
         }}
       >

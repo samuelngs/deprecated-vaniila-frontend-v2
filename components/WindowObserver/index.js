@@ -118,7 +118,11 @@ export default class WindowObserver extends React.Component {
 
     const orientation = window.screen && window.screen.orientation && window.screen.orientation.type
       ? ( window.screen.orientation.type === 'landscape-primary' || window.screen.orientation.type === 'landscape-secondary' ? 0 : 1 )
-      : ( window.orientation === 0 || window.orientation === 180 ? 0 : 1 );
+      : (
+        mobile === 'ios'
+        ? ( window.orientation === 90 || window.orientation === -90 ? 0 : 1 )
+        : ( window.orientation === 0 || window.orientation === 180 ? 0 : 1 )
+      )
 
     const portrait = orientation === 1;
 
@@ -130,9 +134,9 @@ export default class WindowObserver extends React.Component {
       ? window.screen.availHeight - offset || ( window.screen.height - offset ) || window.innerHeight
       : window.innerHeight;
 
-    const size = portrait
+    const size = mobile === 'android' || portrait
       ? { width, height }
-      : { width: height, height: width };
+      : { width: ( height > width ? height : width ), height: ( height > width ? width : height ) };
 
     return dispatch({ type: actions.SetWindowSize, size });
   }

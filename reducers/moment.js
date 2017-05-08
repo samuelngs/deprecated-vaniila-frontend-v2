@@ -117,7 +117,7 @@ function retrieveMomentDocument(id) {
     .then(doc => (doc.error ? Promise.reject(doc.error) : doc))
     .then(
       moment => dispatch({ type: actions.SetMomentDocument, id, moment }),
-      err  => ({ err }),
+      err    => dispatch({ type: actions.SetMomentDocument, id, moment: { err } }),
     )
     .then(o => {
       dispatch({ type: '@@player/SYNC_PLAYER_STATE', id });

@@ -8,6 +8,7 @@ import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
 import AppMomentSync from '../components/AppMomentSync';
 import AppMomentViewer from '../components/AppMomentViewer';
+import AppLaunchLoader from '../components/AppLaunchLoader';
 import AppLaunchSuccess from '../components/AppLaunchSuccess';
 import AppLaunchFail from '../components/AppLaunchFail';
 
@@ -100,7 +101,7 @@ class ViewMoment extends React.Component {
     const doc = momentDocuments[id];
     const player = playerStates[id];
 
-    const { path, name } = (doc || { });
+    const { err, path, name } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
@@ -120,7 +121,9 @@ class ViewMoment extends React.Component {
       <WindowObserver />
       <AppHeader />
 
-      <AppLaunchSuccess success={doc}>
+      <AppLaunchLoader loading={!doc && !err} />
+
+      <AppLaunchSuccess success={doc && !err}>
         <AppMomentSync
           id={id}
           path={path}
@@ -143,7 +146,7 @@ class ViewMoment extends React.Component {
         />
       </AppLaunchSuccess>
 
-      <AppLaunchFail failure={!doc}>
+      <AppLaunchFail failure={doc && err}>
         <div className="container container-error">
           <h1>Not Found</h1>
         </div>

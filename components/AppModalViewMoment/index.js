@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 
+import AppLaunchLoader from '../AppLaunchLoader';
 import AppLaunchSuccess from '../AppLaunchSuccess';
 import AppLaunchFail from '../AppLaunchFail';
 import AppMomentSync from '../AppMomentSync';
@@ -109,7 +110,7 @@ export default class AppModalViewMoment extends React.Component {
     const doc = momentDocuments[id];
     const player = playerStates[id];
 
-    const { path, name } = (doc || { });
+    const { err, path, name } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>
@@ -127,7 +128,10 @@ export default class AppModalViewMoment extends React.Component {
           position: relative;
         }
       `}</style>
-      <AppLaunchSuccess modal={true} success={doc}>
+
+      <AppLaunchLoader loading={!doc && !err} />
+
+      <AppLaunchSuccess modal={true} success={doc && !err}>
         <Head>
           <title>{ name }</title>
         </Head>
@@ -154,8 +158,11 @@ export default class AppModalViewMoment extends React.Component {
         />
         <AppMomentDetails doc={doc} style={{ flex: 1 }} />
       </AppLaunchSuccess>
-      <AppLaunchFail failure={!doc}>
+
+      <AppLaunchFail failure={doc && err}>
+        { err }
       </AppLaunchFail>
+
     </div>
   }
 

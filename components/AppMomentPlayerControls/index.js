@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { TransitionMotion, spring } from 'react-motion';
 
+import AppMomentPlayerLiveProgressbar from '../AppMomentPlayerLiveProgressbar';
 import AppMomentPlayerProgressbar from '../AppMomentPlayerProgressbar';
 import AppMomentPlayerTimer from '../AppMomentPlayerTimer';
 
@@ -13,6 +14,7 @@ const inactive = [ ];
 export default class AppMomentPlayerControls extends React.PureComponent {
 
   static propTypes = {
+    live    : PropTypes.bool,
     active  : PropTypes.bool,
     current : PropTypes.object,
     begins  : PropTypes.number,
@@ -20,6 +22,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
   }
 
   static defaultProps = {
+    live    : false,
     active  : false,
     current : { },
     begins  : -1,
@@ -128,7 +131,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
 
   render() {
 
-    const { begins } = this.props;
+    const { begins, live } = this.props;
     const { hovered, hoverProgress } = this.state;
 
     const time = this.getHoverTime();
@@ -141,7 +144,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
       willEnter={this.willEnter}>
       { styles => styles.length > 0 ? <div
         ref={n => this.n = n}
-        className="base"
+        className={ live ? "base base-active" : "base" }
         style={{ opacity: styles[0].style.opacity }}
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
@@ -166,6 +169,9 @@ export default class AppMomentPlayerControls extends React.PureComponent {
             padding-right: 0;
             cursor: pointer;
           }
+          .base.base-active {
+            right: 80px;
+          }
           .timeline {
             position: relative;
             height: 4px;
@@ -178,6 +184,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
         <div className="timeline">
           <AppMomentPlayerProgressbar active={hovered} progress={hoverProgress} />
           <AppMomentPlayerProgressbar active={true} animated={true} progress={progress} color="rgba(120, 120, 120, 0.4)" />
+          <AppMomentPlayerLiveProgressbar active={live} />
           <AppMomentPlayerTimer active={hovered} progress={hoverProgress}>{ time }</AppMomentPlayerTimer>
         </div>
       </div> : null }

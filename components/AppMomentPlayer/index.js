@@ -196,7 +196,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
       <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
-      <AppMomentPlayerControls active={mode === 'desktop' && hover} begins={begins} ends={ends} current={moment} />
+      <AppMomentPlayerControls active={begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} current={moment} />
     </div>;
   }
 

@@ -171,9 +171,9 @@ export default class AppMomentPlayerControls extends React.PureComponent {
           }
         `}</style>
         <div className="timeline">
-          <AppMomentPlayerProgressbar active={begins !== -1 && hovered} progress={hoverProgress} />
-          <AppMomentPlayerProgressbar active={begins !== -1} animated={true} progress={progress} color="rgba(89, 183, 255, .9)" />
-          <AppMomentPlayerTimer color={hovered ? 'rgba(0, 0, 0, 0.4)' : 'rgba(89, 183, 255, .9)'} active={begins !== -1} progress={hovered ? hoverProgress : progress}>{ time }</AppMomentPlayerTimer>
+          <AppMomentPlayerProgressbar active={hovered} progress={hoverProgress} />
+          <AppMomentPlayerProgressbar active={true} animated={true} progress={progress} color="rgba(89, 183, 255, .9)" />
+          <AppMomentPlayerTimer color={hovered ? 'rgba(0, 0, 0, 0.4)' : 'rgba(89, 183, 255, .9)'} active={true} progress={hovered ? hoverProgress : progress}>{ time }</AppMomentPlayerTimer>
         </div>
       </div> : null }
     </TransitionMotion>

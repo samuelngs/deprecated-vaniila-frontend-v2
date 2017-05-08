@@ -37,20 +37,50 @@ class ListMoments extends React.Component {
     return { authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, playerStates };
   }
 
+  mode() {
+
+    const { windowSize: { width: ww, height: wh } } = this.props;
+    const defaults = { maxWidth: 600, maxHeight: 600 };
+
+    let width = ww - 100;
+    let height = wh - 100;
+
+    if ( width > defaults.maxWidth ) width = defaults.maxWidth;
+    if ( height > defaults.maxHeight ) height = defaults.maxHeight;
+
+    if ( width >= defaults.maxHeight ) {
+      return 'desktop';
+    }
+
+    return 'mobile';
+  }
+
   handleViewMomentPress = (e, { author, id }) => {
 
     e.preventDefault();
 
     const { serverPath, serverPathname, serverQuery, serverParams } = this.props;
+    const mode = this.mode();
 
     if ( serverQuery.id ) {
       return;
     }
 
-    return Router.push({
-      pathname: serverPathname,
-      query   : { ...serverParams, ...serverQuery, id, author },
-    }, `/${author}/${id}`);
+    switch ( mode ) {
+
+      case 'desktop':
+        return Router.push({
+          pathname: serverPathname,
+          query   : { ...serverParams, ...serverQuery, id, author },
+        }, `/${author}/${id}`);
+
+      case 'mobile':
+        return Router.push({
+          pathname: '/view-moment',
+          query   : { id, author },
+        }, `/${author}/${id}`);
+    }
+
   }
 
   handleViewMomentDismiss = e => {

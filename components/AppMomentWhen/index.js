@@ -137,9 +137,6 @@ export default class AppMomentWhen extends React.PureComponent {
           }
         `}</style>
         { items.map(({ key, data, data: { date, when }, style }) => data && <div key={key} className={ fill ? "base base-fill" : "base" } style={{ borderColor: color, backgroundColor: fill && color, opacity: style.opacity, transform: `translate3d(0px, ${style.y}px, 0px)` }}>
-          <svg className="svg" xmlns="http://www.w3.org/2000/svg" viewBox="5 0 80 60" style={{ stroke: ( fill ? tint : color ) }}>
-            <path className="wave" d="M 0 37.5 c 7.684299348848887 0 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15" />
-          </svg>
           <span className={ key === "cover" ? "when when-date" : "when" } style={{ color: ( fill ? tint : color ) }}>{ key === 'cover' ? date : when }</span>
         </div>) }
       </div> }

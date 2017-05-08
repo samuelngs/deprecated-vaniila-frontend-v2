@@ -62,6 +62,7 @@ export default class AppMomentPlayerProgressbar extends React.PureComponent {
           backgroundColor: color,
           opacity: styles[0].style.opacity,
           width: `${animated ? styles[0].style.width : progress}%`,
+          minWidth: 4,
         }}
       >
         <style jsx>{`

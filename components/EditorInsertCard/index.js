@@ -32,12 +32,20 @@ export default class EditorInsertCard extends React.PureComponent {
     hovered: false,
   }
 
+  componentDidMount() {
+    this.$$_mounted_$$ = true;
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
+  }
+
   onEnter = e => {
-    this.setState({ hovered: true });
+    this.$$_mounted_$$ && this.setState({ hovered: true });
   }
 
   onLeave = e => {
-    this.setState({ hovered: false });
+    this.$$_mounted_$$ && this.setState({ hovered: false });
   }
 
   willEnter() {

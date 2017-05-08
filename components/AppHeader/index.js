@@ -25,9 +25,17 @@ export default class AppHeader extends React.Component {
     active: false,
   }
 
+  componentDidMount() {
+    this.$$_mounted_$$ = true;
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
+  }
+
   handleHeaderMenuPress = e => {
     const { active } = this.state;
-    this.setState({ active: !active });
+    this.$$_mounted_$$ && this.setState({ active: !active });
   }
 
   handleNewMomentPress = e => {

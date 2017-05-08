@@ -37,6 +37,14 @@ export default class Tooltip extends React.Component {
     this.onLeave = this.onLeave.bind(this);
   }
 
+  componentDidMount() {
+    this.$$_mounted_$$ = true;
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
+  }
+
   willEnter = o => {
     return { opacity: 0, y: 15 }
   }
@@ -62,11 +70,11 @@ export default class Tooltip extends React.Component {
   }
 
   onEnter(e) {
-    this.setState({ active: true });
+    this.$$_mounted_$$ && this.setState({ active: true });
   }
 
   onLeave(e) {
-    this.setState({ active: false });
+    this.$$_mounted_$$ && this.setState({ active: false });
   }
 
   renderTips(title, description, render) {

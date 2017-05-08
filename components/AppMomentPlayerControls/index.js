@@ -32,13 +32,21 @@ export default class AppMomentPlayerControls extends React.PureComponent {
     hovered: false,
   }
 
+  componentDidMount() {
+    this.$$_mounted_$$ = true;
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
+  }
+
   handleMouseEnter = e => {
     const x = e.pageX || e.clientX;
     const { left, right, width } = e.target.getBoundingClientRect();
     if ( x >= left && x <= right ) {
       const oprogress = ( x - left ) / width * 100;
       const progress = Math.round(oprogress);
-      this.setState({ hoverOProgress: oprogress, hoverProgress: progress, hovered: true });
+      this.$$_mounted_$$ && this.setState({ hoverOProgress: oprogress, hoverProgress: progress, hovered: true });
     }
   }
 
@@ -47,7 +55,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
   }
 
   handleMouseLeave = e => {
-    this.setState(state => state.hovered && { hovered: false });
+    this.$$_mounted_$$ && this.setState(state => state.hovered && { hovered: false });
   }
 
   willEnter = o => {

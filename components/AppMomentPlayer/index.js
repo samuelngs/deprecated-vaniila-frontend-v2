@@ -188,6 +188,7 @@ export default class AppMomentPlayer extends React.PureComponent {
             editmode={false}
             moment={data}
             opacity={opacity}
+            placeholder="There's nothing here, yet 🙌"
             visible={moment.id === id}
           />) }
         </div> }

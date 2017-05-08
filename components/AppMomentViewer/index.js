@@ -50,12 +50,41 @@ export default class AppMomentViewer extends React.PureComponent {
     hover: false,
   }
 
+  componentDidMount() {
+    this.$$_mounted_$$ = true;
+    window.addEventListener('keydown', this.handleKeydown);
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
+    window.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  handleKeydown = e => {
+    const { code } = e;
+    const { hasPrevious, hasNext, onPrevious, onNext } = this.props;
+    const el = document.activeElement;
+    switch ( code ) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case 'Space':
+        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' ) ) el.preventDefault();
+        if ( hasNext ) onNext(e);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' ) ) el.preventDefault();
+        if ( hasPrevious ) onPrevious(e);
+        break;
+    }
+  }
+
   onPlayerEnter = e => {
-    this.setState(state => !state.hover && { hover: true });
+    this.$$_mounted_$$ && this.setState(state => !state.hover && { hover: true });
   }
 
   onPlayerLeave = e => {
-    this.setState(state => state.hover && { hover: false });
+    this.$$_mounted_$$ && this.setState(state => state.hover && { hover: false });
   }
 
   cover() {
@@ -73,7 +102,7 @@ export default class AppMomentViewer extends React.PureComponent {
         blocks: [
           {
             key   : 'cover',
-            type  : 'header-one',
+            type  : 'header-two',
             data  : doc.name || '',
             styles: [ ],
           }
@@ -92,15 +121,16 @@ export default class AppMomentViewer extends React.PureComponent {
 
     const { doc, moments: ids, current, next: nid, previous: pid, hasNext, hasPrevious } = this.props;
     const moments = ((((doc || { }).document || { }).data || { }).slides || { });
-    const { livestream, created_at, started_at, ended_at } = doc;
+    const { livestream, created_at, started_at, ended_at } = (doc || { });
 
     const livestreamStartedAt = new Date(started_at || created_at).getTime();
     const livestreamEndedAt = new Date(ended_at).getTime();
-    const { when: latestMomentWhen } = moments[ids[ids.length - 1]];
+    const { when: firstMomentWhen } = moments[ids[0]] || { };
+    const { when: latestMomentWhen } = moments[ids[ids.length - 1]] || { };
 
     const begins = livestream
       ? livestreamStartedAt
-      : -1;
+      : firstMomentWhen;
 
     const ends = livestream
       ? (

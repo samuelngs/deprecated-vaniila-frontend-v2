@@ -68,6 +68,7 @@ export default class MomentCardTwitter extends React.PureComponent {
   }
 
   componentDidMount() {
+    this.$$_mounted_$$ = true;
     if ( !window.twttr ) {
       const isLocal = window.location.protocol.indexOf('file') >= 0
       const protocol = isLocal ? this.props.protocol : ''
@@ -75,6 +76,10 @@ export default class MomentCardTwitter extends React.PureComponent {
     } else {
       this.renderTweet();
     }
+  }
+
+  componentWillUnmount() {
+    this.$$_mounted_$$ = false;
   }
 
   componentWillUpdate({ width, height }) {
@@ -92,7 +97,7 @@ export default class MomentCardTwitter extends React.PureComponent {
   }
 
   renderTweet = e => {
-    this.setState(state => state.rendered && { rendered: false }, () => {
+    this.$$_mounted_$$ && this.setState(state => state.rendered && { rendered: false }, () => {
       const { width, height, fullscreen, block: { data } } = this.props;
       const opts = {
         conversation: 'none',
@@ -113,7 +118,7 @@ export default class MomentCardTwitter extends React.PureComponent {
         widgets
           .createTweetEmbed(data, this.n, opts)
           .then(_ => {
-            this.setState(state => !state.rendered && { rendered: true });
+            this.$$_mounted_$$ && this.setState(state => !state.rendered && { rendered: true });
           });
       });
     });

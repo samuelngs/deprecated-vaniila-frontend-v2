@@ -102,7 +102,7 @@ class ListMoments extends React.Component {
 
   render () {
 
-    const { authenticationToken, serverQuery, windowSize, momentDocuments, playerStates, username, moments } = this.props;
+    const { authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, playerStates, username, moments } = this.props;
     const { author, id } = serverQuery;
 
     return <div>
@@ -123,7 +123,7 @@ class ListMoments extends React.Component {
         <h1>Your Moments: { username }</h1>
         <ul>{ moments.map(this.renderMomentItem) }</ul>
       </div>
-      <AppModal color="rgba(134, 143, 146, 0.7)" active={!!id && !!author} dismiss={this.handleViewMomentDismiss} control={false} props={{ id, windowSize, momentDocuments, playerStates }}>
+      <AppModal color="rgba(134, 143, 146, 0.7)" active={serverPathname === '/list-moments' && !!id && !!author} dismiss={this.handleViewMomentDismiss} control={false} props={{ id, windowSize, momentDocuments, playerStates }}>
         <AppModalViewMoment />
       </AppModal>
     </div>

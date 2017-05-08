@@ -88,7 +88,7 @@ export default class AppMomentViewer extends React.PureComponent {
   }
 
   cover() {
-    const { doc } = this.props;
+    const { doc, modal } = this.props;
     const { livestream, created_at, started_at } = doc;
     return {
       id      : 'cover',
@@ -102,7 +102,9 @@ export default class AppMomentViewer extends React.PureComponent {
         blocks: [
           {
             key   : 'cover',
-            type  : 'header-two',
+            type  : modal && !doc.name
+              ? 'header-two'
+              : 'header-one',
             data  : doc.name || '',
             styles: [ ],
           }

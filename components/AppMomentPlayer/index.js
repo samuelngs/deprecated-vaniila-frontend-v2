@@ -20,6 +20,8 @@ export default class AppMomentPlayer extends React.PureComponent {
     live        : PropTypes.bool,
     pulse       : PropTypes.bool,
     hover       : PropTypes.bool,
+    begins      : PropTypes.number,
+    ends        : PropTypes.number,
     moment      : PropTypes.object,
     nextMoment  : PropTypes.object,
     prevMoment  : PropTypes.object,
@@ -36,6 +38,8 @@ export default class AppMomentPlayer extends React.PureComponent {
     live        : false,
     pulse       : false,
     hover       : false,
+    begins      : -1,
+    ends        : -1,
     moment      : { },
     sizes       : { },
     hasPrevious : false,
@@ -97,6 +101,8 @@ export default class AppMomentPlayer extends React.PureComponent {
       id: root,
 
       hover,
+      begins,
+      ends,
       modal,
       moment,
       nextMoment,
@@ -190,7 +196,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
       <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
-      <AppMomentPlayerControls />
+      <AppMomentPlayerControls active={mode === 'desktop' && hover} begins={begins} ends={ends} current={moment} />
     </div>;
   }
 

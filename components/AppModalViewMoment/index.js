@@ -1,6 +1,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import Head from 'next/head';
 
 import AppLaunchSuccess from '../AppLaunchSuccess';
 import AppLaunchFail from '../AppLaunchFail';
@@ -127,6 +128,9 @@ export default class AppModalViewMoment extends React.Component {
         }
       `}</style>
       <AppLaunchSuccess modal={true} success={doc}>
+        <Head>
+          <title>{ name }</title>
+        </Head>
         <AppMomentSync
           id={id}
           path={path}

@@ -90,6 +90,19 @@ export default class AppMomentViewer extends React.PureComponent {
 
     const { doc, current, next: nid, previous: pid, hasNext, hasPrevious } = this.props;
     const moments = ((((doc || { }).document || { }).data || { }).slides || { });
+    const { livestream, created_at, started_at, ended_at } = doc;
+
+    const begins = livestream
+      ? new Date(started_at || created_at).getTime()
+      : -1;
+
+    const ends = livestream
+      ? (
+        ended_at
+        ? new Date(ended_at).getTime()
+        : new Date().getTime()
+      )
+      : -1;
 
     /**
      * retrieve current moment
@@ -120,13 +133,13 @@ export default class AppMomentViewer extends React.PureComponent {
       )
       : null;
 
-    return { moment, next, previous };
+    return { moment, next, previous, begins, ends };
   }
 
   render() {
     const { id, sizes, modal, live, pulse, hasNext, hasPrevious, onNext, onPrevious } = this.props;
     const { hover } = this.state;
-    const { moment, next, previous } = this.doc();
+    const { moment, next, previous, begins, ends } = this.doc();
     return <div className={ modal ? "base base-modal" : "base" }>
       <style jsx>{`
         .base {
@@ -166,6 +179,8 @@ export default class AppMomentViewer extends React.PureComponent {
           live={live}
           pulse={pulse}
           hover={hover}
+          begins={begins}
+          ends={ends}
           moment={moment}
           nextMoment={next}
           previousMoment={previous}

@@ -64,16 +64,20 @@ export default class AppMomentViewer extends React.PureComponent {
     const { code } = e;
     const { hasPrevious, hasNext, onPrevious, onNext } = this.props;
     const el = document.activeElement;
+    if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ) ) {
+      // ignore action if any input element is active
+      return;
+    };
     switch ( code ) {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'Space':
-        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) && typeof el.preventDefault === 'function' ) el.preventDefault();
+        typeof e.preventDefault === 'function' && e.preventDefault();
         if ( hasNext ) onNext(e);
         break;
       case 'ArrowLeft':
       case 'ArrowUp':
-        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) && typeof el.preventDefault === 'function' ) el.preventDefault();
+        typeof e.preventDefault === 'function' && e.preventDefault();
         if ( hasPrevious ) onPrevious(e);
         break;
     }

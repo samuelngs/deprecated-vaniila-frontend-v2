@@ -106,10 +106,14 @@ class ListMoments extends React.Component {
     const { author, id } = serverQuery;
 
     return <div>
+
       <Head>
         <title>Your Moments</title>
       </Head>
+
       <AppHeader />
+      <WindowObserver />
+
       <style jsx>{`
         .container {
           padding-top: 80px;
@@ -120,7 +124,6 @@ class ListMoments extends React.Component {
         <ul>{ moments.map(this.renderMomentItem) }</ul>
       </div>
       <AppModal color="rgba(134, 143, 146, 0.7)" active={!!id && !!author} dismiss={this.handleViewMomentDismiss} control={false} props={{ id, windowSize, momentDocuments, playerStates }}>
-        <WindowObserver />
         <AppModalViewMoment />
       </AppModal>
     </div>

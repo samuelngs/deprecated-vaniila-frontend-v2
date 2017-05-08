@@ -116,7 +116,11 @@ export default class WindowObserver extends React.Component {
     const mobile = this.isMobileOperatingSystem();
     const offset = this.calculateOffset(mobile);
 
-    const portrait = window.orientation === 0;
+    const orientation = window.screen && window.screen.orientation && window.screen.orientation.type
+      ? ( window.screen.orientation.type === 'landscape-primary' || window.screen.orientation.type === 'landscape-secondary' ? 0 : 1 )
+      : window.orientation || 0;
+
+    const portrait = orientation === 0;
 
     const width = mobile && window.screen
       ? window.screen.availWidth || window.screen.width || window.innerWidth

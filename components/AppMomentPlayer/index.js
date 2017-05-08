@@ -118,7 +118,8 @@ export default class AppMomentPlayer extends React.PureComponent {
 
     } = this.props;
 
-    const { when } = moment;
+    const { id, when } = moment;
+    const draft = id === 'cover' && !nextMoment;
 
     return <div className="base" style={{ width, height }}>
       <style jsx>{`
@@ -197,7 +198,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
       <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
-      <AppMomentPlayerControls active={begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} current={moment} />
+      <AppMomentPlayerControls active={!draft && begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} current={moment} />
     </div>;
   }
 

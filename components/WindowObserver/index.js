@@ -21,7 +21,23 @@ export default class WindowObserver extends React.Component {
 
   isMobileOperatingSystem() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /windows phone/i.test(userAgent) || /android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    if ( /windows phone/i.test(userAgent) ) return 'windows';
+    if ( /android/i.test(userAgent) ) return 'android';
+    if ( /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream ) return 'ios';
+    return false;
+  }
+
+  calculateOffset(os) {
+    switch ( os ) {
+      case 'windows':
+        return 0;
+      case 'android':
+        return 38;
+      case 'ios':
+        return 40 + 64;
+      default:
+        return 0;
+    }
   }
 
   shouldOverrideHorizontalScroll() {
@@ -40,6 +56,7 @@ export default class WindowObserver extends React.Component {
       window.addEventListener('mousewheel', this.mousewheel);
     }
     window.addEventListener('resize', this.resize);
+    window.addEventListener('orientationchange', this.resize);
   }
 
   removeEventListener() {
@@ -47,6 +64,7 @@ export default class WindowObserver extends React.Component {
       window.removeEventListener('mousewheel', this.mousewheel);
     }
     window.removeEventListener('resize', this.resize);
+    window.removeEventListener('orientationchange', this.resize);
   }
 
   // Prevent horizontal scroll for Back page in Mac 10.7+
@@ -92,10 +110,26 @@ export default class WindowObserver extends React.Component {
   }
 
   resize = e => {
+
     const { store: { dispatch } } = this.context;
-    const size = this.isMobileOperatingSystem() && window.screen
-      ? { width: window.screen.width || window.innerWidth, height: window.screen.height || window.innerHeight }
-      : { width: window.innerWidth, height: window.innerHeight };
+
+    const mobile = this.isMobileOperatingSystem();
+    const offset = this.calculateOffset(mobile);
+
+    const portrait = window.orientation === 0;
+
+    const width = mobile && window.screen
+      ? window.screen.availWidth || window.screen.width || window.innerWidth
+      : window.innerWidth;
+
+    const height = mobile && window.screen
+      ? window.screen.availHeight - offset || ( window.screen.height - offset ) || window.innerHeight
+      : window.innerHeight;
+
+    const size = portrait
+      ? { width, height }
+      : { width: height, height: width };
+
     return dispatch({ type: actions.SetWindowSize, size });
   }
 

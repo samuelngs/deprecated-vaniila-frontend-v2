@@ -154,6 +154,8 @@ export default class AppModalViewMoment extends React.Component {
         />
         <AppMomentDetails doc={doc} style={{ flex: 1 }} />
       </AppLaunchSuccess>
+      <AppLaunchFail failure={!doc}>
+      </AppLaunchFail>
     </div>
   }
 

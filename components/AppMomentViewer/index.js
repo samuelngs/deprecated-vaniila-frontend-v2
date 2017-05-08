@@ -68,12 +68,12 @@ export default class AppMomentViewer extends React.PureComponent {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'Space':
-        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) ) el.preventDefault();
+        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) && typeof el.preventDefault === 'function' ) el.preventDefault();
         if ( hasNext ) onNext(e);
         break;
       case 'ArrowLeft':
       case 'ArrowUp':
-        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) ) el.preventDefault();
+        if ( el && ( el.getAttribute('contenteditable') === 'true' || el.tagName === 'INPUT' || el.tagName === 'BUTTON' ) && typeof el.preventDefault === 'function' ) el.preventDefault();
         if ( hasPrevious ) onPrevious(e);
         break;
     }

@@ -71,13 +71,13 @@ class ListMoments extends React.Component {
       case 'desktop':
         return Router.push({
           pathname: serverPathname,
-          query   : { ...serverParams, ...serverQuery, id, author },
+          query   : { ...serverParams, ...serverQuery, id, username: author },
         }, `/${author}/${id}`);
 
       case 'mobile':
         return Router.push({
           pathname: '/view-moment',
-          query   : { id, author },
+          query   : { id, username: author },
         }, `/${author}/${id}`);
     }
 
@@ -103,9 +103,15 @@ class ListMoments extends React.Component {
   render () {
 
     const { authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, playerStates, username, moments } = this.props;
-    const { author, id } = serverQuery;
+    const { username: author, id } = serverQuery;
 
     return <div>
+
+      <style jsx>{`
+        .container {
+          padding-top: 80px;
+        }
+      `}</style>
 
       <Head>
         <title>Your Moments</title>
@@ -114,18 +120,15 @@ class ListMoments extends React.Component {
       <AppHeader />
       <WindowObserver />
 
-      <style jsx>{`
-        .container {
-          padding-top: 80px;
-        }
-      `}</style>
       <div className="container">
         <h1>Your Moments: { username }</h1>
         <ul>{ moments.map(this.renderMomentItem) }</ul>
       </div>
+
       <AppModal color="rgba(134, 143, 146, 0.7)" active={serverPathname === '/list-moments' && !!id && !!author} dismiss={this.handleViewMomentDismiss} control={false} props={{ id, windowSize, momentDocuments, playerStates }}>
         <AppModalViewMoment />
       </AppModal>
+
     </div>
   }
 

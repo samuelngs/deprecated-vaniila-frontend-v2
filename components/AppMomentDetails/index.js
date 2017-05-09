@@ -1,8 +1,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import Router from 'next/router';
 
 export default class AppMomentDetails extends React.PureComponent {
+
+  static contextTypes = {
+    store: PropTypes.object,
+  }
 
   static propTypes = {
     doc     : PropTypes.object,
@@ -14,6 +19,25 @@ export default class AppMomentDetails extends React.PureComponent {
     doc     : { },
     children: null,
     style   : undefined,
+  }
+
+  handleUsernamePress = e => {
+    e.preventDefault && e.preventDefault();
+
+    const { doc } = this.props;
+    const { store: { getState } } = this.context;
+
+    const { author: { username } } = doc;
+    const { serverPathname, serverQuery, serverQuery: { username: current } } = getState();
+
+    if ( serverPathname === '/list-moments' && username === current ) {
+      return Router.back();
+    }
+
+    return Router.push({
+      pathname: '/list-moments',
+      query   : { username },
+    }, `/${username}`);
   }
 
   render() {
@@ -87,9 +111,16 @@ export default class AppMomentDetails extends React.PureComponent {
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
+        }
+        .details-username a {
           font-size: 14px;
           font-weight: 400;
           color: #999;
+          text-decoration: none;
+        }
+        .details-username a:hover,
+        .details-username a:active {
+          color: #185be7;
         }
       `}</style>
       <header className="details-container">
@@ -98,7 +129,9 @@ export default class AppMomentDetails extends React.PureComponent {
         </div>
         <div className="details-content">
           <h1 className="details-title">{ title }</h1>
-          <h4 className="details-username">{ name }</h4>
+          <h4 className="details-username">
+            <a href={`/${username}`} onClick={this.handleUsernamePress}>{ name }</a>
+          </h4>
         </div>
       </header>
       { children }

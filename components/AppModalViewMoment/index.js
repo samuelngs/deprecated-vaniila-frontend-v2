@@ -41,6 +41,14 @@ export default class AppModalViewMoment extends React.Component {
     store.dispatch(momentReducerApi.retrieveMomentDocument(id));
   }
 
+  componentWillUpdate({ id }) {
+    const { id: prev } = this.props;
+    const { store } = this.context;
+    if ( prev !== id ) {
+      store.dispatch(momentReducerApi.retrieveMomentDocument(id));
+    }
+  }
+
   handleNextMoment = e => {
     const { store: { dispatch } } = this.context;
     const { id } = this.props;

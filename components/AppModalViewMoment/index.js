@@ -9,6 +9,7 @@ import AppLaunchFail from '../AppLaunchFail';
 import AppMomentSync from '../AppMomentSync';
 import AppMomentViewer from '../AppMomentViewer';
 import AppMomentDetails from '../AppMomentDetails';
+import AppMomentListComments from '../AppMomentListComments';
 
 import { api as momentReducerApi } from '../../reducers/moment';
 import { api as playerReducerApi } from '../../reducers/player';
@@ -167,7 +168,9 @@ export default class AppModalViewMoment extends React.Component {
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
         />
-        <AppMomentDetails doc={doc} style={{ flex: 1 }} />
+        <AppMomentDetails doc={doc} style={{ flex: 1 }}>
+          <AppMomentListComments />
+        </AppMomentDetails>
       </AppLaunchSuccess>
 
       <AppLaunchFail failure={doc && err}>

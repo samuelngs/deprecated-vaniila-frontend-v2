@@ -112,10 +112,10 @@ export default class MomentCardYoutube extends React.PureComponent {
 
     const iframeWidth = fullscreen
       ? width
-      : 560;
+      : ( 560 > width ? width : 560 );
     const iframeHeight = fullscreen
       ? height
-      : 315;
+      : ( 315 > height ? height : 315 );
     const iframeSrc = `https://www.youtube.com/embed/${data}?modestbranding=1&autohide=1&rel=0&showinfo=0&iv_load_policy=3`;
 
     return <div { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>

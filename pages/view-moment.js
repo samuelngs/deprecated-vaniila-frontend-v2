@@ -80,8 +80,8 @@ class ViewMoment extends React.Component {
       res.player.mode = 'desktop';
     } else {
       let r = res.player.height / defaults.maxHeight;
-      res.player.ratio = res.player.ratio > r - 30
-        ? r - 30
+      res.player.ratio = res.player.ratio > r
+        ? r *= .7
         : res.player.ratio;
       res.player.height -= 47;
       res.player.mode = 'mobile';
@@ -102,7 +102,7 @@ class ViewMoment extends React.Component {
     const player = playerStates[id];
 
     const { err, path, name } = (doc || { });
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
 
@@ -121,7 +121,7 @@ class ViewMoment extends React.Component {
       <WindowObserver />
       <AppHeader />
 
-      <AppLaunchLoader loading={!doc && !err} />
+      <AppLaunchLoader loading={!doc && !err} sizes={sizes} />
 
       <AppLaunchSuccess success={doc && !err}>
         <AppMomentSync
@@ -136,8 +136,11 @@ class ViewMoment extends React.Component {
           pulse={playerPulse}
           moments={playerMoments}
           current={current}
+          currentIndex={playerIndex}
           previous={playerPreviousMoment}
+          previousIndex={playerPreviousIndex}
           next={playerNextMoment}
+          nextIndex={playerNextIndex}
           hasNext={playerHasNext}
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}
@@ -158,6 +161,4 @@ class ViewMoment extends React.Component {
 }
 
 export default withRedux(ViewMoment);
-
-
 

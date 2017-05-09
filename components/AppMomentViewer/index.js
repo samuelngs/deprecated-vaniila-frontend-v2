@@ -15,8 +15,11 @@ export default class AppMomentViewer extends React.PureComponent {
     pulse         : PropTypes.bool,
     moments       : PropTypes.arrayOf(PropTypes.string),
     current       : PropTypes.string,
+    currentIndex  : PropTypes.number,
     previous      : PropTypes.string,
+    previousIndex : PropTypes.number,
     next          : PropTypes.string,
+    nextIndex     : PropTypes.number,
 
     sizes         : PropTypes.object,
 
@@ -35,8 +38,11 @@ export default class AppMomentViewer extends React.PureComponent {
     pulse         : false,
     moments       : [ ],
     current       : null,
+    currentIndex  : -2,
     previous      : '',
+    previousIndex : -2,
     next          : '',
+    nextIndex     : -2,
 
     sizes         : { },
 
@@ -96,6 +102,7 @@ export default class AppMomentViewer extends React.PureComponent {
     const { livestream, created_at, started_at } = doc;
     return {
       id      : 'cover',
+      index   : -1,
       hash    : `${Date.now()}`,
       when    : new Date(
         livestream && started_at.indexOf('000') !== 0
@@ -125,7 +132,7 @@ export default class AppMomentViewer extends React.PureComponent {
    */
   doc() {
 
-    const { doc, moments: ids, current, next: nid, previous: pid, hasNext, hasPrevious } = this.props;
+    const { doc, moments: ids, current, currentIndex, next: nid, nextIndex, previous: pid, previousIndex, hasNext, hasPrevious } = this.props;
     const moments = ((((doc || { }).document || { }).data || { }).slides || { });
     const { livestream, created_at, started_at, ended_at } = (doc || { });
 
@@ -151,7 +158,7 @@ export default class AppMomentViewer extends React.PureComponent {
      */
     const moment = current === 'cover'
       ? this.cover()
-      : { ...moments[current], id: current }
+      : { ...moments[current], id: current, index: currentIndex }
 
     /**
      * retrieve next moment
@@ -160,7 +167,7 @@ export default class AppMomentViewer extends React.PureComponent {
       ? (
         nid === 'cover'
         ? this.cover()
-        : { ...moments[nid], id: nid }
+        : { ...moments[nid], id: nid, index: nextIndex }
       )
       : null;
 
@@ -171,7 +178,7 @@ export default class AppMomentViewer extends React.PureComponent {
       ? (
         pid === 'cover'
         ? this.cover()
-        : { ...moments[pid], id: pid }
+        : { ...moments[pid], id: pid, index: previousIndex }
       )
       : null;
 
@@ -179,7 +186,7 @@ export default class AppMomentViewer extends React.PureComponent {
   }
 
   render() {
-    const { id, sizes, modal, live, pulse, hasNext, hasPrevious, onNext, onPrevious } = this.props;
+    const { id, sizes, modal, live, pulse, moments, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex } = this.props;
     const { hover } = this.state;
     const { moment, next, previous, begins, ends } = this.doc();
     return <div className={ modal ? "base base-modal" : "base" }>
@@ -223,9 +230,13 @@ export default class AppMomentViewer extends React.PureComponent {
           hover={hover}
           begins={begins}
           ends={ends}
+          moments={moments}
           moment={moment}
+          momentIndex={currentIndex}
           nextMoment={next}
-          previousMoment={previous}
+          nextMomentIndex={nextIndex}
+          prevMoment={previous}
+          prevMomentIndex={previousIndex}
           sizes={sizes}
           hasPrevious={hasPrevious}
           hasNext={hasNext}

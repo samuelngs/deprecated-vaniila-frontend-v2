@@ -15,37 +15,97 @@ import MomentCard from '../MomentCard';
 export default class AppMomentPlayer extends React.PureComponent {
 
   static propTypes = {
-    id          : PropTypes.string,
-    modal       : PropTypes.bool,
-    live        : PropTypes.bool,
-    pulse       : PropTypes.bool,
-    hover       : PropTypes.bool,
-    begins      : PropTypes.number,
-    ends        : PropTypes.number,
-    moment      : PropTypes.object,
-    nextMoment  : PropTypes.object,
-    prevMoment  : PropTypes.object,
-    sizes       : PropTypes.object,
-    hasPrevious : PropTypes.bool,
-    hasNext     : PropTypes.bool,
-    onPrevious  : PropTypes.func,
-    onNext      : PropTypes.func,
+    id              : PropTypes.string,
+    modal           : PropTypes.bool,
+    live            : PropTypes.bool,
+    pulse           : PropTypes.bool,
+    hover           : PropTypes.bool,
+    begins          : PropTypes.number,
+    ends            : PropTypes.number,
+    moments         : PropTypes.arrayOf(PropTypes.string),
+    moment          : PropTypes.object,
+    momentIndex     : PropTypes.number,
+    nextMoment      : PropTypes.object,
+    nextMomentIndex : PropTypes.number,
+    prevMoment      : PropTypes.object,
+    prevMomentIndex : PropTypes.number,
+    sizes           : PropTypes.object,
+    hasPrevious     : PropTypes.bool,
+    hasNext         : PropTypes.bool,
+    onPrevious      : PropTypes.func,
+    onNext          : PropTypes.func,
   }
 
   static defaultProps = {
-    id          : '',
-    modal       : false,
-    live        : false,
-    pulse       : false,
-    hover       : false,
-    begins      : -1,
-    ends        : -1,
-    moment      : { },
-    sizes       : { },
-    hasPrevious : false,
-    hasNext     : false,
-    onPrevious  : e => null,
-    onNext      : e => null,
+    id              : '',
+    modal           : false,
+    live            : false,
+    pulse           : false,
+    hover           : false,
+    begins          : -1,
+    ends            : -1,
+    moments         : [ ],
+    moment          : { },
+    momentIndex     : -2,
+    nextMoment      : { },
+    nextMomentIndex : -2,
+    prevMoment      : { },
+    prevMomentIndex : -2,
+    sizes           : { },
+    hasPrevious     : false,
+    hasNext         : false,
+    onPrevious      : e => null,
+    onNext          : e => null,
+  }
+
+  state = {
+    sx: 0,
+    cx: 0,
+    touches: false,
+  }
+
+  handleTouchStart = e => {
+    const { sizes: { player: { mode } } } = this.props;
+    if ( mode !== 'mobile' ) return;
+
+    e.cancelable && e.preventDefault && e.preventDefault();
+    if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
+
+    const sx = e.targetTouches[0].pageX;
+    const cx = sx;
+    this.setState(state => !state.touches && { sx, cx, touches: true });
+  }
+
+  handleTouchMove = e => {
+    const { sizes: { player: { mode } } } = this.props;
+    const { touches } = this.state;
+    if ( mode !== 'mobile' || !touches ) return;
+
+    e.cancelable && e.preventDefault && e.preventDefault();
+    if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
+
+    const cx = e.targetTouches[0].pageX;
+    this.setState(state => state.touches && { cx });
+  }
+
+  handleTouchEnd = e => {
+    const { sizes: { player: { width, mode } }, hasPrevious, hasNext, onPrevious, onNext } = this.props;
+    const { touches, cx, sx } = this.state;
+    if ( mode !== 'mobile' || !touches ) return;
+
+    e.cancelable && e.preventDefault && e.preventDefault();
+    if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
+
+    const dis = cx - sx;
+    const abs = Math.abs(cx - sx);
+    if ( abs > width / 3 ) {
+      if ( dis > 0 && hasPrevious ) {
+        onPrevious();
+      } else if ( dis < 0 && hasNext ) {
+        onNext();
+      }
+    }
+    this.setState(state => state.touches && { touches: false });
   }
 
   willEnter = o => {
@@ -104,7 +164,9 @@ export default class AppMomentPlayer extends React.PureComponent {
       begins,
       ends,
       modal,
+      moments,
       moment,
+      momentIndex,
       nextMoment,
       prevMoment,
       live,
@@ -118,8 +180,16 @@ export default class AppMomentPlayer extends React.PureComponent {
 
     } = this.props;
 
-    const { id, when } = moment;
+    const {
+      touches,
+      sx,
+      cx,
+    } = this.state;
+
+    const { id, index, when } = moment;
     const draft = id === 'cover' && !nextMoment;
+
+    const posx = ( ( momentIndex + 1 ) * width ) - ( cx - sx );
 
     return <div className="base" style={{ width, height }}>
       <style jsx>{`
@@ -154,10 +224,22 @@ export default class AppMomentPlayer extends React.PureComponent {
           flex-direction: row;
           align-items: center;
         }
+        .moments {
+          overflow-x: hidden;
+          overflow-y: hidden;
+          -ms-overflow-style: none;
+          -ms-scroll-chaining: none;
+          -ms-scroll-snap-type: mandatory;
+          -ms-scroll-snap-points-x: snapInterval(0%, 100%);
+        }
         .player {
           position: relative;
           box-shadow: none;
+          transform: translate3d(0px, 0px, 0px);
           overflow: hidden;
+        }
+        .player-inactive {
+          transition: transform 0.3s ease-out;
         }
       `}</style>
 
@@ -170,30 +252,40 @@ export default class AppMomentPlayer extends React.PureComponent {
         { live && <AppLiveIndicator color="#59b7ff" fill={true} tint="#fff" /> }
       </div>
 
-      <TransitionMotion
-        defaultStyles={this.getDefaultStyles()}
-        styles={this.getStyles()}
-        willLeave={this.willLeave}
-        willEnter={this.willEnter}>
-        { cards => <div className="player" style={{ width, height }}>
-          { cards.map(({ key, data: { id }, data, style: { opacity } }, i) => <MomentCard
-            key={key}
-            root={root}
-            id={id}
-            x={0}
-            y={0}
-            scale={ratio}
-            width={width}
-            height={height}
-            player={true}
-            editmode={false}
-            moment={data}
-            opacity={opacity}
-            placeholder="There's nothing here, yet 🙌"
-            visible={moment.id === id}
-          />) }
-        </div> }
-      </TransitionMotion>
+      <div className="moments" style={{ width, height, touchAction: mode === 'desktop' ? 'initial' : 'none' }} onTouchStart={this.handleTouchStart} onTouchMove={this.handleTouchMove} onTouchEnd={this.handleTouchEnd}>
+        <TransitionMotion
+          defaultStyles={this.getDefaultStyles()}
+          styles={this.getStyles()}
+          willLeave={this.willLeave}
+          willEnter={this.willEnter}>
+          { cards => <div className={ !touches && mode === 'mobile' ? "player player-inactive" : "player" } style={ touches ? {
+            width: mode === 'desktop' ? width : ( width * ( moments.length + 1 ) ),
+            height,
+            transform: mode === 'desktop' ? `translate3d(0, 0, 0)` : `translate3d(${-posx}px, 0, 0)`,
+          } : {
+            width: mode === 'desktop' ? width : ( width * ( moments.length + 1 ) ),
+            height,
+            transform: mode === 'desktop' ? `translate3d(0, 0, 0)` : `translate3d(-${(index + 1) * width}px, 0, 0)`,
+          }}>
+            { cards.map(({ key, data: { id, index }, data, style: { opacity } }, i) => <MomentCard
+              key={key}
+              root={root}
+              id={id}
+              x={mode === 'desktop' ? 0 : ( index + 1 ) * width}
+              y={0}
+              scale={ratio}
+              width={width}
+              height={height}
+              player={true}
+              editmode={false}
+              moment={data}
+              opacity={mode === 'desktop' ? opacity : 1}
+              placeholder="There's nothing here, yet 🙌"
+              visible={moment.id === id}
+            />) }
+          </div> }
+        </TransitionMotion>
+      </div>
 
       <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
       <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />

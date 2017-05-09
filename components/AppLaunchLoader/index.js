@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-export default ({ modal, loading, children }) => loading ? <div className={ modal ? "base base-modal" : "base" }>
+export default ({ modal, sizes, loading, children }) => loading ? <div className={ modal ? "base base-modal" : "base" }>
   <style jsx>{`
     @keyframes movement {
       0% {
@@ -37,8 +37,15 @@ export default ({ modal, loading, children }) => loading ? <div className={ moda
       flex-direction: row;
       align-items: center;
       justify-content: center;
+      background-color: #fff;
     }
     .base-modal {
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
     }
     .logo {
       position: relative;
@@ -109,17 +116,19 @@ export default ({ modal, loading, children }) => loading ? <div className={ moda
       animation-delay: 0.15s;
     }
   `}</style>
-  <div className="logo">
-    <div className="line line-pt1" />
-    <div className="line line-pt2" />
-    <div className="line line-pt3" />
-    <div className="line line-pt4" />
-    <div className="line line-pt5" />
-    <div className="line line-pt6" />
-    <div className="line line-pt7" />
-    <div className="line line-pt8" />
-    <div className="line line-pt9" />
-    <div className="line line-pt10" />
+  <div className="container" style={ !modal && { width: sizes.player.width, height: sizes.player.height }}>
+    <div className="logo">
+      <div className="line line-pt1" />
+      <div className="line line-pt2" />
+      <div className="line line-pt3" />
+      <div className="line line-pt4" />
+      <div className="line line-pt5" />
+      <div className="line line-pt6" />
+      <div className="line line-pt7" />
+      <div className="line line-pt8" />
+      <div className="line line-pt9" />
+      <div className="line line-pt10" />
+    </div>
   </div>
 </div> : null;
 

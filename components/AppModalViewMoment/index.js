@@ -111,7 +111,7 @@ export default class AppModalViewMoment extends React.Component {
     const player = playerStates[id];
 
     const { err, path, name } = (doc || { });
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>
       <style jsx>{`
@@ -129,7 +129,7 @@ export default class AppModalViewMoment extends React.Component {
         }
       `}</style>
 
-      <AppLaunchLoader loading={!doc && !err} />
+      <AppLaunchLoader loading={!doc && !err} sizes={sizes} />
 
       <AppLaunchSuccess modal={true} success={doc && !err}>
         <Head>
@@ -148,8 +148,11 @@ export default class AppModalViewMoment extends React.Component {
           pulse={playerPulse}
           moments={playerMoments}
           current={current}
+          currentIndex={playerIndex}
           previous={playerPreviousMoment}
+          previousIndex={playerPreviousIndex}
           next={playerNextMoment}
+          nextIndex={playerNextIndex}
           hasNext={playerHasNext}
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}

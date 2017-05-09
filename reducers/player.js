@@ -11,11 +11,14 @@ const defaults = {
   // player single state
   state: {
     playerMoment: 'cover',
+    playerIndex: -1,
     playerMoments: [ ],
     playerHasPrevious: false,
     playerPreviousMoment: null,
+    playerPreviousIndex: -2,
     playerHasNext: false,
     playerNextMoment: null,
+    playerNextIndex: -2,
     playerIsLive: false,
     playerPulse: false,
   },
@@ -84,6 +87,7 @@ function hookInitialPlaceholder(states, { id }, store) {
 
     if ( ids.length > 0 ) {
       state.playerNextMoment = ids[0];
+      state.playerNextIndex = 0;
       state.playerHasNext = true;
     }
 
@@ -103,12 +107,15 @@ function hookInitialPlaceholder(states, { id }, store) {
     const idx = idx.length - 1;
 
     state.playerMoment = ids[idx];
+    state.playerIndex = idx;
 
     state.playerNextMoment = null;
+    state.playerNextIndex = -2;
     state.playerHasNext = false;
     state.playerPreviousMoment = idx === 0
       ? 'cover'
       : idx - 1;
+    state.playerPreviousIndex = idx - 1;
     state.playerHasPrevious = true;
 
     return clone;
@@ -150,18 +157,22 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
   ) {
 
     state.playerMoment = opts.moment;
+    state.playerIndex = idx;
 
     if ( opts.moment === 'cover' ) {
 
       state.playerHasPrevious = false;
       state.playerPreviousMoment = null;
+      state.playerPreviousIndex = -2;
 
       if ( ids.length > 0 ) {
         state.playerHasNext = true;
         state.playerNextMoment = ids[0];
+        state.playerNextIndex = 0;
       } else {
         state.playerHasNext = false;
         state.playerNextMoment = null;
+        state.playerNextIndex = -2;
       }
     } else {
 
@@ -170,17 +181,21 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
         state.playerPreviousMoment = idx === 0
           ? 'cover'
           : ids[idx - 1];
+        state.playerPreviousIndex = idx - 1;
       } else {
         state.playerHasPrevious = false;
         state.playerPreviousMoment = null;
+        state.playerPreviousIndex = -2;
       }
 
       if ( idx < ids.length - 1 ) {
         state.playerHasNext = true;
         state.playerNextMoment = ids[idx + 1];
+        state.playerNextIndex = idx + 1;
       } else {
         state.playerHasNext = false;
         state.playerNextMoment = null;
+        state.playerNextIndex = -2;
       }
     }
   }
@@ -241,13 +256,16 @@ function hookSyncWithDocument(states, { id }, store) {
 
       state.playerHasPrevious = false;
       state.playerPreviousMoment = null;
+      state.playerPreviousIndex = -2;
 
       if ( playerMoments.length > 0 ) {
         state.playerHasNext = true;
         state.playerNextMoment = playerMoments[0];
+        state.playerNextIndex = 0;
       } else {
         state.playerHasNext = false;
         state.playerNextMoment = null;
+        state.playerNextIndex = -2;
       }
     } else {
 
@@ -268,26 +286,32 @@ function hookSyncWithDocument(states, { id }, store) {
         if ( tidx > 0 ) {
 
           state.playerMoment = state.playerMoments[tidx];
+          state.playerIndex = tidx;
 
           state.playerNextMoment = null;
+          state.playerNextIndex = -2;
           state.playerHasNext = false;
           state.playerPreviousMoment = tidx === 0
             ? 'cover'
-            : tidx - 1;
+            : state.playerMoments[tidx - 1];
+          state.playerPreviousIndex = tidx - 1;
           state.playerHasPrevious = true;
 
         } else {
 
           state.playerMoment = 'cover';
+          state.playerIndex = -1;
           state.playerHasPrevious = false;
           state.playerPreviousMoment = null;
 
           if ( ids.length > 0 ) {
             state.playerHasNext = true;
             state.playerNextMoment = ids[0];
+            state.playerNextIndex = 0;
           } else {
             state.playerHasNext = false;
             state.playerNextMoment = null;
+            state.playerNextIndex = -2;
           }
         }
       }

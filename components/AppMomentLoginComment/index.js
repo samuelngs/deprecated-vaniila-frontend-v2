@@ -14,6 +14,7 @@ export default class AppMomentLoginComment extends React.PureComponent {
   };
 
   render() {
+    const { id } = this.props;
     return <div className="base">
       <style jsx>{`
         .base {
@@ -42,7 +43,7 @@ export default class AppMomentLoginComment extends React.PureComponent {
         }
       `}</style>
       <div className="message">
-        <Link href="/signin" as="/signin"><a>Log in</a></Link> to like or comment
+        <Link href={{ pathname: '/signin', query: { redirect: `/m/${id}` }}} as="/signin"><a>Log in</a></Link> to like or comment
       </div>
     </div>
   }

@@ -169,7 +169,7 @@ export default class AppModalViewMoment extends React.Component {
           sizes={sizes}
         />
         <AppMomentDetails doc={doc} style={{ flex: 1 }}>
-          <AppMomentListComments />
+          <AppMomentListComments id={id} />
         </AppMomentDetails>
       </AppLaunchSuccess>
 

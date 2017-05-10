@@ -12,17 +12,18 @@ export default class AppMomentCommentPlaceholder extends React.PureComponent {
         }
         .comment-placeholder {
           margin-top: 20px;
-          margin-bottom: 0;
+          margin-bottom: 20px;
           margin-left: 20px;
           margin-right: 20px;
           padding-top: 0;
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
-          height: 134px;
+          flex: 1;
+          min-height: 134px;
           position: relative;
           background: #f4f4f4;
-          background: linear-gradient(to right, #f4f4f4 0%, #eee 20%, #f4f4f5 40%, #f4f4f5 100%);
+          background: linear-gradient(to right, #f4f4f4 0%, #eaeaea 20%, #f4f4f5 40%, #f4f4f5 100%);
           background-size: 800px 104px;
           animation-duration: 1.5s;
           animation-fill-mode: forwards;
@@ -45,6 +46,12 @@ export default class AppMomentCommentPlaceholder extends React.PureComponent {
           left: 0;
           right: 0;
           height: 10px;
+        }
+        .mask-layout {
+          left: 0;
+          right: 0;
+          top: 134px;
+          bottom: 0;
         }
         .mask-message-f {
           left: 40px;
@@ -178,6 +185,7 @@ export default class AppMomentCommentPlaceholder extends React.PureComponent {
       <div className="mask mask-message-t mask-message-t-l" />
       <div className="mask mask-message-t mask-message-t-r" />
       <div className="mask mask-message-t mask-message-t-rs" />
+      <div className="mask mask-layout" />
     </div>
   }
 

@@ -46,6 +46,13 @@ class ViewMoment extends React.Component {
     }
   }
 
+  componentWillUpdate({ query: { id } }) {
+    const { query: { id: prev }, dispatch } = this.props;
+    if ( prev !== id ) {
+      dispatch(momentReducerApi.retrieveMomentDocument(id));
+    }
+  }
+
   handleNextMoment = e => {
     const { dispatch, query: { id } } = this.props;
     dispatch(playerReducerApi.next(id));

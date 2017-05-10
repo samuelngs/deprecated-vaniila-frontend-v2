@@ -5,6 +5,10 @@ import Router from 'next/router';
 
 export default class AppMomentComment extends React.PureComponent {
 
+  static contextTypes = {
+    store: PropTypes.object,
+  }
+
   static propTypes = {
     name    : PropTypes.string,
     avatar  : PropTypes.string,
@@ -19,6 +23,24 @@ export default class AppMomentComment extends React.PureComponent {
     comment : '',
   }
 
+  handleUsernamePress = e => {
+    e.preventDefault && e.preventDefault();
+
+    const { username } = this.props;
+    const { store: { getState } } = this.context;
+
+    const { serverPathname, serverQuery, serverQuery: { username: current } } = getState();
+
+    if ( serverPathname === '/list-moments' && username === current ) {
+      return Router.back();
+    }
+
+    return Router.push({
+      pathname: '/list-moments',
+      query   : { username },
+    }, `/${username}`);
+  }
+
   render() {
     const { name, avatar, username, comment } = this.props;
     return <li className="base">
@@ -27,13 +49,10 @@ export default class AppMomentComment extends React.PureComponent {
           display: flex;
           flex-direction: row;
           min-height: 40px;
-          padding-top: 3px;
-          padding-bottom: 4px;
+          padding-top: 2px;
+          padding-bottom: 2px;
           padding-left: 18px;
           padding-right: 18px;
-        }
-        .base + .base {
-          margin-top: 10px;
         }
         .avatar-container {
           display: flex;
@@ -43,32 +62,45 @@ export default class AppMomentComment extends React.PureComponent {
           width: 40px;
         }
         .avatar-image {
-          height: 36px;
-          width: 36px;
+          height: 28px;
+          width: 28px;
           border: 1px solid rgba(0, 0, 0, 0.05);
           border-radius: 19px;
         }
         .comment-container {
           flex: 1;
+          flex-direction: column;
+          display: flex;
+          margin-top: 7px;
           margin-left: 12px;
           line-height: 1.1;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 400;
           color: #777;
+          word-break: break-all;
         }
         .comment-username {
-          color: #000;
           display: inline;
           margin-right: 6px;
-          font-size: 14px;
+        }
+        .comment-author {
+          font-size: 13px;
           font-weight: 500;
+          text-decoration: none;
+          color: #000;
         }
       `}</style>
       <div className="avatar-container">
-        <img className="avatar-image" src={avatar} />
+        <a className="comment-author" href={`/${username}`} onClick={this.handleUsernamePress}>
+          <img className="avatar-image" src={avatar} />
+        </a>
       </div>
       <div className="comment-container">
-        <h4 className="comment-username">{ name }</h4>
+        <h4 className="comment-username">
+          <a className="comment-author" href={`/${username}`} onClick={this.handleUsernamePress}>
+            { name || username }
+          </a>
+        </h4>
         { comment }
       </div>
     </li>

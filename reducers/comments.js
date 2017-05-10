@@ -50,7 +50,7 @@ function hookAppendComments(states, { id, comments, override = true }, store) {
 /**
  * comments state
  */
-function comments (states = defaults.states, action = defaults.action, store) {
+function momentComments (states = defaults.states, action = defaults.action, store) {
 
   // do not do anything if id is missing
   if ( typeof action.id !== 'string' || ( typeof action.id === 'string' && action.id.trim().length === 0 ) ) return states;
@@ -93,15 +93,40 @@ function retrieveComments(id) {
   }
 }
 
+function leaveComment(id, comment) {
+  return function ( dispatch, getState ) {
+
+    const { authenticationToken } = getState();
+    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+
+    const body = new FormData();
+    body.append('comment', comment);
+
+    return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/comments`, {
+      method      : 'post',
+      credentials : 'include',
+      headers,
+      body,
+    })
+    .then(res => res.json())
+    .then(doc => (doc.error ? Promise.reject(doc.error) : doc))
+    .then(
+      _   => dispatch(retrieveComments(id)),
+      err => ({ err }),
+    );
+  }
+}
+
 
 /**
  * export store api
  */
 export const api = {
   retrieveComments,
+  leaveComment,
 }
 
 export default {
-  comments,
+  momentComments,
 };
 

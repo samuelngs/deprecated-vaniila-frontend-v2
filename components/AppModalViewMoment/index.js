@@ -24,6 +24,7 @@ export default class AppModalViewMoment extends React.Component {
     id              : PropTypes.string,
     path            : PropTypes.string,
     windowSize      : PropTypes.object,
+    momentComments  : PropTypes.object,
     momentDocuments : PropTypes.object,
     playerStates    : PropTypes.object,
   }
@@ -32,6 +33,7 @@ export default class AppModalViewMoment extends React.Component {
     id              : '',
     path            : '',
     windowSize      : { },
+    momentComments  : { },
     momentDocuments : { },
     playerStates    : { },
   }
@@ -112,12 +114,13 @@ export default class AppModalViewMoment extends React.Component {
 
   render() {
 
-    const { id, momentDocuments, playerStates } = this.props;
+    const { id, momentDocuments, momentComments, playerStates } = this.props;
     const sizes = this.getSizes();
     const { container: { width }, screen: { height } } = sizes;
 
     const doc = momentDocuments[id];
     const player = playerStates[id];
+    const comments = momentComments[id];
 
     const { err, path, name } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
@@ -168,8 +171,8 @@ export default class AppModalViewMoment extends React.Component {
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
         />
-        <AppMomentDetails doc={doc} style={{ flex: 1 }}>
-          <AppMomentListComments id={id} />
+        <AppMomentDetails doc={doc} style={{ flex: 1, height, maxHeight: height }}>
+          <AppMomentListComments id={id} comments={comments} />
         </AppMomentDetails>
       </AppLaunchSuccess>
 

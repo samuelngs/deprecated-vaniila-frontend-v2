@@ -20,6 +20,8 @@ export default class AppMomentComments extends React.PureComponent {
       <style jsx>{`
         .base {
           flex: 1;
+          flex-grow: 1;
+          flex-shrink: 1;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
@@ -28,9 +30,10 @@ export default class AppMomentComments extends React.PureComponent {
           padding-bottom: 18px;
           padding-left: 0;
           padding-right: 0;
+          overflow: auto;
         }
       `}</style>
-      { comments.map(({ name, avatar, username, comment }) => <AppMomentComment name={name} avatar={avatar} username={username} comment={comment} />) }
+      { comments.map(({ name, avatar, username, comment }, i) => <AppMomentComment key={i} name={name} avatar={avatar} username={username} comment={comment} />) }
     </ul>
   }
 

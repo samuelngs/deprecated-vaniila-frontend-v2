@@ -22,11 +22,13 @@ export default class AppMomentListComments extends React.PureComponent {
   }
 
   static propTypes = {
-    id: PropTypes.string,
+    id      : PropTypes.string,
+    comments: PropTypes.array,
   };
 
   static defaultProps = {
-    id: '',
+    id      : '',
+    comments: [],
   };
 
   state = {
@@ -49,23 +51,23 @@ export default class AppMomentListComments extends React.PureComponent {
 
   render() {
 
-    const { id } = this.props;
+    const { id, comments } = this.props;
     const { fetching } = this.state;
-    const { store: { getState } } = this.context;
-
-    const { comments: store } = getState();
-    const comments = store[id];
 
     return <div className="base">
       <style jsx>{`
         .base {
           display: flex;
           flex: 1;
+          flex-grow: 1;
+          flex-shrink: 1;
           flex-direction: column;
           background-color: #fff;
         }
         .base-list {
           flex: 1;
+          flex-grow: 1;
+          flex-shrink: 1;
         }
       `}</style>
 

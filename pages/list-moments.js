@@ -33,8 +33,8 @@ class ListMoments extends React.Component {
     return { username, moments };
   }
 
-  static observe ({ authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, playerStates }) {
-    return { authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, playerStates };
+  static observe ({ authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates }) {
+    return { authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates };
   }
 
   mode() {
@@ -102,7 +102,7 @@ class ListMoments extends React.Component {
 
   render () {
 
-    const { authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, playerStates, username, moments } = this.props;
+    const { authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, username, moments } = this.props;
     const { username: author, id } = serverQuery;
 
     return <div>
@@ -125,7 +125,19 @@ class ListMoments extends React.Component {
         <ul>{ moments.map(this.renderMomentItem) }</ul>
       </div>
 
-      <AppModal color="rgba(134, 143, 146, 0.7)" active={serverPathname === '/list-moments' && !!id && !!author} dismiss={this.handleViewMomentDismiss} control={false} props={{ id, windowSize, momentDocuments, playerStates }}>
+      <AppModal
+        color="rgba(134, 143, 146, 0.7)"
+        active={serverPathname === '/list-moments' && !!id && !!author}
+        dismiss={this.handleViewMomentDismiss}
+        control={false}
+        props={{
+          id,
+          windowSize,
+          momentDocuments,
+          momentComments,
+          playerStates,
+        }}
+      >
         <AppModalViewMoment />
       </AppModal>
 

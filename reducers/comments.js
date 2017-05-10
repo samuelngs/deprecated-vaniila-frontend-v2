@@ -117,6 +117,23 @@ function leaveComment(id, comment) {
   }
 }
 
+function deleteComment(id, ref) {
+  return function ( dispatch, getState ) {
+    const { authenticationToken } = getState();
+    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/comments/${ref}`, {
+      method      : 'delete',
+      credentials : 'include',
+      headers,
+    })
+    .then(res => res.json())
+    .then(doc => (doc.error ? Promise.reject(doc.error) : doc))
+    .then(
+      _   => dispatch(retrieveComments(id)),
+      err => ({ err }),
+    );
+  }
+}
 
 /**
  * export store api
@@ -124,6 +141,7 @@ function leaveComment(id, comment) {
 export const api = {
   retrieveComments,
   leaveComment,
+  deleteComment,
 }
 
 export default {

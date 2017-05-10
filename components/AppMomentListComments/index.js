@@ -24,11 +24,13 @@ export default class AppMomentListComments extends React.PureComponent {
   static propTypes = {
     id      : PropTypes.string,
     comments: PropTypes.array,
+    user    : PropTypes.string,
   };
 
   static defaultProps = {
     id      : '',
     comments: [],
+    user    : '',
   };
 
   state = {
@@ -51,7 +53,7 @@ export default class AppMomentListComments extends React.PureComponent {
 
   render() {
 
-    const { id, comments } = this.props;
+    const { id, user, comments } = this.props;
     const { fetching } = this.state;
 
     return <div className="base">
@@ -81,7 +83,7 @@ export default class AppMomentListComments extends React.PureComponent {
 
       {/* render comments after fetching */}
       <If condition={!fetching}>
-        <IfElse condition={comments.length > 0} yes={<AppMomentComments comments={comments} />} no={<AppMomentNoComments />} />
+        <IfElse condition={comments.length > 0} yes={<AppMomentComments id={id} comments={comments} user={user} />} no={<AppMomentNoComments />} />
       </If>
 
       {/* leave comment component */}

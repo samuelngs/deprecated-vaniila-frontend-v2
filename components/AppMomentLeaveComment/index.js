@@ -43,7 +43,8 @@ export default class AppMomentLeaveComment extends React.PureComponent {
     if ( len === 0 ) {
       return this.n && this.n.focus();
     }
-    dispatch(commentsReducerApi.leaveComment(id, text));
+    dispatch(commentsReducerApi.leaveComment(id, text))
+      .then(e => this.setState({ text: '' }));
   }
 
   render() {

@@ -120,7 +120,7 @@ export default class AppMomentDetails extends React.PureComponent {
         }
         .details-username a:hover,
         .details-username a:active {
-          color: #185be7;
+          color: #777;
         }
       `}</style>
       <header className="details-container">

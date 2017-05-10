@@ -33,8 +33,8 @@ class ListMoments extends React.Component {
     return { username, moments };
   }
 
-  static observe ({ authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates }) {
-    return { authenticationToken, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates };
+  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates }) {
+    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates };
   }
 
   mode() {
@@ -102,7 +102,7 @@ class ListMoments extends React.Component {
 
   render () {
 
-    const { authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, username, moments } = this.props;
+    const { authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, username, moments } = this.props;
     const { username: author, id } = serverQuery;
 
     return <div>
@@ -133,6 +133,7 @@ class ListMoments extends React.Component {
         props={{
           id,
           windowSize,
+          accountUsername,
           momentDocuments,
           momentComments,
           playerStates,

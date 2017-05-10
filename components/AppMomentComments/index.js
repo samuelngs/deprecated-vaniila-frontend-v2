@@ -7,15 +7,19 @@ import AppMomentComment from '../AppMomentComment';
 export default class AppMomentComments extends React.PureComponent {
 
   static propTypes = {
+    id      : PropTypes.string,
     comments: PropTypes.array,
+    user    : PropTypes.string,
   }
 
   static defaultProps = {
+    id      : '',
     comments: [ ],
+    user    : '',
   }
 
   render() {
-    const { comments } = this.props;
+    const { id, comments, user } = this.props;
     return <ul className="base">
       <style jsx>{`
         .base {
@@ -33,7 +37,7 @@ export default class AppMomentComments extends React.PureComponent {
           overflow: auto;
         }
       `}</style>
-      { comments.map(({ name, avatar, username, comment }, i) => <AppMomentComment key={i} name={name} avatar={avatar} username={username} comment={comment} />) }
+      { comments.map(({ id: cid, name, avatar, username, comment, created_at }, i) => <AppMomentComment key={i} id={id} cid={cid} name={name} avatar={avatar} username={username} comment={comment} when={created_at} controls={user === username} />) }
     </ul>
   }
 

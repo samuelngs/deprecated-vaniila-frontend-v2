@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Router from 'next/router';
 
+import If from '../If';
+
+import distanceInWordsStrict from 'date-fns/distance_in_words_strict';
+import { api as commentsReducerApi } from '../../reducers/comments';
+
 export default class AppMomentComment extends React.PureComponent {
 
   static contextTypes = {
@@ -10,17 +15,25 @@ export default class AppMomentComment extends React.PureComponent {
   }
 
   static propTypes = {
+    id      : PropTypes.string, // moment id
+    cid     : PropTypes.number, // comment id
     name    : PropTypes.string,
     avatar  : PropTypes.string,
     username: PropTypes.string,
     comment : PropTypes.string,
+    when    : PropTypes.string,
+    controls: PropTypes.bool,
   }
 
   static defaultProps = {
+    id      : '',
+    cid     : 0,
     name    : '',
     avatar  : '',
     username: '',
     comment : '',
+    when    : '1970-01-01T00:00:00.000Z',
+    controls: false,
   }
 
   handleUsernamePress = e => {
@@ -41,8 +54,15 @@ export default class AppMomentComment extends React.PureComponent {
     }, `/${username}`);
   }
 
+  handleDeleteComment = e => {
+    const { store } = this.context;
+    const { id, cid } = this.props;
+    store.dispatch(commentsReducerApi.deleteComment(id, cid));
+  }
+
   render() {
-    const { name, avatar, username, comment } = this.props;
+    const { name, avatar, username, comment, when, controls } = this.props;
+    const date = `${distanceInWordsStrict(new Date(when), new Date())} ago`;
     return <li className="base">
       <style jsx>{`
         .base {
@@ -71,7 +91,7 @@ export default class AppMomentComment extends React.PureComponent {
           flex: 1;
           flex-direction: column;
           display: flex;
-          margin-top: 7px;
+          margin-top: 6px;
           margin-left: 12px;
           line-height: 1.1;
           font-size: 13px;
@@ -79,15 +99,44 @@ export default class AppMomentComment extends React.PureComponent {
           color: #777;
           word-break: break-all;
         }
-        .comment-username {
+        .comment-user {
           display: inline;
-          margin-right: 6px;
+          margin-bottom: 1px;
         }
         .comment-author {
           font-size: 13px;
           font-weight: 500;
           text-decoration: none;
           color: #000;
+        }
+        .comment-author:hover,
+        .comment-author:active {
+          color: #777;
+        }
+        .comment-username {
+          font-size: 13px;
+          font-weight: 300;
+        }
+        .comment-when {
+          font-size: 13px;
+          font-weight: 300;
+          color: #68b5ff;
+        }
+        .comment-delete {
+          display: block;
+          margin-top: 6px;
+          margin-bottom: 4px;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          color: #319aff;
+          font-size: 13px;
+          font-weight: 300;
+          text-decoration: none;
+          cursor: pointer;
         }
       `}</style>
       <div className="avatar-container">
@@ -96,12 +145,17 @@ export default class AppMomentComment extends React.PureComponent {
         </a>
       </div>
       <div className="comment-container">
-        <h4 className="comment-username">
+        <h4 className="comment-user">
           <a className="comment-author" href={`/${username}`} onClick={this.handleUsernamePress}>
             { name || username }
           </a>
+          <span className="comment-username"> @{ username }</span>
+          <span className="comment-when"> · { date }</span>
         </h4>
         { comment }
+        <If condition={controls}>
+          <a className="comment-delete" onClick={this.handleDeleteComment}>delete this comment</a>
+        </If>
       </div>
     </li>
   }

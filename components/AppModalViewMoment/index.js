@@ -21,23 +21,25 @@ export default class AppModalViewMoment extends React.Component {
   }
 
   static propTypes = {
-    id              : PropTypes.string,
-    path            : PropTypes.string,
-    windowSize      : PropTypes.object,
-    accountUsername : PropTypes.string,
-    momentComments  : PropTypes.object,
-    momentDocuments : PropTypes.object,
-    playerStates    : PropTypes.object,
+    id                  : PropTypes.string,
+    path                : PropTypes.string,
+    windowSize          : PropTypes.object,
+    authenticationToken : PropTypes.string,
+    accountUsername     : PropTypes.string,
+    momentComments      : PropTypes.object,
+    momentDocuments     : PropTypes.object,
+    playerStates        : PropTypes.object,
   }
 
   static defaultProps = {
-    id              : '',
-    path            : '',
-    windowSize      : { },
-    accountUsername : '',
-    momentComments  : { },
-    momentDocuments : { },
-    playerStates    : { },
+    id                  : '',
+    path                : '',
+    windowSize          : { },
+    authenticationToken : '',
+    accountUsername     : '',
+    momentComments      : { },
+    momentDocuments     : { },
+    playerStates        : { },
   }
 
   componentDidMount() {
@@ -116,7 +118,7 @@ export default class AppModalViewMoment extends React.Component {
 
   render() {
 
-    const { id, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
+    const { id, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
     const sizes = this.getSizes();
     const { container: { width }, screen: { height } } = sizes;
 
@@ -174,7 +176,7 @@ export default class AppModalViewMoment extends React.Component {
           sizes={sizes}
         />
         <AppMomentDetails doc={doc} style={{ flex: 1, height, maxHeight: height }}>
-          <AppMomentListComments id={id} comments={comments} user={accountUsername} />
+          <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
         </AppMomentDetails>
       </AppLaunchSuccess>
 

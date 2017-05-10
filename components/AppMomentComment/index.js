@@ -133,7 +133,7 @@ export default class AppMomentComment extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
           color: #319aff;
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 300;
           text-decoration: none;
           cursor: pointer;

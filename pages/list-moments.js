@@ -133,6 +133,7 @@ class ListMoments extends React.Component {
         props={{
           id,
           windowSize,
+          authenticationToken,
           accountUsername,
           momentDocuments,
           momentComments,

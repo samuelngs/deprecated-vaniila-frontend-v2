@@ -8,6 +8,7 @@ import Router from 'next/router';
 import If from '../If';
 import IfElse from '../IfElse';
 import AfterEvent from '../AfterEvent';
+import AppMomentLoginComment from '../AppMomentLoginComment';
 import AppMomentLeaveComment from '../AppMomentLeaveComment';
 import AppMomentComments from '../AppMomentComments';
 import AppMomentNoComments from '../AppMomentNoComments';
@@ -22,15 +23,17 @@ export default class AppMomentListComments extends React.PureComponent {
   }
 
   static propTypes = {
-    id      : PropTypes.string,
-    comments: PropTypes.array,
-    user    : PropTypes.string,
+    id            : PropTypes.string,
+    comments      : PropTypes.array,
+    user          : PropTypes.string,
+    authenticated : PropTypes.bool,
   };
 
   static defaultProps = {
-    id      : '',
-    comments: [],
-    user    : '',
+    id            : '',
+    comments      : [],
+    user          : '',
+    authenticated : false,
   };
 
   state = {
@@ -53,7 +56,7 @@ export default class AppMomentListComments extends React.PureComponent {
 
   render() {
 
-    const { id, user, comments } = this.props;
+    const { id, user, comments, authenticated } = this.props;
     const { fetching } = this.state;
 
     return <div className="base">
@@ -87,7 +90,14 @@ export default class AppMomentListComments extends React.PureComponent {
       </If>
 
       {/* leave comment component */}
-      <AppMomentLeaveComment id={id} />
+      <If condition={authenticated}>
+        <AppMomentLeaveComment id={id} />
+      </If>
+
+      {/* sign in comment component */}
+      <If condition={!authenticated}>
+        <AppMomentLoginComment id={id} />
+      </If>
     </div>
   }
 

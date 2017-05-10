@@ -125,7 +125,7 @@ export default class AppMomentDetails extends React.PureComponent {
       `}</style>
       <header className="details-container">
         <div className="details-avatar">
-          <img className="details-avatar-image" src={avatar} />
+          <a href={`/${username}`} onClick={this.handleUsernamePress}><img className="details-avatar-image" src={avatar} /></a>
         </div>
         <div className="details-content">
           <h1 className="details-title">{ title || 'Draft' }</h1>

@@ -70,9 +70,13 @@ export default class AppMomentDetails extends React.PureComponent {
           height: 50px;
           width: 50px;
         }
+        .details-avatar a {
+          width: 38px;
+          height: 38px;
+        }
         .details-avatar-image {
-          height: 36px;
           width: 36px;
+          height: 36px;
           border: 1px solid rgba(0, 0, 0, 0.05);
           border-radius: 19px;
         }
@@ -85,6 +89,7 @@ export default class AppMomentDetails extends React.PureComponent {
           padding-bottom: 0;
           padding-left: 10px;
           padding-right: 10px;
+          flex: 1;
           display: flex;
           flex-direction: column;
           justify-content: center;

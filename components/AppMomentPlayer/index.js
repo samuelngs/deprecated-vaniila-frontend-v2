@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { TransitionMotion, spring } from 'react-motion';
 
+import If from '../If';
 import AppLiveIndicator from '../AppLiveIndicator';
 import AppMomentWhen from '../AppMomentWhen';
 import AppMomentPulse from '../AppMomentPulse';
@@ -249,7 +250,9 @@ export default class AppMomentPlayer extends React.PureComponent {
 
       <div className="live-indicator">
         <AppMomentPulse color="#59b7ff" active={live && pulse} />
-        { live && <AppLiveIndicator color="#59b7ff" fill={true} tint="#fff" /> }
+        <If condition={live}>
+          <AppLiveIndicator color="#59b7ff" fill={true} tint="#fff" />
+        </If>
       </div>
 
       <div className="moments" style={{ width, height, touchAction: mode === 'desktop' ? 'initial' : 'none' }} onTouchStart={this.handleTouchStart} onTouchMove={this.handleTouchMove} onTouchEnd={this.handleTouchEnd}>

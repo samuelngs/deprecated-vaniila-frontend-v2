@@ -8,8 +8,6 @@ import Router from 'next/router';
 import If from '../If';
 import IfElse from '../IfElse';
 import AfterEvent from '../AfterEvent';
-import AppMomentLoginComment from '../AppMomentLoginComment';
-import AppMomentLeaveComment from '../AppMomentLeaveComment';
 import AppMomentComments from '../AppMomentComments';
 import AppMomentNoComments from '../AppMomentNoComments';
 import AppMomentCommentPlaceholder from '../AppMomentCommentPlaceholder';
@@ -87,16 +85,6 @@ export default class AppMomentListComments extends React.PureComponent {
       {/* render comments after fetching */}
       <If condition={!fetching}>
         <IfElse condition={comments.length > 0} yes={<AppMomentComments id={id} comments={comments} user={user} />} no={<AppMomentNoComments />} />
-      </If>
-
-      {/* leave comment component */}
-      <If condition={authenticated}>
-        <AppMomentLeaveComment id={id} />
-      </If>
-
-      {/* sign in comment component */}
-      <If condition={!authenticated}>
-        <AppMomentLoginComment id={id} />
       </If>
     </div>
   }

@@ -3,13 +3,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 
+import If from '../If';
 import AppLaunchLoader from '../AppLaunchLoader';
 import AppLaunchSuccess from '../AppLaunchSuccess';
 import AppLaunchFail from '../AppLaunchFail';
 import AppMomentSync from '../AppMomentSync';
 import AppMomentViewer from '../AppMomentViewer';
 import AppMomentDetails from '../AppMomentDetails';
+import AppMomentStats from '../AppMomentStats';
 import AppMomentListComments from '../AppMomentListComments';
+import AppMomentLoginComment from '../AppMomentLoginComment';
+import AppMomentLeaveComment from '../AppMomentLeaveComment';
 
 import { api as momentReducerApi } from '../../reducers/moment';
 import { api as playerReducerApi } from '../../reducers/player';
@@ -126,7 +130,7 @@ export default class AppModalViewMoment extends React.Component {
     const player = playerStates[id];
     const comments = momentComments[id];
 
-    const { err, path, name } = (doc || { });
+    const { err, path, name, impressions, likes } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>
@@ -176,7 +180,23 @@ export default class AppModalViewMoment extends React.Component {
           sizes={sizes}
         />
         <AppMomentDetails doc={doc} style={{ flex: 1, height, maxHeight: height }}>
-          <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+
+          {/* stats component */}
+          <AppMomentStats impressions={impressions} likes={likes} />
+
+          {/* list users comments component */}
+          <AppMomentListComments id={id} modal={true} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+
+          {/* leave comment component */}
+          <If condition={!!authenticationToken}>
+            <AppMomentLeaveComment id={id} />
+          </If>
+
+          {/* sign in comment component */}
+          <If condition={!authenticationToken}>
+            <AppMomentLoginComment id={id} />
+          </If>
+
         </AppMomentDetails>
       </AppLaunchSuccess>
 

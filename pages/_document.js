@@ -14,6 +14,10 @@ export default class _Document extends Document {
     return <html>
       <Head>
         <style jsx global>{`
+          @font-face { font-family: 'Karla'; src: url('/static/fonts/karla/karla-regular-webfont.eot'); src: url('/static/fonts/karla/karla-regular-webfont.woff') format('woff'); font-weight: 400; font-style: normal; font-display: fallback; }
+          @font-face { font-family: 'Karla'; src: url('/static/fonts/karla/karla-italic-webfont.eot'); src: url('/static/fonts/karla/karla-italic-webfont.woff') format('woff'); font-weight: 400; font-style: italic; font-display: fallback; }
+          @font-face { font-family: 'Karla'; src: url('/static/fonts/karla/karla-bold-webfont.eot'); src: url('/static/fonts/karla/karla-bold-webfont.woff') format('woff'); font-weight: 700; font-style: normal; font-display: fallback; }
+          @font-face { font-family: 'Karla'; src: url('/static/fonts/karla/karla-bolditalic-webfont.eot'); src: url('/static/fonts/karla/karla-bolditalic-webfont.woff') format('woff'); font-weight: 700; font-style: italic; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_thinweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_thinweb.woff') format('woff'); font-weight: 200; font-style: normal; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_thinitweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_thinitweb.woff') format('woff'); font-weight: 200; font-style: italic; font-display: fallback; }
           @font-face { font-family: 'Proxima Nova'; src: url('/static/fonts/proxima_nova/proximanovaalt_lightweb.eot'); src: url('/static/fonts/proxima_nova/proximanovaalt_lightweb.woff') format('woff'); font-weight: 300; font-style: normal; font-display: fallback; }

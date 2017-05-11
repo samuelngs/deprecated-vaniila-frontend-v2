@@ -127,10 +127,54 @@ function retrieveMomentDocument(id) {
 }
 
 /**
+ * like moment
+ */
+function like(id) {
+  return function ( dispatch, getState ) {
+    const { authenticationToken } = getState();
+    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/likes`, {
+      method      : 'post',
+      credentials : 'include',
+      headers,
+    })
+    .then(res => res.json())
+    .then(doc => (doc.error ? Promise.reject(doc.error) : doc))
+    .then(
+      _   => dispatch(retrieveMomentDocument(id)),
+      err => ({ err }),
+    );
+  }
+}
+
+/**
+ * unlike moment
+ */
+function unlike(id) {
+  return function ( dispatch, getState ) {
+    const { authenticationToken } = getState();
+    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/likes`, {
+      method      : 'delete',
+      credentials : 'include',
+      headers,
+    })
+    .then(res => res.json())
+    .then(doc => (doc.error ? Promise.reject(doc.error) : doc))
+    .then(
+      _   => dispatch(retrieveMomentDocument(id)),
+      err => ({ err }),
+    );
+  }
+}
+
+/**
  * export store api
  */
 export const api = {
   retrieveMomentDocument,
+  like,
+  unlike,
 };
 
 export default {

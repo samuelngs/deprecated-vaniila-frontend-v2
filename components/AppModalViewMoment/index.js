@@ -130,7 +130,7 @@ export default class AppModalViewMoment extends React.Component {
     const player = playerStates[id];
     const comments = momentComments[id];
 
-    const { err, path, name, impressions, likes } = (doc || { });
+    const { err, path, name, impressions, likes, liked } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>
@@ -182,7 +182,7 @@ export default class AppModalViewMoment extends React.Component {
         <AppMomentDetails doc={doc} style={{ flex: 1, height, maxHeight: height }}>
 
           {/* stats component */}
-          <AppMomentStats impressions={impressions} likes={likes} />
+          <AppMomentStats id={id} impressions={impressions} likes={likes} liked={liked} authenticated={!!authenticationToken} />
 
           {/* list users comments component */}
           <AppMomentListComments id={id} modal={true} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />

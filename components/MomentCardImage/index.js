@@ -129,6 +129,7 @@ export default class MomentCardImage extends React.PureComponent {
   }
 
   getDarkenStyle() {
+    const { width, height } = this.props;
     return {
       width,
       height,

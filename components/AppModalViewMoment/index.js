@@ -130,7 +130,9 @@ export default class AppModalViewMoment extends React.Component {
     const player = playerStates[id];
     const comments = momentComments[id];
 
-    const { err, path, name, impressions, likes, liked } = (doc || { });
+    const { err, path, name, impressions, likes, liked, permissions } = (doc || { });
+    const { write, admin } = (permissions || { });
+
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>

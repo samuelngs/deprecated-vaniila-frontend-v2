@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
+import If from '../If';
 import MomentCardFallbackImage from '../MomentCardFallbackImage';
 import MomentCardMediaControls from '../MomentCardMediaControls';
 import MomentCardImageProgress from '../MomentCardImageProgress';
@@ -17,6 +18,7 @@ export default class MomentCardImage extends React.PureComponent {
       data      : PropTypes.string,
       styles    : PropTypes.array,
     }),
+    mode        : PropTypes.oneOf([ 'default', 'background' ]),
     total       : PropTypes.number,
     scale       : PropTypes.number,
     player      : PropTypes.bool,
@@ -38,6 +40,7 @@ export default class MomentCardImage extends React.PureComponent {
       data      : '',
       styles    : [ ],
     },
+    mode        : 'default',
     total       : 0,
     scale       : 1,
     player      : false,
@@ -65,9 +68,26 @@ export default class MomentCardImage extends React.PureComponent {
   }
 
   getStyle(type) {
-    const { player, fullscreen, height, width } = this.props;
+    const { mode, player, fullscreen, height, width } = this.props;
     return {
-      position: 'relative',
+      position: mode === 'background'
+        ? 'absolute'
+        : 'relative',
+      top: mode === 'background'
+        ? 0
+        : 'initial',
+      left: mode === 'background'
+        ? 0
+        : 'initial',
+      bottom: mode === 'background'
+        ? 0
+        : 'initial',
+      right: mode === 'background'
+        ? 0
+        : 'initial',
+      zIndex: mode === 'background'
+        ? -1
+        : 'initial',
       marginTop: fullscreen ? 0 : 10,
       marginBottom: fullscreen ? 0 : 10,
       marginLeft: 0,
@@ -115,7 +135,7 @@ export default class MomentCardImage extends React.PureComponent {
 
   render() {
 
-    const { position, block, files, width, height, fullscreen, player, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
+    const { mode, position, block, files, width, height, fullscreen, player, editmode, editorState: { editorStartKey, editorEndKey } } = this.props;
     const { key, type, data, styles } = block;
 
     const isImageSelected = (
@@ -152,7 +172,10 @@ export default class MomentCardImage extends React.PureComponent {
         { editmode && <MomentCardMediaControls active={isImageSelected} fullscreen={fullscreen} onChange={this.onChange} /> }
         <MomentCardImageProgress active={isLocal && !!file && !!progress && !file.url} progress={progress} />
         <MomentCardFallbackImage
+          key={key}
           src={src}
+          mode={mode === 'background' ? 'cover' : 'contain'}
+          reload={mode !== 'background'}
           srchd={srchd}
           player={player}
           cover={fullscreen}
@@ -165,6 +188,9 @@ export default class MomentCardImage extends React.PureComponent {
           style={this.getImageStyle(isLocal && !!file && !!progress && !file.url)}
           draggable={false}
         />
+        <If condition={mode === 'background'}>
+          <div style={{ position: 'absolute', width, height, backgroundColor: 'rgba(0, 0, 0, 0.8)' }} />
+        </If>
       </figure>;
     }
 
@@ -179,6 +205,9 @@ export default class MomentCardImage extends React.PureComponent {
         style={this.getImageStyle(isLocal && !!file && !!progress && !file.url)}
         draggable={false}
       />
+      <If condition={mode === 'background'}>
+        <div style={{ position: 'absolute', width, height, backgroundColor: 'rgba(0, 0, 0, 0.8)' }} />
+      </If>
     </figure>;
 
   }

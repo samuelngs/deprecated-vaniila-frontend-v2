@@ -40,7 +40,48 @@ export default function onImageInsert(blob) {
   clone.data.blocks = (clone.data.blocks || [ ]);
 
   if ( id === 'cover' ) {
-    return;
+
+    const progress = state => {
+      const { name, type, progress, error } = state;
+      const update = {
+        name,
+        type,
+        progress,
+      };
+      if ( error ) update.error = error;
+      onProgress(id, update);
+    }
+
+    const callback = state => {
+      const { present: doc } = getState().editorHistories[root];
+      if ( !doc ) return;
+
+      const clone = { };
+      deepClone(clone, moment);
+
+      clone.hash = `${Date.now()}`;
+
+      if ( state.error ) {
+        clone.bg = '';
+      } else {
+        clone.bg = state.url;
+      }
+
+      return Promise.resolve(onChange(id, clone));
+    }
+
+    return dispatch(filesReducerApi.upload(blob, callback, progress)).then(file => {
+
+      clone.hash = `${Date.now()}`;
+
+      if ( file.url ) {
+        clone.bg = file.url;
+      } else {
+        clone.bg = `local:${file.name}`;
+      }
+
+      return Promise.resolve(onChange(id, clone));
+    });
   }
 
   // retrieve moment blocks
@@ -135,6 +176,8 @@ export default function onImageInsert(blob) {
   }
 
   return dispatch(filesReducerApi.upload(blob, callback, progress)).then(file => {
+
+    clone.hash = `${Date.now()}`;
 
     if ( file.url ) {
       newImageBlock.data = file.url;

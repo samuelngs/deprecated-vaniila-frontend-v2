@@ -99,7 +99,7 @@ export default class AppMomentViewer extends React.PureComponent {
 
   cover() {
     const { doc, modal } = this.props;
-    const { livestream, created_at, started_at } = doc;
+    const { name, background, livestream, created_at, started_at } = doc;
     return {
       id      : 'cover',
       index   : -1,
@@ -113,17 +113,24 @@ export default class AppMomentViewer extends React.PureComponent {
         blocks: [
           {
             key   : 'cover',
-            type  : modal && !doc.name
+            type  : modal && !name
               ? 'header-two'
               : 'header-one',
-            data  : doc.name || '',
+            data  : name || '',
+            styles: background ? [{ offset: 0, length: (name || '').length, style: 'COLOR:#fff' }] : [ ],
+          },
+          background && {
+            key   : 'cover-image',
+            type  : 'image',
+            data  : background,
             styles: [ ],
-          }
-        ]
+          },
+        ].filter(n => n),
       },
       style   : { },
       align   : 1,
       order   : -1,
+      bg      : background,
     };
   }
 
@@ -134,7 +141,8 @@ export default class AppMomentViewer extends React.PureComponent {
 
     const { doc, moments: ids, current, currentIndex, next: nid, nextIndex, previous: pid, previousIndex, hasNext, hasPrevious } = this.props;
     const moments = ((((doc || { }).document || { }).data || { }).slides || { });
-    const { livestream, created_at, started_at, ended_at } = (doc || { });
+    const { permissions, livestream, created_at, started_at, ended_at } = (doc || { });
+    const { admin = false, write = false, read = true } = (permissions || { });
 
     const livestreamStartedAt = new Date(started_at || created_at).getTime();
     const livestreamEndedAt = new Date(ended_at).getTime();
@@ -182,13 +190,13 @@ export default class AppMomentViewer extends React.PureComponent {
       )
       : null;
 
-    return { moment, next, previous, begins, ends };
+    return { moment, next, previous, begins, ends, permissions: { admin, write, read } };
   }
 
   render() {
     const { id, sizes, modal, live, pulse, moments, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex } = this.props;
     const { hover } = this.state;
-    const { moment, next, previous, begins, ends } = this.doc();
+    const { moment, next, previous, begins, ends, permissions } = this.doc();
     return <div className={ modal ? "base base-modal" : "base" }>
       <style jsx>{`
         .base {
@@ -227,6 +235,7 @@ export default class AppMomentViewer extends React.PureComponent {
           modal={modal}
           live={live}
           pulse={pulse}
+          permissions={permissions}
           hover={hover}
           begins={begins}
           ends={ends}

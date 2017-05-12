@@ -91,8 +91,40 @@ class ListMoments extends React.Component {
   renderMomentItem = ({ id, author, name }, i) => {
     return <li key={i} className="item">
       <style jsx>{`
-        .item + .item {
-          margin-top: 20px;
+        .item {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          list-style: none;
+          flex: 1;
+          flex-basis: 100%;
+          max-width: 416px;
+          width: 416px;
+          height: 312px;
+          border-radius: 4px;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+          background-color: #fff;
+        }
+        @media (max-width: 900px) {
+          .item + .item {
+            margin-top: 20px;
+          }
+        }
+        @media (min-width: 900px) {
+          .item {
+            flex-basis: 50%;
+          }
+          .item + .item { margin-left: 40px; }
+        }
+        @media (min-width: 1400px) {
+          .item {
+            flex-basis: 33.3333%;
+          }
         }
       `}</style>
       <h3>{ name || 'Draft' }</h3>
@@ -109,7 +141,33 @@ class ListMoments extends React.Component {
 
       <style jsx>{`
         .container {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: auto;
+          margin-right: auto;
           padding-top: 80px;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          width: 416px;
+          max-width: 100%;
+          max-width: calc(100% - 40px);
+        }
+        .moments-list {
+          display: flex;
+          justify-content: flex-start;
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        @media (min-width: 900px) {
+          .container {
+            width: 872px;
+          }
+        }
+        @media (min-width: 1400px) {
+          .container {
+            width: 1328px;
+          }
         }
       `}</style>
 
@@ -121,8 +179,7 @@ class ListMoments extends React.Component {
       <WindowObserver />
 
       <div className="container">
-        <h1>Your Moments: { username }</h1>
-        <ul>{ moments.map(this.renderMomentItem) }</ul>
+        <ul className="moments-list">{ moments.map(this.renderMomentItem) }</ul>
       </div>
 
       <AppModal

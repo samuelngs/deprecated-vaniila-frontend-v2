@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 
 import { MomentEditHandler, MomentCompositionHandler, defaultState } from './handlers';
 import MomentEditorHook from './hooks';
+
+import If from '../If';
 import MomentCardControls from '../MomentCardControls';
 import MomentCardDetails from '../MomentCardDetails';
 import MomentCardText from '../MomentCardText';
@@ -287,6 +289,19 @@ export default class MomentCard extends React.PureComponent {
   }
 
   /**
+   * get cover image block
+   */
+  getCoverBlock() {
+    const { moment: { bg } } = this.props;
+    return {
+      key   : 'background',
+      type  : 'image',
+      data  : bg,
+      styles: [ ],
+    }
+  }
+
+  /**
    * render blocks
    */
   renderBlocks(blocks) {
@@ -349,7 +364,7 @@ export default class MomentCard extends React.PureComponent {
    */
   renderBlock(blocks, block, i) {
 
-    const { scale, placeholder, moment: { parent }, player, editmode, width, height, files, editorState } = this.props;
+    const { id, scale, placeholder, moment: { parent }, player, editmode, width, height, files, editorState } = this.props;
     const { key, type, data } = block;
 
     switch ( type ) {
@@ -375,6 +390,7 @@ export default class MomentCard extends React.PureComponent {
       case 'image':
         return <MomentCardImage
           key={key}
+          mode={id === 'cover' ? 'background' : 'default'}
           position={i}
           block={block}
           total={blocks.length}
@@ -383,7 +399,7 @@ export default class MomentCard extends React.PureComponent {
           editmode={editmode}
           width={width}
           height={height}
-          fullscreen={parent === key}
+          fullscreen={parent === key || id === 'cover'}
           files={files}
           editorState={editorState}
           onSelect={this.handleSelectAction}
@@ -432,10 +448,11 @@ export default class MomentCard extends React.PureComponent {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, player, editmode, gridview, moment, editorState, width } = this.props;
+    const { id, no, total, scale, cover, player, editmode, gridview, moment, editorState, files, width, height } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const when = moment.when;
     const fullscreen = !!moment.parent;
+    const bg = (moment && moment.bg);
     const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();

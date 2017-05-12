@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import If from '../If';
 import { Motion, spring } from 'react-motion';
 
 function isHighDensity() {
@@ -25,19 +26,23 @@ export default class MomentCardFallbackImage extends React.PureComponent {
   static propTypes = {
     src   : PropTypes.string,
     srchd : PropTypes.string,
+    mode  : PropTypes.oneOf([ 'contain', 'cover' ]),
     player: PropTypes.bool,
     cover : PropTypes.bool,
     width : PropTypes.number,
     height: PropTypes.number,
+    reload: PropTypes.bool,
   }
 
   static defaultProps = {
     src   : null,
     srchd : null,
+    mode  : 'contain',
     player: false,
     cover : false,
     width : 0,
     height: 0,
+    reload: true,
   }
 
   state = {
@@ -127,7 +132,7 @@ export default class MomentCardFallbackImage extends React.PureComponent {
   }
 
   renderFallback() {
-    const { src, srchd, cover, player, className, ...props } = this.props;
+    const { src, srchd, mode, reload, cover, player, className, ...props } = this.props;
     const scale = isHighDensity()
       ? 'image-2x'
       : 'image-1x';
@@ -171,12 +176,14 @@ export default class MomentCardFallbackImage extends React.PureComponent {
           color: #084bd7;
         }
       `}</style>
-      <button className="reload-btn no-select">RELOAD IMAGE</button>
+      <If condition={reload}>
+        <button className="reload-btn no-select">RELOAD IMAGE</button>
+      </If>
     </div>
   }
 
   renderCoverImage() {
-    const { src, srchd, cover, player, width, height, style, ...props } = this.props;
+    const { src, srchd, mode, reload, cover, player, width, height, style, ...props } = this.props;
     const { progressiveLoadedSuccessful, regularLoadedSuccessful, allLoadedSuccessful, progressiveHasCache, regularHasCache } = this.state;
     const source = srchd || src;
     return <div style={{
@@ -194,7 +201,7 @@ export default class MomentCardFallbackImage extends React.PureComponent {
             opacity: progressiveHasCache && regularHasCache ? 1 : opacity,
             backgroundImage: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && `url(${source})`,
             backgroundPosition: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'center',
-            backgroundSize: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'contain',
+            backgroundSize: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && mode,
             backgroundRepeat: ( regularLoadedSuccessful || source.indexOf('data:') === 0 ) && 'no-repeat',
           }} />
         )}
@@ -203,7 +210,7 @@ export default class MomentCardFallbackImage extends React.PureComponent {
   }
 
   renderImage() {
-    const { src, srchd, cover, player, width, height, style, ...props } = this.props;
+    const { src, srchd, mode, reload, cover, player, width, height, style, ...props } = this.props;
     const { regularLoadedSuccessful } = this.state;
     const source = srchd || src;
     return <Motion style={{ opacity: spring(regularLoadedSuccessful === true || source.indexOf('data:') === 0 ? 1 : 0) }}>

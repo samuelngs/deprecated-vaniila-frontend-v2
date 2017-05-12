@@ -68,11 +68,11 @@ class EditMoment extends React.Component {
   componentWillMount() {
 
     const { err, username, id, momentDocuments } = this.props;
-    const { cover: { data: { blocks: [ { data: title }, ...etc ] } } } = this.state;
+    const { cover: { bg, data: { blocks: [ { data: title }, ...etc ] } } } = this.state;
 
     if ( !momentDocuments[id] ) return;
 
-    const { name, path, author: { username: author } } = momentDocuments[id];
+    const { name, background, path, author: { username: author } } = momentDocuments[id];
 
     if ( typeof window !== 'undefined' && `${username}/${id}/edit` !== `${author}/${id}/edit` ) {
       return Router.replace({
@@ -81,8 +81,8 @@ class EditMoment extends React.Component {
       }, `/${path}/edit`);
     }
 
-    if ( title !== name ) {
-      return this.onCover({ data: { title: name } })
+    if ( title !== name || bg !== background ) {
+      return this.onCover({ data: { title: name, bg: background } })
     }
   }
 
@@ -132,16 +132,26 @@ class EditMoment extends React.Component {
   /**
    * handler for the moment cover sync event
    */
-  onCover({ data: { title } }) {
+  onCover({ data: { title, bg } }, cb) {
 
     const { cover } = this.state;
 
     const clone = { };
     deepClone(clone, cover);
 
+    clone.bg = bg;
     clone.data.blocks[0].data = title;
 
-    return this.setState({ cover: clone });
+    if ( clone.bg ) {
+      clone.data.blocks = [
+        { ...clone.data.blocks[0], styles: [{ offset: 0, length: title.length, style: 'COLOR:#fff' }] },
+        { key: 'cover-image', type: 'image', data: clone.bg, styles: [ ] },
+      ];
+    } else {
+      clone.data.blocks = [{ ...clone.data.blocks[0], styles: [{ offset: 0, length: title.length, style: 'COLOR:#000' }] }];
+    }
+
+    return this.setState({ cover: clone }, cb);
   }
 
   /**
@@ -277,18 +287,19 @@ class EditMoment extends React.Component {
    */
   onMomentCoverChange(moment, state) {
 
-    const { data: { blocks: [ { data: title }, ...etc ] } } = state;
+    const { bg, data: { blocks: [ { data: title }, ...etc ] } } = state;
 
     // prepare websocket payload for 'cover' event
     const payload = {
       action  : 'cover',
       time    : new Date(),
       title,
+      bg,
     };
 
-    return this.setState({ cover: state }, e => {
+    return this.onCover({ data: { title, bg } }, e => {
       return this.emit(payload);
-    });
+    })
   }
 
   /**

@@ -74,6 +74,8 @@ export default class AppMomentStats extends React.PureComponent {
           padding-left: 22px;
           padding-right: 22px;
           flex: 1;
+          flex-grow: 1;
+          flex-shrink: 1;
           display: flex;
           flex-direction: row;
           align-items: center;

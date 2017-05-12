@@ -6,6 +6,7 @@ import { TransitionMotion, spring } from 'react-motion';
 
 import If from '../If';
 import AppLiveIndicator from '../AppLiveIndicator';
+import AppMomentEdit from '../AppMomentEdit';
 import AppMomentWhen from '../AppMomentWhen';
 import AppMomentPulse from '../AppMomentPulse';
 import AppMomentPrevious from '../AppMomentPrevious';
@@ -20,6 +21,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     modal           : PropTypes.bool,
     live            : PropTypes.bool,
     pulse           : PropTypes.bool,
+    permissions     : PropTypes.object,
     hover           : PropTypes.bool,
     begins          : PropTypes.number,
     ends            : PropTypes.number,
@@ -42,6 +44,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     modal           : false,
     live            : false,
     pulse           : false,
+    permissions     : { },
     hover           : false,
     begins          : -1,
     ends            : -1,
@@ -170,6 +173,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       momentIndex,
       nextMoment,
       prevMoment,
+      permissions: { admin, write, read },
       live,
       pulse,
       sizes: { player: { width, height, ratio, mode } },
@@ -214,7 +218,6 @@ export default class AppMomentPlayer extends React.PureComponent {
           z-index: 20;
           display: flex;
           flex-direction: row;
-          align-items: center;
         }
         .live-indicator {
           position: absolute;

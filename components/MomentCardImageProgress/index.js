@@ -29,6 +29,7 @@ export default class MomentCardImageProgress extends React.PureComponent {
           border-radius: 4px;
           background-color: rgba(0, 0, 0, 0.5);
           overflow: hidden;
+          z-index: 1;
         }
         .progress {
           width: 0%;

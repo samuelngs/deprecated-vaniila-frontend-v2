@@ -128,6 +128,17 @@ export default class MomentCardImage extends React.PureComponent {
     }
   }
 
+  getDarkenStyle() {
+    return {
+      width,
+      height,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    }
+  }
+
   onChange = type => {
     const { block: { key }, onChange } = this.props;
     return onChange(type, key);
@@ -189,7 +200,7 @@ export default class MomentCardImage extends React.PureComponent {
           draggable={false}
         />
         <If condition={mode === 'background'}>
-          <div style={{ position: 'absolute', width, height, backgroundColor: 'rgba(0, 0, 0, 0.8)' }} />
+          <div style={this.getDarkenStyle()} />
         </If>
       </figure>;
     }
@@ -206,7 +217,7 @@ export default class MomentCardImage extends React.PureComponent {
         draggable={false}
       />
       <If condition={mode === 'background'}>
-        <div style={{ position: 'absolute', width, height, backgroundColor: 'rgba(0, 0, 0, 0.8)' }} />
+        <div style={this.getDarkenStyle()} />
       </If>
     </figure>;
 

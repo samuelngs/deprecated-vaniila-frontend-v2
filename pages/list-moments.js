@@ -59,7 +59,7 @@ class ListMoments extends React.Component {
 
     e.preventDefault();
 
-    const { serverPath, serverPathname, serverQuery, serverParams } = this.props;
+    const { serverPath, serverPathname, serverQuery, username } = this.props;
     const mode = this.mode();
 
     if ( serverQuery.id ) {
@@ -71,7 +71,7 @@ class ListMoments extends React.Component {
       case 'desktop':
         return Router.push({
           pathname: serverPathname,
-          query   : { ...serverParams, ...serverQuery, id, username: author },
+          query   : { ...serverQuery, id, username },
         }, `/${author}/${id}`);
 
       case 'mobile':

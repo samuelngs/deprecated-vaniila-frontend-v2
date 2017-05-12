@@ -88,8 +88,12 @@ class ListMoments extends React.Component {
     return Router.back();
   }
 
-  renderMomentItem = ({ id, author, name }, i) => {
-    return <li key={i} className="item">
+  renderMomentItem = ({ id, author, name, background }, i) => {
+    return <li key={i} className="item" style={{
+      backgroundImage: background && `url(${CDN_URL}/${background}/cover)`,
+      backgroundSize: background && 'cover',
+      backgroundPosition: 'center',
+    }}>
       <style jsx>{`
         .item {
           margin-top: 0;
@@ -101,6 +105,7 @@ class ListMoments extends React.Component {
           padding-left: 0;
           padding-right: 0;
           list-style: none;
+          display: flex;
           flex: 1;
           flex-basis: 100%;
           max-width: 416px;
@@ -109,6 +114,25 @@ class ListMoments extends React.Component {
           border-radius: 4px;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
           background-color: #fff;
+          overflow: hidden;
+        }
+        .item .item-link-cover {
+          background-color: rgba(0, 0, 0, 0.8);
+        }
+        .item a {
+          display: flex;
+          flex: 1;
+          justify-content: center;
+          align-items: center;
+          text-decoration: none;
+        }
+        .item a span {
+          font-size: 1.4em;
+          font-weight: 500;
+          color: #000;
+        }
+        .item a span.item-title-cover {
+          color: #fff;
         }
         @media (max-width: 900px) {
           .item + .item {
@@ -116,19 +140,19 @@ class ListMoments extends React.Component {
           }
         }
         @media (min-width: 900px) {
-          .item {
-            flex-basis: 50%;
-          }
+          .item { flex-basis: 50%; }
           .item + .item { margin-left: 40px; }
+          .item:nth-child(2n + 1) { margin-left: 0px; }
         }
         @media (min-width: 1400px) {
-          .item {
-            flex-basis: 33.3333%;
-          }
+          .item { flex-basis: 33.3333%; }
+          .item:nth-child(2n + 1) { margin-left: 40px; }
+          .item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
-      <h3>{ name || 'Draft' }</h3>
-      <a href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>Go to moment</a>
+      <a className={ background ? "item-link item-link-cover" : "item-link" } href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>
+        <span className={ background ? "item-title item-title-cover" : "item-title" }>{ name || 'Draft' }</span>
+      </a>
     </li>
   }
 

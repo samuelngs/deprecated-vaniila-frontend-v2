@@ -221,11 +221,14 @@ export default class AppMomentViewer extends React.PureComponent {
           padding-left: 0;
           padding-bottom: 0;
           padding-right: 0;
+          background-color: #f8f8f8;
+        }
+        .player-modal-container {
           background-color: #fff;
         }
       `}</style>
       <div
-        className="player-container"
+        className={ modal ? "player-container player-modal-container" : "player-container" }
         onMouseEnter={this.onPlayerEnter}
         onMouseLeave={this.onPlayerLeave}
         onMouseMove={this.onPlayerEnter}

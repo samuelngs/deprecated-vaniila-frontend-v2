@@ -11,12 +11,14 @@ export default class AppMomentDetails extends React.PureComponent {
 
   static propTypes = {
     doc     : PropTypes.object,
+    modal   : PropTypes.bool,
     children: PropTypes.node,
     style   : PropTypes.object,
   }
 
   static defaultProps = {
     doc     : { },
+    modal   : false,
     children: null,
     style   : undefined,
   }
@@ -41,13 +43,19 @@ export default class AppMomentDetails extends React.PureComponent {
   }
 
   render() {
-    const { doc, children, style } = this.props;
+    const { doc, modal, children, style } = this.props;
     const { name: title, author: { avatar, name, username } } = doc;
-    return <div className="base" style={style}>
+    return <div className={ modal ? "base base-modal" : "base" } style={style}>
       <style jsx>{`
         .base {
           display: flex;
           flex-direction: column;
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .base-modal {
           border-left: 1px solid rgba(0, 0, 0, 0.05);
         }
         .details-container {

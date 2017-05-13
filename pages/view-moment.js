@@ -8,6 +8,8 @@ import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
 import AppMomentSync from '../components/AppMomentSync';
 import AppMomentViewer from '../components/AppMomentViewer';
+import AppMomentDetails from '../components/AppMomentDetails';
+import AppMomentListComments from '../components/AppMomentListComments';
 import AppLaunchLoader from '../components/AppLaunchLoader';
 import AppLaunchSuccess from '../components/AppLaunchSuccess';
 import AppLaunchFail from '../components/AppLaunchFail';
@@ -23,8 +25,8 @@ class ViewMoment extends React.Component {
     return { err, query };
   }
 
-  static observe ({ authenticationToken, momentDocuments, playerStates, windowSize }) {
-    return { authenticationToken, momentDocuments, playerStates, windowSize };
+  static observe ({ authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize }) {
+    return { authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize };
   }
 
   state = {
@@ -78,7 +80,7 @@ class ViewMoment extends React.Component {
     };
 
     if ( res.player.width >= defaults.maxHeight ) {
-      res.player.width = Math.ceil(res.player.width * .8);
+      res.player.width = Math.ceil(res.player.width * .7);
       res.player.ratio = res.player.width / defaults.maxWidth;
       let h = Math.ceil(defaults.maxHeight * res.player.ratio);
       res.player.height = res.player.height > h
@@ -104,14 +106,16 @@ class ViewMoment extends React.Component {
 
   render () {
 
-    const { query: { id }, momentDocuments, playerStates } = this.props;
+    const { query: { id }, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
     const doc = momentDocuments[id];
     const player = playerStates[id];
+    const comments = momentComments[id];
 
     const { err, path, name } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
+    const { player: { width } } = sizes;
 
     return <div>
 
@@ -131,11 +135,13 @@ class ViewMoment extends React.Component {
       <AppLaunchLoader loading={!doc && !err} sizes={sizes} />
 
       <AppLaunchSuccess success={doc && !err}>
+
         <AppMomentSync
           id={id}
           path={path}
           pulse={playerPulse}
         />
+
         <AppMomentViewer
           id={id}
           doc={doc}
@@ -154,6 +160,11 @@ class ViewMoment extends React.Component {
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
         />
+
+        <AppMomentDetails doc={doc} style={{ width, marginLeft: 'auto', marginRight: 'auto' }}>
+          <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+        </AppMomentDetails>
+
       </AppLaunchSuccess>
 
       <AppLaunchFail failure={doc && err}>

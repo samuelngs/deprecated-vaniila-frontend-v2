@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Link from 'next/link';
 import Router from 'next/router';
 
+import If from '../If';
 import AppHeaderLogo from '../AppHeaderLogo';
 import AppHeaderMenu from '../AppHeaderMenu';
 import AppModal from '../AppModal';
@@ -210,56 +211,78 @@ export default class AppHeader extends React.Component {
         }
       `}</style>
       <nav className="header-nav header-grid">
-        { authenticationToken && <div className="header-grid-column-4 header-grid-column-al">
-          <button className="header-nav-button" onClick={this.handleHeaderMenuPress}>
-            <AppHeaderMenu active={active} />
-          </button>
-          <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
-            <li className="header-nav-li">
-              <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
-            </li>
-            <li className="header-nav-li">
-              <Link href={{ pathname: '/list-moments', query: { username: accountUsername }}} as={`/${accountUsername}`}><a className={ (serverPath || '').indexOf(`/${accountUsername}`) === 0 ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Your Moments</a></Link>
-            </li>
-            <li className="header-nav-li">
-              <a className={ serverPath === `/new` ? "header-nav-a header-nav-a-active" : "header-nav-a" } href="/new" onClick={this.handleNewMomentPress}>Create a Moment</a>
-            </li>
-          </ul>
-        </div> }
-        { !authenticationToken && <div className="header-grid-column-4 header-grid-column-al">
-          <button className="header-nav-button" onClick={this.handleHeaderMenuPress}>
-            <AppHeaderMenu active={active} />
-          </button>
-          <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
-            <li className="header-nav-li">
-              <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
-            </li>
-            <li className="header-nav-li">
-              <Link href="/landing" as="/about-us"><a className={ serverPath === '/about-us' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Learn More</a></Link>
-            </li>
-          </ul>
-        </div> }
+
+        {/* left menu items when logged in */}
+        <If condition={!!authenticationToken}>
+          <div className="header-grid-column-4 header-grid-column-al">
+            <button className="header-nav-button" onClick={this.handleHeaderMenuPress}>
+              <AppHeaderMenu active={active} />
+            </button>
+            <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
+              <li className="header-nav-li">
+                <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
+              </li>
+              <li className="header-nav-li">
+                <Link href={{ pathname: '/list-moments', query: { username: accountUsername }}} as={`/${accountUsername}`}><a className={ (serverPath || '').indexOf(`/${accountUsername}`) === 0 ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Your Moments</a></Link>
+              </li>
+              <li className="header-nav-li">
+                <a className={ serverPath === `/new` ? "header-nav-a header-nav-a-active" : "header-nav-a" } href="/new" onClick={this.handleNewMomentPress}>Create a Moment</a>
+              </li>
+            </ul>
+          </div>
+        </If>
+
+        {/* left menu items when guest */}
+        <If condition={!authenticationToken}>
+          <div className="header-grid-column-4 header-grid-column-al">
+            <button className="header-nav-button" onClick={this.handleHeaderMenuPress}>
+              <AppHeaderMenu active={active} />
+            </button>
+            <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
+              <li className="header-nav-li">
+                <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
+              </li>
+              <li className="header-nav-li">
+                <Link href="/landing" as="/about-us"><a className={ serverPath === '/about-us' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Learn More</a></Link>
+              </li>
+            </ul>
+          </div>
+        </If>
+
+        {/* logo container */}
         <div className="header-grid-column-1 header-grid-column-ac">
           <AppHeaderLogo headerHeight={AppHeader.cssVariables.headerHeight} />
         </div>
-        { authenticationToken && <div className="header-grid-column-4 header-grid-column-ar">
-          <ul className="header-nav-ul">
-            <li className="header-nav-li">
-              <Link href="/signout" as="/signout"><a className="header-nav-a">Sign out</a></Link>
-            </li>
-          </ul>
-        </div> }
-        { !authenticationToken && <div className="header-grid-column-4 header-grid-column-ar">
-          <ul className="header-nav-ul">
-            <li className="header-nav-li">
-              <Link href="/signin" as="/signin"><a className="header-nav-a">Sign In</a></Link>
-            </li>
-          </ul>
-        </div> }
+
+        {/* user left menu */}
+        <If condition={!!authenticationToken}>
+          <div className="header-grid-column-4 header-grid-column-ar">
+            <ul className="header-nav-ul">
+              <li className="header-nav-li">
+                <Link href="/signout" as="/signout"><a className="header-nav-a">Sign out</a></Link>
+              </li>
+            </ul>
+          </div>
+        </If>
+
+        {/* guest left menu */}
+        <If condition={!authenticationToken}>
+          <div className="header-grid-column-4 header-grid-column-ar">
+            <ul className="header-nav-ul">
+              <li className="header-nav-li">
+                <Link href="/signin" as="/signin"><a className="header-nav-a">Sign In</a></Link>
+              </li>
+            </ul>
+          </div>
+        </If>
+
       </nav>
+
+      {/* new moment modal screen */}
       <AppModal color="#fff" active={!!serverQuery.new} dismiss={this.handleNewMomentDismiss}>
         <AppModalNewMoment />
       </AppModal>
+
     </header>
   }
 

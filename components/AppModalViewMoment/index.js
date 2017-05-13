@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Head from 'next/head';
 
 import If from '../If';
+import AfterEvent from '../AfterEvent';
 import AppLaunchLoader from '../AppLaunchLoader';
 import AppLaunchSuccess from '../AppLaunchSuccess';
 import AppLaunchFail from '../AppLaunchFail';
@@ -46,18 +47,22 @@ export default class AppModalViewMoment extends React.Component {
     playerStates        : { },
   }
 
-  componentDidMount() {
-    const { id } = this.props;
-    const { store } = this.context;
-    store.dispatch(momentReducerApi.retrieveMomentDocument(id));
+  state = {
+    fetching: true,
   }
 
-  componentWillUpdate({ id }) {
-    const { id: prev } = this.props;
+  handleFetchMoment = e => {
+    const { id } = this.props;
     const { store } = this.context;
-    if ( prev !== id ) {
-      store.dispatch(momentReducerApi.retrieveMomentDocument(id));
-    }
+    return new Promise(resolve => {
+      this.setState(state => !state.fetching && { fetching: true }, _ => {
+        store.dispatch(momentReducerApi.retrieveMomentDocument(id)).then(resolve);
+      });
+    });
+  }
+
+  handleFetchMomentComplete = o => {
+    this.setState(state => state.fetching && { fetching: false });
   }
 
   handleNextMoment = e => {
@@ -122,6 +127,7 @@ export default class AppModalViewMoment extends React.Component {
 
   render() {
 
+    const { fetching } = this.state;
     const { id, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
     const sizes = this.getSizes();
     const { container: { width }, screen: { height } } = sizes;
@@ -151,17 +157,24 @@ export default class AppModalViewMoment extends React.Component {
         }
       `}</style>
 
-      <AppLaunchLoader loading={!doc && !err} sizes={sizes} />
+      {/* attach fetch comments event */}
+      <AfterEvent id={id} run={this.handleFetchMoment} then={this.handleFetchMomentComplete} />
 
-      <AppLaunchSuccess modal={true} success={doc && !err}>
+      <AppLaunchLoader loading={fetching} sizes={sizes} />
+
+      <AppLaunchSuccess modal={true} success={!fetching && doc && !err}>
         <Head>
           <title>{ name || 'There\'s nothing here, yet 🙌' }</title>
         </Head>
+
+        {/* moment websocket sync component */}
         <AppMomentSync
           id={id}
           path={path}
           pulse={playerPulse}
         />
+
+        {/* moment viewer component */}
         <AppMomentViewer
           id={id}
           doc={doc}
@@ -181,7 +194,8 @@ export default class AppModalViewMoment extends React.Component {
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
         />
-        <AppMomentDetails doc={doc} style={{ flex: 1, height, maxHeight: height }}>
+
+        <AppMomentDetails modal={true} doc={doc} style={{ flex: 1, height, maxHeight: height }}>
 
           {/* stats component */}
           <AppMomentStats id={id} impressions={impressions} likes={likes} liked={liked} authenticated={!!authenticationToken} />
@@ -202,7 +216,7 @@ export default class AppModalViewMoment extends React.Component {
         </AppMomentDetails>
       </AppLaunchSuccess>
 
-      <AppLaunchFail failure={doc && err}>
+      <AppLaunchFail failure={!fetching && doc && err}>
         { err }
       </AppLaunchFail>
 

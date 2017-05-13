@@ -91,8 +91,7 @@ export default class AppMomentNext extends React.PureComponent {
             padding-right: 16px;
             width: 24px;
             height: 24px;
-            fill: #83c8e1;
-            background-color: #f0fbfc;
+            fill: #999;
             border-radius: 50px;
           }
           @media (min-width: 768px) {

@@ -92,7 +92,7 @@ class ViewMoment extends React.Component {
       res.player.ratio = res.player.ratio > r
         ? r *= .7
         : res.player.ratio;
-      res.player.height -= 47;
+      res.player.height -= 87;
       res.player.mode = 'mobile';
     }
 

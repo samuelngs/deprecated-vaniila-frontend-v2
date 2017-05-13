@@ -20,6 +20,7 @@ export default class AppMomentNoComments extends React.PureComponent {
           padding-bottom: 18px;
           padding-left: 0;
           padding-right: 0;
+          min-height: 110px;
         }
         h4 {
           margin-top: 0;

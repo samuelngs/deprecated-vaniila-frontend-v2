@@ -81,7 +81,7 @@ export default class AppMomentPlayer extends React.PureComponent {
   }
 
   handleTouchMove = e => {
-    const { sizes: { player: { mode } } } = this.props;
+    const { sizes: { player: { width, mode } } } = this.props;
     const { touches } = this.state;
     if ( mode !== 'mobile' || !touches ) return;
 
@@ -89,6 +89,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
 
     const cx = e.targetTouches[0].pageX;
+
     this.setState(state => state.touches && { cx });
   }
 
@@ -101,7 +102,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
 
     const dis = cx - sx;
-    const abs = Math.abs(cx - sx);
+    const abs = Math.abs(dis);
     if ( abs > width / 3 ) {
       if ( dis > 0 && hasPrevious ) {
         onPrevious();

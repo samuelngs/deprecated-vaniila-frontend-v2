@@ -7,6 +7,7 @@ import Codes from '../shared/Codes.js';
 export default function onKeyDown(e) {
   e.persist && e.persist();
 
+  const { id, root, store: { getState } } = this;
   const { which } = e;
 
   switch ( which ) {
@@ -14,6 +15,11 @@ export default function onKeyDown(e) {
     case Codes.ENTER:
       e.preventDefault && e.preventDefault();
       if ( e.ctrlKey || e.metaKey ) {
+        const { livestream, started_at: startedAt, ended_at: endedAt } = (getState().momentDocuments[root] || { });
+        const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() < 0;
+        if ( streaming ) {
+          return this.emit('edit', 'publish-moment');
+        }
         return this.emit('edit', 'append-moment');
       }
       return this.emit('edit', 'insert-newline');

@@ -159,6 +159,9 @@ class ListMoments extends React.Component {
           padding-right: 0;
           display: block;
           text-decoration: none;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
         }
         .item-name {
           margin-top: 2px;

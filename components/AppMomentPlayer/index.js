@@ -294,8 +294,8 @@ export default class AppMomentPlayer extends React.PureComponent {
         </TransitionMotion>
       </div>
 
-      <AppMomentPrevious modal={modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
-      <AppMomentNext modal={modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
+      <AppMomentPrevious modal={(width >= 800 && live) || modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
+      <AppMomentNext modal={(width >= 800 && live) || modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
       <AppMomentPlayerControls active={!draft && begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} live={live} current={moment} />
     </div>;

@@ -5,10 +5,12 @@ import PropTypes from 'prop-types';
 import Compress from 'compress.js';
 import { TransitionMotion, spring, presets } from 'react-motion';
 
+import If from '../If';
 import Tooltip from '../Tooltip';
 import EditorMomentCardControlDelete from '../EditorMomentCardControlDelete';
 import EditorMomentCardControlAlign from '../EditorMomentCardControlAlign';
 import EditorMomentCardControlMedia from '../EditorMomentCardControlMedia';
+import EditorMomentCardControlPublish from '../EditorMomentCardControlPublish';
 
 const compress = new Compress();
 
@@ -22,6 +24,8 @@ export default class MomentCardControls extends React.PureComponent {
     no          : PropTypes.number,
     when        : PropTypes.number,
     total       : PropTypes.number,
+    livestream  : PropTypes.bool,
+    published   : PropTypes.bool,
     editmode    : PropTypes.bool,
     active      : PropTypes.bool,
     fullscreen  : PropTypes.bool,
@@ -33,6 +37,8 @@ export default class MomentCardControls extends React.PureComponent {
     no          : 1,
     when        : -1,
     total       : 0,
+    livestream  : false,
+    published   : false,
     editmode    : false,
     active      : false,
     fullscreen  : false,
@@ -132,7 +138,7 @@ export default class MomentCardControls extends React.PureComponent {
   }
 
   renderCardControls = ({ key, style, data }) => {
-    const { id, no, when, total, editmode, active, fullscreen, onAction } = this.props;
+    const { id, no, when, total, livestream, published, editmode, active, fullscreen, onAction } = this.props;
     return <div key={key} className="base" style={{ opacity: style.opacity, transform: `translate3d(0px, ${style.y}px, 0px) scale(1)` }} data-controls>
       <style jsx>{`
         .base {
@@ -179,24 +185,41 @@ export default class MomentCardControls extends React.PureComponent {
           top: -3000px;
         }
       `}</style>
-      { no !== -1 && <div className="column" data-controls>{ no } of { total }</div> }
-      { when !== -1 && <div className="column" data-controls>
-        { this.getTime() }
-      </div> }
-      { !fullscreen && <div className="column" data-controls>
-        { id !== 'cover' && <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
-          <EditorMomentCardControlAlign />
-        </Tooltip> }
-        <Tooltip tag="label" className="card-controls-button" title="Upload image" data-controls>
-          <EditorMomentCardControlMedia />
-          <input className="card-input-hidden" type="file" onChange={this.onFileChange} onClick={this.onFileClick} data-controls />
-        </Tooltip>
-      </div> }
-      { id !== 'cover' && total > 1 && <div className="column" data-controls>
-        <Tooltip tag="button" className="card-controls-button" title="Delete moment" data-controls onClick={_ => onAction('delete-moment')}>
-          <EditorMomentCardControlDelete />
-        </Tooltip>
-      </div> }
+      <If condition={no !== -1}>
+        <div className="column" data-controls>{ no } of { total }</div>
+      </If>
+      <If condition={when !== -1}>
+        <div className="column" data-controls>
+          { this.getTime() }
+        </div>
+      </If>
+      <If condition={!fullscreen}>
+        <div className="column" data-controls>
+          <If condition={id !== 'cover'}>
+            <Tooltip tag="button" className="card-controls-button" title="Align" data-controls onClick={_ => onAction('align-moment')}>
+              <EditorMomentCardControlAlign />
+            </Tooltip>
+          </If>
+          <Tooltip tag="label" className="card-controls-button" title="Upload image" data-controls>
+            <EditorMomentCardControlMedia />
+            <input className="card-input-hidden" type="file" onChange={this.onFileChange} onClick={this.onFileClick} data-controls />
+          </Tooltip>
+        </div>
+      </If>
+      <If condition={(id !== 'cover' && total > 1) || livestream}>
+        <div className="column" data-controls>
+          <If condition={id !== 'cover' && total > 1}>
+            <Tooltip tag="button" className="card-controls-button" title="Delete moment" data-controls onClick={_ => onAction('delete-moment')}>
+              <EditorMomentCardControlDelete />
+            </Tooltip>
+          </If>
+          <If condition={livestream}>
+            <Tooltip tag="button" className="card-controls-button" title={published ? "Already published" : "Publish moment"} data-controls onClick={_ => onAction('publish-moment')}>
+              <EditorMomentCardControlPublish active={published} />
+            </Tooltip>
+          </If>
+        </div>
+      </If>
     </div>
   }
 

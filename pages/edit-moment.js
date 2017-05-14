@@ -258,9 +258,6 @@ class EditMoment extends React.Component {
     const payload = {
       action  : remove ? 'delete' : 'update',
       time    : new Date(),
-      slides: {
-        [moment]: state,
-      },
     };
 
     if ( remove ) {
@@ -425,12 +422,10 @@ class EditMoment extends React.Component {
     if ( reorder ) {
       return this.onMomentReorder(n)
         .then(_ => this.emit(payload))
-        .then(_ => this.latest())
         .then(_ => ({ name, block }))
     }
 
     return this.emit(payload)
-      .then(_ => this.latest())
       .then(_ => ({ name, block }))
   }
 
@@ -509,6 +504,8 @@ class EditMoment extends React.Component {
       past
     } = editorHistories[id] || { };
 
+    const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() < 0;
+
     const editorState = editorStates[id] || { };
     const { editorGrid } = editorState;
 
@@ -548,7 +545,7 @@ class EditMoment extends React.Component {
           doc={doc}
           cover={cover}
           files={files}
-          livestream={livestream}
+          livestream={streaming}
           gridview={editorGrid}
           windowSize={windowSize}
           editorState={editorState}

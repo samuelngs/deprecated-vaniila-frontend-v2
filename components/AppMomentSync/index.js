@@ -6,6 +6,7 @@ import UUID from 'uuid';
 import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
 import { api as PlayerApi } from '../../reducers/player';
+import { api as momentApi } from '../../reducers/moment';
 
 export default class AppMomentSync extends React.PureComponent {
 
@@ -66,6 +67,8 @@ export default class AppMomentSync extends React.PureComponent {
         return this.onAppLiveStart(type, name, data);
       case 'ended':
         return this.onAppLiveEnd(type, name, data);
+      case 'publish':
+        return this.onAppReceivePublish(type, name, data);
     }
   }
 
@@ -92,6 +95,12 @@ export default class AppMomentSync extends React.PureComponent {
       this.$$_pulse_timeout_$$ = null;
       store.dispatch(PlayerApi.setPlayerState(id, { pulse: false }));
     }, 3000);
+  }
+
+  onAppReceivePublish(type, name, data) {
+    const { store } = this.context;
+    const { id } = this.props;
+    store.dispatch(momentApi.patchMomentDocument(id, data));
   }
 
   render() {

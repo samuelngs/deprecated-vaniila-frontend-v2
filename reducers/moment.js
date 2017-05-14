@@ -1,6 +1,9 @@
 
 import 'isomorphic-fetch';
 
+import { DiffPatcher } from 'jsondiffpatch/src/diffpatcher';
+
+const patcher = new DiffPatcher();
 const isServer = typeof window === 'undefined';
 
 /**
@@ -127,6 +130,30 @@ function retrieveMomentDocument(id) {
 }
 
 /**
+ * patch moment document api
+ */
+function patchMomentDocument(id, moments) {
+  return function ( dispatch, getState ) {
+    return new Promise((resolve, reject) => {
+      const doc = getState().momentDocuments[id];
+      if ( !doc || typeof moments !== 'object' || moments === null ) return reject();
+      const clone = patcher.clone(doc);
+      clone.document || (clone.document || { });
+      clone.document.data || (clone.document.data || { });
+      clone.document.data.slides || (clone.document.data.slides = { });
+      for ( const id in moments ) {
+        clone.document.data.slides[id] = moments[id];
+      }
+      return resolve(dispatch({ type: actions.SetMomentDocument, id, moment: clone }));
+    })
+    .then(o => {
+      dispatch({ type: '@@player/SYNC_PLAYER_STATE', id });
+      return o;
+    })
+  }
+}
+
+/**
  * like moment
  */
 function like(id) {
@@ -173,6 +200,7 @@ function unlike(id) {
  */
 export const api = {
   retrieveMomentDocument,
+  patchMomentDocument,
   like,
   unlike,
 };

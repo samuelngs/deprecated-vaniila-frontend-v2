@@ -36,6 +36,7 @@ export default class MomentCard extends React.PureComponent {
     width       : PropTypes.number,
     height      : PropTypes.number,
     cover       : PropTypes.bool,
+    livestream  : PropTypes.bool,
     placeholder : PropTypes.string,
     player      : PropTypes.bool,
     editmode    : PropTypes.bool,
@@ -61,6 +62,7 @@ export default class MomentCard extends React.PureComponent {
     width       : 0,
     height      : 0,
     cover       : false,
+    livestream  : false,
     placeholder : 'What\'s happening?',
     player      : false,
     editmode    : false,
@@ -187,6 +189,8 @@ export default class MomentCard extends React.PureComponent {
         return MomentEditorHook.onAlign.call(this);
       case 'delete-moment':
         return MomentEditorHook.onMomentDelete.call(this);
+      case 'publish-moment':
+        return MomentEditorHook.onMomentPublish.call(this);
       case 'append-moment':
         return onCreate().then(({ name, block }) => {
           const { root } = this.props;
@@ -448,11 +452,12 @@ export default class MomentCard extends React.PureComponent {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, player, editmode, gridview, moment, editorState, files, width, height } = this.props;
+    const { id, no, total, scale, cover, livestream, player, editmode, gridview, moment, editorState, files, width, height } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const when = moment.when;
     const fullscreen = !!moment.parent;
     const bg = (moment && moment.bg);
+    const published = (moment && moment.published) || false;
     const align = (moment && moment.align) || 0;
     const blocks = (moment && moment.data && moment.data.blocks) || [ ];
     const cardStyle = this.getCardStyle();
@@ -522,6 +527,8 @@ export default class MomentCard extends React.PureComponent {
         no={no}
         when={when}
         total={total}
+        livestream={livestream}
+        published={published}
         editmode={editmode && !cover}
         fullscreen={fullscreen}
         active={!gridview && id === editorMoment}

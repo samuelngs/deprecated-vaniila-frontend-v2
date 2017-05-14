@@ -234,6 +234,7 @@ export default class EditorMomentCards extends React.Component {
         moment      : moments[id],
         editmode    : !gridview && ( !livestream || livestream && title.trim().length > 0 ),
         editorState : state,
+        livestream,
         gridview,
         scrollLeft,
         scrollTop,

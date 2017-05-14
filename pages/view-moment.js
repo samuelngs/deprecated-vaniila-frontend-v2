@@ -4,10 +4,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 
+import If from '../components/If';
 import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
 import AppMomentSync from '../components/AppMomentSync';
 import AppMomentViewer from '../components/AppMomentViewer';
+import AppMomentViewerSidebar from '../components/AppMomentViewerSidebar';
 import AppMomentDetails from '../components/AppMomentDetails';
 import AppMomentListComments from '../components/AppMomentListComments';
 import AppLaunchLoader from '../components/AppLaunchLoader';
@@ -136,12 +138,14 @@ class ViewMoment extends React.Component {
 
       <AppLaunchSuccess success={doc && !err}>
 
+        {/* moment websocket sync component */}
         <AppMomentSync
           id={id}
           path={path}
           pulse={playerPulse}
         />
 
+        {/* moment viewer component */}
         <AppMomentViewer
           id={id}
           doc={doc}
@@ -159,8 +163,16 @@ class ViewMoment extends React.Component {
           onNext={this.handleNextMoment}
           onPrevious={this.handlePreviousMoment}
           sizes={sizes}
-        />
+        >
+          {/* desktop chat, only appear when live mode */}
+          <If condition={width >= 800 && playerIsLive}>
+            <AppMomentViewerSidebar>
+              <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+            </AppMomentViewerSidebar>
+          </If>
+        </AppMomentViewer>
 
+        {/* moment details */}
         <AppMomentDetails doc={doc} style={{ width, marginLeft: 'auto', marginRight: 'auto' }}>
           <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
         </AppMomentDetails>

@@ -224,6 +224,8 @@ function hookSyncWithDocument(states, { id }, store) {
   const { started_at, ended_at, livestream, document } = doc;
 
   const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { });
+  const ids = Object.keys(moments);
+
   const startedAt = new Date(started_at);
   const endedAt = new Date(ended_at);
 
@@ -271,6 +273,7 @@ function hookSyncWithDocument(states, { id }, store) {
 
       const idx = state.playerMoments.indexOf(state.playerMoment);
 
+      // moment is removed and not found, reset current moment state
       if ( idx === -1 ) {
 
         const nidx = state.playerMoments.indexOf(state.playerNextMoment);
@@ -314,7 +317,32 @@ function hookSyncWithDocument(states, { id }, store) {
             state.playerNextIndex = -2;
           }
         }
+      } else {
+
+        if ( idx > -1 ) {
+          state.playerHasPrevious = true;
+          state.playerPreviousMoment = idx === 0
+            ? 'cover'
+            : ids[idx - 1];
+          state.playerPreviousIndex = idx - 1;
+        } else {
+          state.playerHasPrevious = false;
+          state.playerPreviousMoment = null;
+          state.playerPreviousIndex = -2;
+        }
+
+        if ( idx < ids.length - 1 ) {
+          state.playerHasNext = true;
+          state.playerNextMoment = ids[idx + 1];
+          state.playerNextIndex = idx + 1;
+        } else {
+          state.playerHasNext = false;
+          state.playerNextMoment = null;
+          state.playerNextIndex = -2;
+        }
+
       }
+
     }
 
     return clone;

@@ -27,6 +27,8 @@ export default class AppMomentViewer extends React.PureComponent {
     hasNext       : PropTypes.bool,
     onPrevious    : PropTypes.func,
     onNext        : PropTypes.func,
+
+    children      : PropTypes.node,
   }
 
   static defaultProps = {
@@ -50,6 +52,8 @@ export default class AppMomentViewer extends React.PureComponent {
     hasNext       : false,
     onPrevious    : e => null,
     onNext        : e => null,
+
+    children      : null,
   }
 
   state = {
@@ -194,7 +198,7 @@ export default class AppMomentViewer extends React.PureComponent {
   }
 
   render() {
-    const { id, sizes, modal, live, pulse, moments, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex } = this.props;
+    const { id, sizes, modal, live, pulse, moments, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex, children } = this.props;
     const { hover } = this.state;
     const { moment, next, previous, begins, ends, permissions } = this.doc();
     return <div className={ modal ? "base base-modal" : "base" }>
@@ -213,6 +217,8 @@ export default class AppMomentViewer extends React.PureComponent {
           padding-top: 0;
         }
         .player-container {
+          display: flex;
+          flex-direction: row;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
@@ -255,6 +261,7 @@ export default class AppMomentViewer extends React.PureComponent {
           onPrevious={onPrevious}
           onNext={onNext}
         />
+        { children }
       </div>
     </div>;
   }

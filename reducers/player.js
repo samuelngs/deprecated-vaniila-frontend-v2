@@ -39,7 +39,7 @@ export const actions = {
 /**
  * hook to sort moments
  */
-function hookMomentsSort(moments) {
+function hookMomentsSort(moments, livestream = false) {
   const momentsNames = Object.keys(moments);
   const momentsOrdered = { };
   momentsNames.sort((a, b) => {
@@ -51,6 +51,9 @@ function hookMomentsSort(moments) {
     return a - b;
   }).forEach((name, i) => {
     const moment = moments[name];
+    if ( livestream && !moment.published && name !== 'cover' ) {
+      return false;
+    }
     const blocks = ((moment.data || { }).blocks || [ ]);
     const blank = (_ => {
       for ( const block of blocks ) {
@@ -80,7 +83,7 @@ function hookInitialPlaceholder(states, { id }, store) {
 
     const { started_at, ended_at, livestream, document } = doc;
 
-    const moments = hookMomentsSort(((document || { }).data || { }).slides || { });
+    const moments = hookMomentsSort(((document || { }).data || { }).slides || { }, livestream);
     const ids = Object.keys(moments);
 
     state.playerMoments = ids;
@@ -136,7 +139,9 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
   // retrieve specific player state
   const state = clone[id];
 
-  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { });
+  const { livestream } = doc;
+
+  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestream);
   const ids = Object.keys(moments);
 
   state.playerMoments = ids;
@@ -223,7 +228,7 @@ function hookSyncWithDocument(states, { id }, store) {
 
   const { started_at, ended_at, livestream, document } = doc;
 
-  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { });
+  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestream);
   const ids = Object.keys(moments);
 
   const startedAt = new Date(started_at);

@@ -119,6 +119,7 @@ export default class AppModal extends React.PureComponent {
           bottom: 0;
           z-index: 25;
           overflow: auto;
+          transform: translateZ(0);
         }
         .shim-light {
           background: rgba(245, 247, 248, 0.85);

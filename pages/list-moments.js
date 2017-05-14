@@ -6,6 +6,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 
+import If from '../components/If';
 import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
 import AppModal from '../components/AppModal';
@@ -83,21 +84,32 @@ class ListMoments extends React.Component {
 
   }
 
+  handleViewAuthorPress = (e, username) => {
+
+    e.preventDefault();
+
+    const { serverPath } = this.props;
+    if ( serverPath === `/${username}` ) {
+      return;
+    }
+
+    return Router.push({
+      pathname: '/list-moments',
+      query   : { username },
+    }, `/${username}`);
+  }
+
   handleViewMomentDismiss = e => {
     e.preventDefault();
     return Router.back();
   }
 
-  renderMomentItem = ({ id, author, name, background }, i) => {
-    return <li key={i} className="item" style={{
-      backgroundImage: false && background && `url(${CDN_URL}/${background}/cover)`,
-      backgroundSize: false && background && 'cover',
-      backgroundPosition: false && 'center',
-    }}>
+  renderMomentItem = ({ id, author, name, background, impressions, likes, liked, created_at: createdAt }, i) => {
+    return <li key={i} className="item">
       <style jsx>{`
         .item {
           margin-top: 0;
-          margin-bottom: 0;
+          margin-bottom: 20px;
           margin-left: 0;
           margin-right: 0;
           padding-top: 0;
@@ -106,54 +118,103 @@ class ListMoments extends React.Component {
           padding-right: 0;
           list-style: none;
           display: flex;
+          flex-direction: column;
           flex: 1;
           flex-basis: 100%;
-          max-width: 416px;
-          width: 416px;
-          height: 312px;
-          border-radius: 4px;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-          background-color: #fff;
+          max-width: 300px;
+          width: 300px;
+          height: 360px;
+        }
+        .item-cover {
+          width: 300px;
+          height: 300px;
+        }
+        .item-cover-image {
+          width: 300px;
+          height: 300px;
+          border-radius: 3px;
           overflow: hidden;
         }
-        .item .item-link-cover {
-          background-color: rgba(0, 0, 0, 0.8);
-          background-color: #fff;
+        div.item-cover-image {
+          background-color: #ebfff6;
         }
-        .item a {
-          display: flex;
-          flex: 1;
-          justify-content: center;
-          align-items: center;
+        .item-details {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 20px;
+          padding-bottom: 20px;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .item-details a {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          display: block;
           text-decoration: none;
         }
-        .item a span {
-          font-size: 1.4em;
-          font-weight: 500;
+        .item-name {
+          margin-top: 2px;
+          margin-bottom: 2px;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .item-name a {
+          font-size: 16px;
+          font-weight: 400;
           color: #000;
         }
-        .item a span.item-title-cover {
-          color: #000;
+        .item-description {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
         }
-        @media (max-width: 900px) {
-          .item + .item {
-            margin-top: 20px;
-          }
+        .item-description a {
+          font-size: 14px;
+          font-weight: 400;
+          color: #777;
         }
-        @media (min-width: 900px) {
-          .item { flex-basis: 50%; }
-          .item + .item { margin-left: 40px; }
+        @media (min-width: 680px) {
+          .item + .item { margin-left: 20px; }
           .item:nth-child(2n + 1) { margin-left: 0px; }
         }
-        @media (min-width: 1400px) {
-          .item { flex-basis: 33.3333%; }
-          .item:nth-child(2n + 1) { margin-left: 40px; }
+        @media (min-width: 1000px) {
+          .item:nth-child(2n + 1) { margin-left: 20px; }
           .item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
-      <a className={ background ? "item-link item-link-cover" : "item-link" } href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>
-        <span className={ background ? "item-title item-title-cover" : "item-title" }>{ name || 'Draft' }</span>
+      <a className="item-cover" href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>
+        <If condition={!!background}>
+          <img className="item-cover-image" src={`${CDN_URL}/${background}/embed`} />
+        </If>
+        <If condition={!background}>
+          <div className="item-cover-image" />
+        </If>
       </a>
+      <div className="item-details">
+        <h2 className="item-name">
+          <a href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>{ name || 'Draft' }</a>
+        </h2>
+        <p className="item-description">
+          <a href={`/${author}`} onClick={e => this.handleViewAuthorPress(e, author)}>{ author }</a>
+        </p>
+      </div>
     </li>
   }
 
@@ -170,11 +231,11 @@ class ListMoments extends React.Component {
           margin-bottom: 0;
           margin-left: auto;
           margin-right: auto;
-          padding-top: 80px;
+          padding-top: 340px;
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
-          width: 416px;
+          width: 300px;
           max-width: 100%;
           max-width: calc(100% - 40px);
         }
@@ -184,14 +245,14 @@ class ListMoments extends React.Component {
           flex-direction: row;
           flex-wrap: wrap;
         }
-        @media (min-width: 900px) {
+        @media (min-width: 680px) {
           .container {
-            width: 872px;
+            width: 620px;
           }
         }
-        @media (min-width: 1400px) {
+        @media (min-width: 1000px) {
           .container {
-            width: 1328px;
+            width: 940px;
           }
         }
       `}</style>

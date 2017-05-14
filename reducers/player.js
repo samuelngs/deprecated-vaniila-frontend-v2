@@ -83,7 +83,12 @@ function hookInitialPlaceholder(states, { id }, store) {
 
     const { started_at, ended_at, livestream, document } = doc;
 
-    const moments = hookMomentsSort(((document || { }).data || { }).slides || { }, livestream);
+    const startedAt = new Date(started_at);
+    const endedAt = new Date(ended_at);
+
+    const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+
+    const moments = hookMomentsSort(((document || { }).data || { }).slides || { }, livestreaming);
     const ids = Object.keys(moments);
 
     state.playerMoments = ids;
@@ -98,9 +103,6 @@ function hookInitialPlaceholder(states, { id }, store) {
     if ( !livestream ) return clone;
 
     // if it's live stream, starts from the latest moment
-    const startedAt = new Date(started_at);
-    const endedAt = new Date(ended_at);
-
     if (
       startedAt.getTime() < 0 ||  // if live stream hasn't started, starts from the beginning
       endedAt.getTime() > 0 ||    // if live stream has already ended, starts from the beginning
@@ -139,9 +141,14 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
   // retrieve specific player state
   const state = clone[id];
 
-  const { livestream } = doc;
+  const { started_at, ended_at, livestream } = doc;
 
-  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestream);
+  const startedAt = new Date(started_at);
+  const endedAt = new Date(ended_at);
+
+  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+
+  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestreaming);
   const ids = Object.keys(moments);
 
   state.playerMoments = ids;
@@ -228,13 +235,15 @@ function hookSyncWithDocument(states, { id }, store) {
 
   const { started_at, ended_at, livestream, document } = doc;
 
-  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestream);
-  const ids = Object.keys(moments);
-
   const startedAt = new Date(started_at);
   const endedAt = new Date(ended_at);
 
-  const playerIsLive = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+
+  const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestreaming);
+  const ids = Object.keys(moments);
+
+  const playerIsLive = livestreaming;
   if ( playerIsLive !== state.playerIsLive ) {
     state.playerIsLive = playerIsLive;
     modified = true;

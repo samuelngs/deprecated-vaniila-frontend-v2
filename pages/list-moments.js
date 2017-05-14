@@ -90,9 +90,9 @@ class ListMoments extends React.Component {
 
   renderMomentItem = ({ id, author, name, background }, i) => {
     return <li key={i} className="item" style={{
-      backgroundImage: background && `url(${CDN_URL}/${background}/cover)`,
-      backgroundSize: background && 'cover',
-      backgroundPosition: 'center',
+      backgroundImage: false && background && `url(${CDN_URL}/${background}/cover)`,
+      backgroundSize: false && background && 'cover',
+      backgroundPosition: false && 'center',
     }}>
       <style jsx>{`
         .item {
@@ -118,6 +118,7 @@ class ListMoments extends React.Component {
         }
         .item .item-link-cover {
           background-color: rgba(0, 0, 0, 0.8);
+          background-color: #fff;
         }
         .item a {
           display: flex;
@@ -132,7 +133,7 @@ class ListMoments extends React.Component {
           color: #000;
         }
         .item a span.item-title-cover {
-          color: #fff;
+          color: #000;
         }
         @media (max-width: 900px) {
           .item + .item {

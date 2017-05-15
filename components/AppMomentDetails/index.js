@@ -10,6 +10,7 @@ import AppDropdownItem from '../AppDropdownItem';
 import AppDropdownSeparator from '../AppDropdownSeparator';
 import AppMomentDropdownEdit from '../AppMomentDropdownEdit';
 import AppMomentDropdownDelete from '../AppMomentDropdownDelete';
+import AppMomentDropdownTheaterMode from '../AppMomentDropdownTheaterMode';
 import AppMomentDeleteConfirmation from '../AppMomentDeleteConfirmation';
 
 export default class AppMomentDetails extends React.PureComponent {
@@ -49,6 +50,17 @@ export default class AppMomentDetails extends React.PureComponent {
       pathname: '/list-moments',
       query   : { username },
     }, `/${username}`);
+  }
+
+  handleTheaterModePress = e => {
+
+    e.preventDefault();
+
+    const { doc: { id, author: { username } } } = this.props;
+    return Router.push({
+      pathname: '/view-moment',
+      query   : { id, username },
+    }, `/${username}/${id}`);
   }
 
   handleEditPress = e => {
@@ -194,19 +206,20 @@ export default class AppMomentDetails extends React.PureComponent {
             <a href={`/${username}`} onClick={this.handleUsernamePress}>{ name }</a>
           </h4>
         </div>
-        <If condition={write}>
-          <div className="details-options">
-            <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
-              <AppDropdownMenu>
-                <If condition={write}>
-                  <AppDropdownItem onPress={this.handleEditPress}>
-                    <AppMomentDropdownEdit />
-                  </AppDropdownItem>
-                </If>
-              </AppDropdownMenu>
-            </AppDropdownButton>
-          </div>
-        </If>
+        <div className="details-options">
+          <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
+            <AppDropdownMenu>
+              <AppDropdownItem onPress={this.handleTheaterModePress}>
+                <AppMomentDropdownTheaterMode />
+              </AppDropdownItem>
+              <If condition={write}>
+                <AppDropdownItem onPress={this.handleEditPress}>
+                  <AppMomentDropdownEdit />
+                </AppDropdownItem>
+              </If>
+            </AppDropdownMenu>
+          </AppDropdownButton>
+        </div>
       </header>
       { children }
     </div>;

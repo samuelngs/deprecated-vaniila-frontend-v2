@@ -65,6 +65,19 @@ export default class AppHeader extends React.Component {
     return Router.back();
   }
 
+  handleUserLogout = e => {
+
+    e.preventDefault();
+
+    const { store: { getState } } = this.context;
+    const { serverPath } = getState();
+
+    return Router.push({
+      pathname: '/signout',
+      query   : { redirect: serverPath },
+    }, '/signout');
+  }
+
   render() {
 
     const { active } = this.state;
@@ -294,8 +307,8 @@ export default class AppHeader extends React.Component {
               <li className="header-nav-li avatar-dropdown-wrapper">
                 <AppDropdownButton className="avatar-dropdown-button" render={<img className="header-nav-avatar" src={accountAvatar} />}>
                   <AppDropdownMenu>
-                    <AppDropdownItem>
-                      <Link href="/signout" as="/signout"><a className="header-nav-a">Sign out</a></Link>
+                    <AppDropdownItem onPress={this.handleUserLogout}>
+                      <a className="header-nav-a">Sign out</a>
                     </AppDropdownItem>
                   </AppDropdownMenu>
                 </AppDropdownButton>

@@ -65,6 +65,19 @@ export default class AppHeader extends React.Component {
     return Router.back();
   }
 
+  handleUserLogin = e => {
+
+    e.preventDefault();
+
+    const { store: { getState } } = this.context;
+    const { serverPath } = getState();
+
+    return Router.push({
+      pathname: '/signin',
+      query   : { redirect: serverPath },
+    }, '/signin');
+  }
+
   handleUserLogout = e => {
 
     e.preventDefault();
@@ -322,7 +335,7 @@ export default class AppHeader extends React.Component {
           <div className="header-grid-column-4 header-grid-column-ar">
             <ul className="header-nav-ul">
               <li className="header-nav-li">
-                <Link href="/signin" as="/signin"><a className="header-nav-a">Sign In</a></Link>
+                <a className="header-nav-a" href="/signin" onClick={this.handleUserLogin}>Sign In</a>
               </li>
             </ul>
           </div>

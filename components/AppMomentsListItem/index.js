@@ -139,7 +139,10 @@ export default class AppMomentsListItem extends React.PureComponent {
         .item-details-info {
           display: flex;
           flex: 1;
+          flex-grow: 1;
+          flex-shrink: 1;
           flex-direction: column;
+          max-width: 100%;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;

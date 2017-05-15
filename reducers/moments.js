@@ -82,10 +82,32 @@ function retrieveMoments(username) {
 }
 
 /**
+ * remove moments
+ */
+function removeMoments(username, id) {
+  return function ( dispatch, getState ) {
+    const { authenticationToken } = getState();
+    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    return fetch(`${BACKEND_URL}/i/moment/${username}/${id}`, {
+      method      : 'delete',
+      credentials : 'include',
+      headers,
+    })
+    .then(res => res.json())
+    .then(res => (res.error ? promise.reject(res.error) : res))
+    .then(
+      _   => dispatch(retrieveMoments(username)),
+      err => ({ err }),
+    );
+  }
+}
+
+/**
  * export store api
  */
 export const api = {
   retrieveMoments,
+  removeMoments,
 };
 
 export default {

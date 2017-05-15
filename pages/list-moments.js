@@ -20,7 +20,7 @@ import { api as usersApi } from '../reducers/users';
 
 import withRedux from '../storage';
 
-class ListMoments extends React.Component {
+class ListMoments extends React.PureComponent {
 
   static async getInitialProps ({ req, res, pathname, query: { username }, store, isServer }) {
     {
@@ -73,7 +73,7 @@ class ListMoments extends React.Component {
           margin-left: auto;
           margin-right: auto;
           padding-top: 80px;
-          padding-bottom: 0;
+          padding-bottom: 130px;
           padding-left: 0;
           padding-right: 0;
           width: 300px;
@@ -102,7 +102,7 @@ class ListMoments extends React.Component {
 
       <div className="container">
         <AppMomentsProfile user={user} />
-        <AppMomentsList profile={username} moments={moments} mode={this.mode()} />
+        <AppMomentsList whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
       </div>
 
       <AppModal

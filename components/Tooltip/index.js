@@ -7,7 +7,7 @@ import { TransitionMotion, spring } from 'react-motion';
 const active   = [ { key: 'tooltip-context' } ];
 const inactive = [ ];
 
-export default class Tooltip extends React.Component {
+export default class Tooltip extends React.PureComponent {
 
   static propTypes = {
     tag         : PropTypes.string,

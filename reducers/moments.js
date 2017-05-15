@@ -29,6 +29,13 @@ function momentsList (moments = defaults.moments, action = defaults.action) {
       // do not do anything if moments is missing
       if ( !Array.isArray(action.moments) ) return moments;
 
+      const diff = patcher.diff(
+        moments[action.username],
+        action.moments,
+      );
+
+      if ( !diff ) return moments;
+
       moments[action.username] = action.moments;
       return patcher.clone(moments);
 

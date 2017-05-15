@@ -25,9 +25,9 @@ export default class AppNewMoment extends React.PureComponent {
     }).then(res => {
       const { id, author: { username } } = res;
       return Router.replace({
-        pathname: '/view-moment',
+        pathname: '/edit-moment',
         query: { username, id }
-      }, `/${username}/${id}`)
+      }, `/${username}/${id}/edit`)
     });
   }
 

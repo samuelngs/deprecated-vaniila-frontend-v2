@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import Router from 'next/router';
 
 import If from '../If';
+import AppDropdownButton from '../AppDropdownButton';
+import AppDropdownMenu from '../AppDropdownMenu';
+import AppDropdownItem from '../AppDropdownItem';
 
 export default class AppMomentsListItem extends React.PureComponent {
 
@@ -12,12 +15,14 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   static propTypes = {
+    whoami      : PropTypes.string,
     profile     : PropTypes.string,
     mode        : PropTypes.string,
     id          : PropTypes.string,
     author      : PropTypes.string,
     name        : PropTypes.string,
     background  : PropTypes.string,
+    members     : PropTypes.array,
     impressions : PropTypes.number,
     likes       : PropTypes.number,
     liked       : PropTypes.bool,
@@ -25,12 +30,14 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   static defaultProps = {
+    whoami      : '',
     profile     : '',
     mode        : 'desktop',
     id          : '',
     author      : '',
     name        : '',
     background  : '',
+    members     : [ ],
     impressions : 0,
     likes       : 0,
     liked       : false,
@@ -81,7 +88,8 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   render() {
-    const { id, author, name, background, impressions, likes, liked, created_at, onPress } = this.props;
+    const { id, whoami, author, name, members, background, impressions, likes, liked, created_at, onPress } = this.props;
+    const editable = whoami === author || members.indexOf(whoami) > -1;
     return <li className="item">
       <style jsx>{`
         .item {
@@ -117,6 +125,8 @@ export default class AppMomentsListItem extends React.PureComponent {
           background-color: #ebfff6;
         }
         .item-details {
+          display: flex;
+          flex-direction: row;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
@@ -125,6 +135,30 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-bottom: 20px;
           padding-left: 0;
           padding-right: 0;
+        }
+        .item-details-info {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .item-details-option {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          width: 30px;
         }
         .item-details a {
           margin-top: 0;
@@ -153,7 +187,7 @@ export default class AppMomentsListItem extends React.PureComponent {
         }
         .item-name a {
           font-size: 16px;
-          font-weight: 400;
+          font-weight: 500;
           color: #000;
         }
         .item-description {
@@ -182,6 +216,22 @@ export default class AppMomentsListItem extends React.PureComponent {
           .item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
+      <style jsx global>{`
+        .item-dropdown-button {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          border: none;
+          background-color: transparent;
+          outline: none;
+          cursor: pointer;
+        }
+      `}</style>
       <a className="item-cover" href={`/${author}/${id}`} onClick={this.handleItemPress}>
         <If condition={!!background}>
           <img className="item-cover-image" src={`${CDN_URL}/${background}/embed`} />
@@ -191,12 +241,24 @@ export default class AppMomentsListItem extends React.PureComponent {
         </If>
       </a>
       <div className="item-details">
-        <h2 className="item-name">
-          <a href={`/${author}/${id}`} onClick={this.handleItemPress}>{ name || 'Draft' }</a>
-        </h2>
-        <p className="item-description">
-          <a href={`/${author}`} onClick={this.handleAuthorPress}>{ author }</a>
-        </p>
+        <div className="item-details-info">
+          <h2 className="item-name">
+            <a href={`/${author}/${id}`} onClick={this.handleItemPress}>{ name || 'Draft' }</a>
+          </h2>
+          <p className="item-description">
+            <a href={`/${author}`} onClick={this.handleAuthorPress}>{ author }</a>
+          </p>
+        </div>
+        <If condition={editable}>
+          <div className="item-details-option">
+            <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
+              <AppDropdownMenu>
+                <AppDropdownItem>Edit</AppDropdownItem>
+                <AppDropdownItem>Delete</AppDropdownItem>
+              </AppDropdownMenu>
+            </AppDropdownButton>
+          </div>
+        </If>
       </div>
     </li>
   }

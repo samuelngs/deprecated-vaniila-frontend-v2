@@ -160,8 +160,6 @@ export default class AppModalViewMoment extends React.Component {
       {/* attach fetch comments event */}
       <AfterEvent id={id} run={this.handleFetchMoment} then={this.handleFetchMomentComplete} />
 
-      <AppLaunchLoader loading={fetching} sizes={sizes} />
-
       <AppLaunchSuccess modal={true} success={!fetching && doc && !err}>
         <Head>
           <title>{ name || 'There\'s nothing here, yet 🙌' }</title>

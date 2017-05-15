@@ -8,95 +8,47 @@ import Router from 'next/router';
 
 import If from '../components/If';
 import WindowObserver from '../components/WindowObserver';
+import BackToTop from '../components/BackToTop';
 import AppHeader from '../components/AppHeader';
 import AppModal from '../components/AppModal';
+import AppMomentsList from '../components/AppMomentsList';
+import AppMomentsProfile from '../components/AppMomentsProfile';
 import AppModalViewMoment from '../components/AppModalViewMoment';
+
+import { api as momentsApi } from '../reducers/moments';
+import { api as usersApi } from '../reducers/users';
 
 import withRedux from '../storage';
 
 class ListMoments extends React.Component {
 
-  static async getInitialProps ({ err, req, res, pathname, query: { username }, store, isServer }) {
-    const { authenticationToken } = store.getState();
-    const headers = isServer && {
-      internal      : 'TRUE',
-      'Access-Token': authenticationToken,
-    };
-    const moments = await fetch(`${BACKEND_URL}/i/moment/${username}`, {
-      method      : 'get',
-      credentials : 'include',
-      headers,
-    }).then(res => {
-      return res.json();
-    }).then(res => {
-      return Array.isArray(res) ? res : [];
-    });
-    return { username, moments };
+  static async getInitialProps ({ req, res, pathname, query: { username }, store, isServer }) {
+    {
+      const { err } = await store.dispatch(momentsApi.retrieveMoments(username));
+      if ( err ) return { username, err }
+    }
+    {
+      const { err } = await store.dispatch(usersApi.retrieveUser(username));
+      if ( err ) return { username, err }
+    }
+    return { username };
   }
 
-  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates }) {
-    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, momentDocuments, momentComments, playerStates };
+  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates }) {
+    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates };
   }
 
   mode() {
-
     const { windowSize: { width: ww, height: wh } } = this.props;
     const defaults = { maxWidth: 600, maxHeight: 600 };
-
     let width = ww - 100;
     let height = wh - 100;
-
     if ( width > defaults.maxWidth ) width = defaults.maxWidth;
     if ( height > defaults.maxHeight ) height = defaults.maxHeight;
-
     if ( width >= defaults.maxHeight ) {
       return 'desktop';
     }
-
     return 'mobile';
-  }
-
-  handleViewMomentPress = (e, { author, id }) => {
-
-    e.preventDefault();
-
-    const { serverPath, serverPathname, serverQuery, username } = this.props;
-    const mode = this.mode();
-
-    if ( serverQuery.id ) {
-      return;
-    }
-
-    switch ( mode ) {
-
-      case 'desktop':
-        return Router.push({
-          pathname: serverPathname,
-          query   : { ...serverQuery, id, username },
-        }, `/${author}/${id}`);
-
-      case 'mobile':
-        return Router.push({
-          pathname: '/view-moment',
-          query   : { id, username: author },
-        }, `/${author}/${id}`);
-    }
-
-  }
-
-  handleViewAuthorPress = (e, username) => {
-
-    e.preventDefault();
-
-    const { serverPath } = this.props;
-    if ( serverPath === `/${username}` ) {
-      return;
-    }
-
-    return Router.push({
-      pathname: '/list-moments',
-      query   : { username },
-    }, `/${username}`);
   }
 
   handleViewMomentDismiss = e => {
@@ -104,127 +56,13 @@ class ListMoments extends React.Component {
     return Router.back();
   }
 
-  renderMomentItem = ({ id, author, name, background, impressions, likes, liked, created_at: createdAt }, i) => {
-    return <li key={i} className="item">
-      <style jsx>{`
-        .item {
-          margin-top: 0;
-          margin-bottom: 20px;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          flex-basis: 100%;
-          max-width: 300px;
-          width: 300px;
-          height: 360px;
-        }
-        .item-cover {
-          width: 300px;
-          height: 300px;
-        }
-        .item-cover-image {
-          width: 300px;
-          height: 300px;
-          border-radius: 3px;
-          overflow: hidden;
-        }
-        div.item-cover-image {
-          background-color: #ebfff6;
-        }
-        .item-details {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 20px;
-          padding-bottom: 20px;
-          padding-left: 0;
-          padding-right: 0;
-        }
-        .item-details a {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-          display: block;
-          text-decoration: none;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
-        }
-        .item-name {
-          margin-top: 2px;
-          margin-bottom: 2px;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-        }
-        .item-name a {
-          font-size: 16px;
-          font-weight: 400;
-          color: #000;
-        }
-        .item-description {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-        }
-        .item-description a {
-          font-size: 14px;
-          font-weight: 400;
-          color: #777;
-        }
-        @media (min-width: 680px) {
-          .item + .item { margin-left: 20px; }
-          .item:nth-child(2n + 1) { margin-left: 0px; }
-        }
-        @media (min-width: 1000px) {
-          .item:nth-child(2n + 1) { margin-left: 20px; }
-          .item:nth-child(3n + 1) { margin-left: 0px; }
-        }
-      `}</style>
-      <a className="item-cover" href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>
-        <If condition={!!background}>
-          <img className="item-cover-image" src={`${CDN_URL}/${background}/embed`} />
-        </If>
-        <If condition={!background}>
-          <div className="item-cover-image" />
-        </If>
-      </a>
-      <div className="item-details">
-        <h2 className="item-name">
-          <a href={`/${author}/${id}`} onClick={e => this.handleViewMomentPress(e, { author, id })}>{ name || 'Draft' }</a>
-        </h2>
-        <p className="item-description">
-          <a href={`/${author}`} onClick={e => this.handleViewAuthorPress(e, author)}>{ author }</a>
-        </p>
-      </div>
-    </li>
-  }
-
   render () {
 
-    const { authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, username, moments } = this.props;
+    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates } = this.props;
     const { username: author, id } = serverQuery;
+
+    const moments = momentsList[username] || [ ];
+    const user = usersList[username] || { };
 
     return <div>
 
@@ -234,19 +72,13 @@ class ListMoments extends React.Component {
           margin-bottom: 0;
           margin-left: auto;
           margin-right: auto;
-          padding-top: 340px;
+          padding-top: 80px;
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
           width: 300px;
           max-width: 100%;
           max-width: calc(100% - 40px);
-        }
-        .moments-list {
-          display: flex;
-          justify-content: flex-start;
-          flex-direction: row;
-          flex-wrap: wrap;
         }
         @media (min-width: 680px) {
           .container {
@@ -264,11 +96,13 @@ class ListMoments extends React.Component {
         <title>Your Moments</title>
       </Head>
 
+      <BackToTop id={username} />
       <AppHeader />
       <WindowObserver />
 
       <div className="container">
-        <ul className="moments-list">{ moments.map(this.renderMomentItem) }</ul>
+        <AppMomentsProfile user={user} />
+        <AppMomentsList moments={moments} mode={this.mode()} />
       </div>
 
       <AppModal

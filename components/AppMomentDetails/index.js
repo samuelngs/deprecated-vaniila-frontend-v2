@@ -206,22 +206,24 @@ export default class AppMomentDetails extends React.PureComponent {
             <a href={`/${username}`} onClick={this.handleUsernamePress}>{ name }</a>
           </h4>
         </div>
-        <div className="details-options">
-          <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
-            <AppDropdownMenu>
-              <If condition={modal}>
-                <AppDropdownItem onPress={this.handleTheaterModePress}>
-                  <AppMomentDropdownTheaterMode />
-                </AppDropdownItem>
-              </If>
-              <If condition={write}>
-                <AppDropdownItem onPress={this.handleEditPress}>
-                  <AppMomentDropdownEdit />
-                </AppDropdownItem>
-              </If>
-            </AppDropdownMenu>
-          </AppDropdownButton>
-        </div>
+        <If condition={modal || write}>
+          <div className="details-options">
+            <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
+              <AppDropdownMenu>
+                <If condition={modal}>
+                  <AppDropdownItem onPress={this.handleTheaterModePress}>
+                    <AppMomentDropdownTheaterMode />
+                  </AppDropdownItem>
+                </If>
+                <If condition={write}>
+                  <AppDropdownItem onPress={this.handleEditPress}>
+                    <AppMomentDropdownEdit />
+                  </AppDropdownItem>
+                </If>
+              </AppDropdownMenu>
+            </AppDropdownButton>
+          </div>
+        </If>
       </header>
       { children }
     </div>;

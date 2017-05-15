@@ -25,8 +25,8 @@ export default class AppDropdownMenu extends React.PureComponent {
           margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;
-          padding-top: 10px;
-          padding-bottom: 10px;
+          padding-top: 5px;
+          padding-bottom: 5px;
           padding-left: 0;
           padding-right: 0;
           min-width: 160px;

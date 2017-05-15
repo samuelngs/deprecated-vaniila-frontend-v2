@@ -3,6 +3,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Router from 'next/router';
 
+import If from '../If';
+import AppDropdownButton from '../AppDropdownButton';
+import AppDropdownMenu from '../AppDropdownMenu';
+import AppDropdownItem from '../AppDropdownItem';
+import AppDropdownSeparator from '../AppDropdownSeparator';
+import AppMomentDropdownEdit from '../AppMomentDropdownEdit';
+import AppMomentDropdownDelete from '../AppMomentDropdownDelete';
+import AppMomentDeleteConfirmation from '../AppMomentDeleteConfirmation';
+
 export default class AppMomentDetails extends React.PureComponent {
 
   static contextTypes = {
@@ -42,9 +51,20 @@ export default class AppMomentDetails extends React.PureComponent {
     }, `/${username}`);
   }
 
+  handleEditPress = e => {
+
+    e.preventDefault();
+
+    const { doc: { id, author: { username } } } = this.props;
+    return Router.push({
+      pathname: '/edit-moment',
+      query   : { id, username },
+    }, `/${username}/${id}/edit`);
+  }
+
   render() {
     const { doc, modal, children, style } = this.props;
-    const { name: title, author: { avatar, name, username } } = doc;
+    const { id, name: title, author: { avatar, name, username }, permissions: { admin, write } } = doc;
     return <div className={ modal ? "base base-modal" : "base" } style={style}>
       <style jsx>{`
         .base {
@@ -102,6 +122,18 @@ export default class AppMomentDetails extends React.PureComponent {
           flex-direction: column;
           justify-content: center;
         }
+        .details-options {
+          margin-top: 10px;
+          margin-bottom: 10px;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          width: 30px;
+          max-height: 30px;
+        }
         .details-title {
           margin-top: 0;
           margin-bottom: 0;
@@ -136,6 +168,22 @@ export default class AppMomentDetails extends React.PureComponent {
           color: #777;
         }
       `}</style>
+      <style jsx global>{`
+        .item-dropdown-button {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          border: none;
+          background-color: transparent;
+          outline: none;
+          cursor: pointer;
+        }
+      `}</style>
       <header className="details-container">
         <div className="details-avatar">
           <a href={`/${username}`} onClick={this.handleUsernamePress}><img className="details-avatar-image" src={avatar} /></a>
@@ -146,6 +194,19 @@ export default class AppMomentDetails extends React.PureComponent {
             <a href={`/${username}`} onClick={this.handleUsernamePress}>{ name }</a>
           </h4>
         </div>
+        <If condition={write}>
+          <div className="details-options">
+            <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
+              <AppDropdownMenu>
+                <If condition={write}>
+                  <AppDropdownItem onPress={this.handleEditPress}>
+                    <AppMomentDropdownEdit />
+                  </AppDropdownItem>
+                </If>
+              </AppDropdownMenu>
+            </AppDropdownButton>
+          </div>
+        </If>
       </header>
       { children }
     </div>;

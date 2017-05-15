@@ -4,9 +4,16 @@ import PropTypes from 'prop-types';
 import Router from 'next/router';
 
 import If from '../If';
+import AppModal from '../AppModal';
 import AppDropdownButton from '../AppDropdownButton';
 import AppDropdownMenu from '../AppDropdownMenu';
 import AppDropdownItem from '../AppDropdownItem';
+import AppDropdownSeparator from '../AppDropdownSeparator';
+import AppMomentDropdownEdit from '../AppMomentDropdownEdit';
+import AppMomentDropdownDelete from '../AppMomentDropdownDelete';
+import AppMomentDeleteConfirmation from '../AppMomentDeleteConfirmation';
+
+import { api as momentsApi } from '../../reducers/moments';
 
 export default class AppMomentsListItem extends React.PureComponent {
 
@@ -42,6 +49,10 @@ export default class AppMomentsListItem extends React.PureComponent {
     likes       : 0,
     liked       : false,
     created_at  : '',
+  }
+
+  state = {
+    confirmation: false,
   }
 
   handleAuthorPress = e => {
@@ -87,8 +98,43 @@ export default class AppMomentsListItem extends React.PureComponent {
 
   }
 
+  handleEditPress = e => {
+
+    e.preventDefault();
+
+    const { id, author: username } = this.props;
+
+    return Router.push({
+      pathname: '/edit-moment',
+      query   : { id, username },
+    }, `/${username}/${id}/edit`);
+
+  }
+
+  handleDeletePress = e => {
+
+    e.preventDefault();
+
+    this.setState(state => !state.confirmation && { confirmation: true });
+  }
+
+  handleConfirmationDismiss = e => {
+    this.setState(state => state.confirmation && { confirmation: false });
+  }
+
+  handleConfirmationRemove = e => {
+
+    const { store: { dispatch } } = this.context;
+    const { id, author } = this.props;
+
+    this.setState(state => state.confirmation && { confirmation: false }, e => {
+      dispatch(momentsApi.removeMoments(author, id));
+    });
+  }
+
   render() {
     const { id, whoami, author, name, members, background, impressions, likes, liked, created_at, onPress } = this.props;
+    const { confirmation } = this.state;
     const editable = whoami === author || members.indexOf(whoami) > -1;
     return <li className="item">
       <style jsx>{`
@@ -190,7 +236,7 @@ export default class AppMomentsListItem extends React.PureComponent {
         }
         .item-name a {
           font-size: 16px;
-          font-weight: 500;
+          font-weight: 400;
           color: #000;
         }
         .item-description {
@@ -256,12 +302,20 @@ export default class AppMomentsListItem extends React.PureComponent {
           <div className="item-details-option">
             <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
               <AppDropdownMenu>
-                <AppDropdownItem>Edit</AppDropdownItem>
-                <AppDropdownItem>Delete</AppDropdownItem>
+                <AppDropdownItem onPress={this.handleEditPress}>
+                  <AppMomentDropdownEdit />
+                </AppDropdownItem>
+                <AppDropdownSeparator />
+                <AppDropdownItem warning onPress={this.handleDeletePress}>
+                  <AppMomentDropdownDelete />
+                </AppDropdownItem>
               </AppDropdownMenu>
             </AppDropdownButton>
           </div>
         </If>
+        <AppModal color="#fff" active={confirmation} dismiss={this.handleConfirmationDismiss}>
+          <AppMomentDeleteConfirmation name={(name || 'Draft')} author={author} onPress={this.handleConfirmationRemove} onCancel={this.handleConfirmationDismiss} />
+        </AppModal>
       </div>
     </li>
   }

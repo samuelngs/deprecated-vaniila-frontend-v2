@@ -209,9 +209,11 @@ export default class AppMomentDetails extends React.PureComponent {
         <div className="details-options">
           <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
             <AppDropdownMenu>
-              <AppDropdownItem onPress={this.handleTheaterModePress}>
-                <AppMomentDropdownTheaterMode />
-              </AppDropdownItem>
+              <If condition={modal}>
+                <AppDropdownItem onPress={this.handleTheaterModePress}>
+                  <AppMomentDropdownTheaterMode />
+                </AppDropdownItem>
+              </If>
               <If condition={write}>
                 <AppDropdownItem onPress={this.handleEditPress}>
                   <AppMomentDropdownEdit />

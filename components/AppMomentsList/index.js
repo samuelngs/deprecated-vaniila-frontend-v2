@@ -7,17 +7,19 @@ import AppMomentsListItem from '../AppMomentsListItem';
 export default class AppMomentsList extends React.PureComponent {
 
   static propTypes = {
+    profile: PropTypes.string,
     mode   : PropTypes.oneOf([ 'desktop', 'mobile' ]),
     moments: PropTypes.array,
   }
 
   static defaultProps = {
+    profile: '',
     mode   : 'desktop',
     moments: [ ],
   }
 
   render() {
-    const { moments, mode } = this.props;
+    const { moments, profile, mode } = this.props;
     return <ul className="base">
       <style jsx>{`
         .base {
@@ -27,7 +29,7 @@ export default class AppMomentsList extends React.PureComponent {
           flex-wrap: wrap;
         }
       `}</style>
-      { moments.map((props, i) => <AppMomentsListItem key={i} mode={mode} {...props} />) }
+      { moments.map(props => <AppMomentsListItem key={props.id} profile={profile} mode={mode} {...props} />) }
     </ul>
   }
 

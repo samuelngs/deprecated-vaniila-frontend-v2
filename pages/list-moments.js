@@ -102,7 +102,7 @@ class ListMoments extends React.Component {
 
       <div className="container">
         <AppMomentsProfile user={user} />
-        <AppMomentsList moments={moments} mode={this.mode()} />
+        <AppMomentsList profile={username} moments={moments} mode={this.mode()} />
       </div>
 
       <AppModal

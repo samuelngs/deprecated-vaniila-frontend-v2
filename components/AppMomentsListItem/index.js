@@ -12,18 +12,20 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   static propTypes = {
-    mode          : PropTypes.string,
-    id            : PropTypes.string,
-    author        : PropTypes.string,
-    name          : PropTypes.string,
-    background    : PropTypes.string,
-    impressions   : PropTypes.number,
-    likes         : PropTypes.number,
-    liked         : PropTypes.bool,
-    created_at    : PropTypes.string,
+    profile     : PropTypes.string,
+    mode        : PropTypes.string,
+    id          : PropTypes.string,
+    author      : PropTypes.string,
+    name        : PropTypes.string,
+    background  : PropTypes.string,
+    impressions : PropTypes.number,
+    likes       : PropTypes.number,
+    liked       : PropTypes.bool,
+    created_at  : PropTypes.string,
   }
 
   static defaultProps = {
+    profile     : '',
     mode        : 'desktop',
     id          : '',
     author      : '',
@@ -55,7 +57,7 @@ export default class AppMomentsListItem extends React.PureComponent {
 
     e.preventDefault();
 
-    const { id, author: username, mode } = this.props;
+    const { profile, id, author: username, mode } = this.props;
     const { store: { getState } } = this.context;
     const { serverPath, serverPathname, serverQuery } = getState();
 
@@ -66,7 +68,7 @@ export default class AppMomentsListItem extends React.PureComponent {
       case 'desktop':
         return Router.push({
           pathname: serverPathname,
-          query   : { ...serverQuery, id, username },
+          query   : { ...serverQuery, id, username: profile },
         }, `/${username}/${id}`);
 
       case 'mobile':

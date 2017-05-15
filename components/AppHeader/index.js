@@ -9,6 +9,10 @@ import AppHeaderLogo from '../AppHeaderLogo';
 import AppHeaderMenu from '../AppHeaderMenu';
 import AppModal from '../AppModal';
 import AppModalNewMoment from '../AppModalNewMoment';
+import AppDropdownButton from '../AppDropdownButton';
+import AppDropdownMenu from '../AppDropdownMenu';
+import AppDropdownItem from '../AppDropdownItem';
+import AppDropdownSeparator from '../AppDropdownSeparator';
 
 export default class AppHeader extends React.Component {
 
@@ -44,7 +48,7 @@ export default class AppHeader extends React.Component {
     e.preventDefault();
 
     const { store: { getState } } = this.context;
-    const { serverPath, serverPathname, serverQuery, serverParams } = getState();
+    const { serverPath, serverPathname, serverQuery } = getState();
 
     if ( serverPath === '/new' ) {
       return;
@@ -52,7 +56,7 @@ export default class AppHeader extends React.Component {
 
     return Router.push({
       pathname: serverPathname,
-      query   : { ...serverParams, ...serverQuery, new: 'modal' },
+      query   : { ...serverQuery, new: 'modal' },
     }, '/new');
   }
 
@@ -65,7 +69,7 @@ export default class AppHeader extends React.Component {
 
     const { active } = this.state;
     const { store: { getState } } = this.context;
-    const { serverPath, serverQuery, authenticationToken, accountUsername } = getState();
+    const { serverPath, serverQuery, authenticationToken, accountUsername, accountAvatar } = getState();
 
     return <header className="header">
       <style jsx>{`
@@ -160,6 +164,12 @@ export default class AppHeader extends React.Component {
           text-decoration: none;
           color: #888;
         }
+        .header-nav-avatar {
+          width: 24px;
+          height: 24px;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          border-radius: 12px;
+        }
         .header-nav-a.header-nav-a-active {
           color: #000;
         }
@@ -210,6 +220,28 @@ export default class AppHeader extends React.Component {
           }
         }
       `}</style>
+      <style jsx global>{`
+        .avatar-dropdown-wrapper {
+          width: 24px;
+          max-width: 24px;
+        }
+        .avatar-dropdown-button {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          border: none;
+          background-color: transparent;
+          outline: none;
+          cursor: pointer;
+          width: 24px;
+          height: 46px;
+        }
+      `}</style>
       <nav className="header-nav header-grid">
 
         {/* left menu items when logged in */}
@@ -242,24 +274,31 @@ export default class AppHeader extends React.Component {
               <li className="header-nav-li">
                 <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
               </li>
-              <li className="header-nav-li">
-                <Link href="/landing" as="/about-us"><a className={ serverPath === '/about-us' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Learn More</a></Link>
-              </li>
             </ul>
           </div>
         </If>
 
         {/* logo container */}
         <div className="header-grid-column-1 header-grid-column-ac">
-          <AppHeaderLogo headerHeight={AppHeader.cssVariables.headerHeight} />
+          <Link href="/landing" as="/">
+            <a>
+              <AppHeaderLogo headerHeight={AppHeader.cssVariables.headerHeight} />
+            </a>
+          </Link>
         </div>
 
         {/* user left menu */}
         <If condition={!!authenticationToken}>
           <div className="header-grid-column-4 header-grid-column-ar">
             <ul className="header-nav-ul">
-              <li className="header-nav-li">
-                <Link href="/signout" as="/signout"><a className="header-nav-a">Sign out</a></Link>
+              <li className="header-nav-li avatar-dropdown-wrapper">
+                <AppDropdownButton className="avatar-dropdown-button" render={<img className="header-nav-avatar" src={accountAvatar} />}>
+                  <AppDropdownMenu>
+                    <AppDropdownItem>
+                      <Link href="/signout" as="/signout"><a className="header-nav-a">Sign out</a></Link>
+                    </AppDropdownItem>
+                  </AppDropdownMenu>
+                </AppDropdownButton>
               </li>
             </ul>
           </div>

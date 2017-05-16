@@ -8,6 +8,7 @@ import Router from 'next/router';
 
 import If from '../components/If';
 import WindowObserver from '../components/WindowObserver';
+import AfterEvent from '../components/AfterEvent';
 import BackToTop from '../components/BackToTop';
 import AppHeader from '../components/AppHeader';
 import AppModal from '../components/AppModal';
@@ -38,6 +39,28 @@ class ListMoments extends React.PureComponent {
     return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates };
   }
 
+  state = {
+    fetching: false,
+  }
+
+  onPageLoad = o => {
+    const { username, dispatch } = this.props;
+    return new Promise(resolve => {
+      this.setState(state => !state.fetching && { fetching: true }, _ => {
+        Promise.all([
+          dispatch(momentsApi.retrieveMoments(username)),
+          dispatch(usersApi.retrieveUser(username)),
+        ])
+        .then(resolve)
+        .catch(resolve);
+      });
+    });
+  }
+
+  onPageLoaded = o => {
+    this.setState(state => state.fetching && { fetching: false });
+  }
+
   mode() {
     const { windowSize: { width: ww, height: wh } } = this.props;
     const defaults = { maxWidth: 600, maxHeight: 600 };
@@ -58,6 +81,7 @@ class ListMoments extends React.PureComponent {
 
   render () {
 
+    const { fetching } = this.state;
     const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates } = this.props;
     const { username: author, id } = serverQuery;
 
@@ -97,12 +121,14 @@ class ListMoments extends React.PureComponent {
       </Head>
 
       <BackToTop id={username} />
+      <AfterEvent id={username} autostart={false} run={this.onPageLoad} then={this.onPageLoaded} timeout={1000} />
+
       <AppHeader />
       <WindowObserver />
 
       <div className="container">
         <AppMomentsProfile user={user} />
-        <AppMomentsList whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
+        <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
       </div>
 
       <AppModal

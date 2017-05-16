@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 const handle = app.getRequestHandler();
 
 const routes = {
-  '/'                       : '/landing',
+  '/'                       : '/explore',
   '/signin'                 : '/signin',
   '/signout'                : '/signout',
   '/new'                    : '/new-moment',

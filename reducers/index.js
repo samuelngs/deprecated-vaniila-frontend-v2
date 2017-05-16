@@ -11,7 +11,7 @@ import fileReducer from './file';
 import playerReducer from './player';
 import commentsReducer from './comments';
 import windowReducer from './window';
-import landingReducer from './landing';
+import trendsReducer from './trends';
 
 export const collections = {
   ...serverReducer,
@@ -26,7 +26,7 @@ export const collections = {
   ...playerReducer,
   ...commentsReducer,
   ...windowReducer,
-  ...landingReducer,
+  ...trendsReducer,
 };
 
 export const middlewares = [

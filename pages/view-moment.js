@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Router from 'next/router';
 
 import If from '../components/If';
+import BackToTop from '../components/BackToTop';
 import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
 import AppMomentSync from '../components/AppMomentSync';
@@ -132,6 +133,7 @@ class ViewMoment extends React.Component {
       </Head>
 
       <WindowObserver />
+      <BackToTop id={id} />
       <AppHeader />
 
       <AppLaunchLoader loading={!doc && !err} sizes={sizes} />

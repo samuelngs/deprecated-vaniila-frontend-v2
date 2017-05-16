@@ -86,7 +86,7 @@ export default class AppMomentsListItem extends React.PureComponent {
       case 'desktop':
         return Router.push({
           pathname: serverPathname,
-          query   : { ...serverQuery, id, username: profile },
+          query   : { ...serverQuery, id, username: (profile || username) },
         }, `/${username}/${id}`);
 
       case 'mobile':

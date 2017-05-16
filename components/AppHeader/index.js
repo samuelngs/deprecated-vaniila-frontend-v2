@@ -278,7 +278,7 @@ export default class AppHeader extends React.Component {
             </button>
             <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
               <li className="header-nav-li">
-                <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
+                <Link href="/explore" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
               </li>
               <li className="header-nav-li">
                 <Link href={{ pathname: '/list-moments', query: { username: accountUsername }}} as={`/${accountUsername}`}><a className={ (serverPath || '').indexOf(`/${accountUsername}`) === 0 ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Your Moments</a></Link>
@@ -298,7 +298,7 @@ export default class AppHeader extends React.Component {
             </button>
             <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
               <li className="header-nav-li">
-                <Link href="/landing" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
+                <Link href="/explore" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
               </li>
             </ul>
           </div>
@@ -306,7 +306,7 @@ export default class AppHeader extends React.Component {
 
         {/* logo container */}
         <div className="header-grid-column-1 header-grid-column-ac">
-          <Link href="/landing" as="/">
+          <Link href="/explore" as="/">
             <a>
               <AppHeaderLogo headerHeight={AppHeader.cssVariables.headerHeight} />
             </a>

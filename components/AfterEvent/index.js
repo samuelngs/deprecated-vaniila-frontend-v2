@@ -5,22 +5,25 @@ import PropTypes from 'prop-types';
 export default class AfterEvent extends React.PureComponent {
 
   static propTypes = {
-    id      : PropTypes.string,
-    run     : PropTypes.func,
-    then    : PropTypes.func,
-    timeout : PropTypes.number,
+    id        : PropTypes.string,
+    autostart : PropTypes.bool,
+    run       : PropTypes.func,
+    then      : PropTypes.func,
+    timeout   : PropTypes.number,
   };
 
   static defaultProps = {
-    id      : '',
-    run     : e => null,
-    then    : e => null,
-    timeout : 0,
+    id        : '',
+    autostart : true,
+    run       : e => null,
+    then      : e => null,
+    timeout   : 0,
   };
 
   componentDidMount() {
+    const { autostart } = this.props;
     this.$$_mounted_$$ = true;
-    this.run();
+    autostart && this.run();
   }
 
   componentWillUnmount() {

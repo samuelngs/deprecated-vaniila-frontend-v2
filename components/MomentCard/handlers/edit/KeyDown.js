@@ -16,7 +16,7 @@ export default function onKeyDown(e) {
       e.preventDefault && e.preventDefault();
       if ( e.ctrlKey || e.metaKey ) {
         const { livestream, started_at: startedAt, ended_at: endedAt } = (getState().momentDocuments[root] || { });
-        const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() < 0;
+        const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() <= 0;
         if ( streaming ) {
           return this.emit('edit', 'publish-moment');
         }

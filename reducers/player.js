@@ -86,7 +86,7 @@ function hookInitialPlaceholder(states, { id }, store) {
     const startedAt = new Date(started_at);
     const endedAt = new Date(ended_at);
 
-    const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+    const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() <= 0;
 
     const moments = hookMomentsSort(((document || { }).data || { }).slides || { }, livestreaming);
     const ids = Object.keys(moments);
@@ -146,7 +146,7 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
   const startedAt = new Date(started_at);
   const endedAt = new Date(ended_at);
 
-  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() <= 0;
 
   const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestreaming);
   const ids = Object.keys(moments);
@@ -238,7 +238,7 @@ function hookSyncWithDocument(states, { id }, store) {
   const startedAt = new Date(started_at);
   const endedAt = new Date(ended_at);
 
-  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() < 0;
+  const livestreaming = livestream && startedAt.getTime() > 0 && endedAt.getTime() <= 0;
 
   const moments = hookMomentsSort(((doc.document || { }).data || { }).slides || { }, livestreaming);
   const ids = Object.keys(moments);

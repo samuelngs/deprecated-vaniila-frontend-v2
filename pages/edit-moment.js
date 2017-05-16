@@ -504,7 +504,7 @@ class EditMoment extends React.Component {
       past
     } = editorHistories[id] || { };
 
-    const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() < 0;
+    const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() <= 0;
 
     const editorState = editorStates[id] || { };
     const { editorGrid } = editorState;

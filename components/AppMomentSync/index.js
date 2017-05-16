@@ -75,12 +75,14 @@ export default class AppMomentSync extends React.PureComponent {
   onAppLiveStart(type, name, data) {
     const { store } = this.context;
     const { id } = this.props;
+    store.dispatch(momentApi.retrieveMomentDocument(id));
     store.dispatch(PlayerApi.setPlayerState(id, { live: true }));
   }
 
   onAppLiveEnd(type, name, data) {
     const { store } = this.context;
     const { id } = this.props;
+    store.dispatch(momentApi.retrieveMomentDocument(id));
     store.dispatch(PlayerApi.setPlayerState(id, { live: false }));
   }
 

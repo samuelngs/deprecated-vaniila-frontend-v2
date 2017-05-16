@@ -64,7 +64,7 @@ export default class AppMomentDeleteConfirmation extends React.PureComponent {
           color: #fff;
         }
         .button-cancel {
-          background-color: #ececec;
+          background-color: #f8f8f8;
           color: #8e8e8e;
         }
         .button-container {

@@ -12,6 +12,7 @@ import playerReducer from './player';
 import commentsReducer from './comments';
 import windowReducer from './window';
 import trendsReducer from './trends';
+import liveReducer from './live';
 
 export const collections = {
   ...serverReducer,
@@ -27,6 +28,7 @@ export const collections = {
   ...commentsReducer,
   ...windowReducer,
   ...trendsReducer,
+  ...liveReducer,
 };
 
 export const middlewares = [

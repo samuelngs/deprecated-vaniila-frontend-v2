@@ -21,7 +21,6 @@ export default class AppHeader extends React.Component {
   }
 
   static cssVariables = {
-    headerHeight: 46,
     headerBackgroundColor: '#fff',
     headerIconColor: '#8aa7b1',
   }
@@ -109,11 +108,10 @@ export default class AppHeader extends React.Component {
           padding-left: 0;
           padding-right: 0;
           width: 100%;
-          height: ${AppHeader.cssVariables.headerHeight}px;
+          height: 46px;
           position: fixed;
           display: flex;
           background-color: ${AppHeader.cssVariables.headerBackgroundColor};
-          box-shadow: rgba(0, 0, 0, 0.05) 0px 1px;
           z-index: 21;
         }
         .header-grid {
@@ -167,6 +165,9 @@ export default class AppHeader extends React.Component {
           flex-direction: column;
           justify-content: center;
         }
+        .header-nav-ul:hover .header-nav-a {
+          color: #ccc;
+        }
         .header-nav-ul.header-nav-dropdown {
           display: none;
         }
@@ -189,6 +190,7 @@ export default class AppHeader extends React.Component {
           font-weight: 600;
           text-decoration: none;
           color: #888;
+          transition: color .5s ease;
         }
         .header-nav-avatar {
           width: 24px;
@@ -196,7 +198,9 @@ export default class AppHeader extends React.Component {
           border: 1px solid rgba(0, 0, 0, 0.05);
           border-radius: 12px;
         }
-        .header-nav-a.header-nav-a-active {
+        .header-nav-a:hover,
+        .header-nav-a.header-nav-a-active,
+        .header-nav-ul:hover .header-nav-a:hover {
           color: #000;
         }
         @media (max-width: 768px) {
@@ -223,6 +227,9 @@ export default class AppHeader extends React.Component {
           }
         }
         @media (min-width: 768px) {
+          .header {
+            height: 56px;
+          }
           .header-nav-button {
             display: none;
           }
@@ -244,6 +251,9 @@ export default class AppHeader extends React.Component {
             font-weight: 600;
             color: #888;
           }
+          .header-grid-column-al { order: 2; }
+          .header-grid-column-ac { order: 1; padding-left: 20px; }
+          .header-grid-column-ar { order: 3; }
         }
       `}</style>
       <style jsx global>{`
@@ -266,6 +276,11 @@ export default class AppHeader extends React.Component {
           cursor: pointer;
           width: 24px;
           height: 46px;
+        }
+        @media (min-width: 768px) {
+          .avatar-dropdown-button {
+            height: 56px;
+          }
         }
       `}</style>
       <nav className="header-nav header-grid">
@@ -308,7 +323,7 @@ export default class AppHeader extends React.Component {
         <div className="header-grid-column-1 header-grid-column-ac">
           <Link href="/explore" as="/">
             <a>
-              <AppHeaderLogo headerHeight={AppHeader.cssVariables.headerHeight} />
+              <AppHeaderLogo />
             </a>
           </Link>
         </div>

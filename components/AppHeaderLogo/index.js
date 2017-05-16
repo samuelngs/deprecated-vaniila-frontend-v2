@@ -1,9 +1,12 @@
 
 import React from 'react';
 
-export default ({ headerHeight = 45 }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style={{ height: headerHeight, width: headerHeight }}>
+export default () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
   <style jsx>{`
-    svg { fill: url(#app-header-logo); }
+    svg { width: 45px; height: 45px; fill: url(#app-header-logo); }
+    @media (min-width: 768px) {
+      svg { width: 51px; height: 51px; padding: 2px; }
+    }
   `}</style>
   <defs>
     <linearGradient id="app-header-logo" gradientTransform="rotate(25)">

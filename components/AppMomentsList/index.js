@@ -10,11 +10,11 @@ const placeholders = [ 0, 0, 0, 0, 0 ];
 export default class AppMomentsList extends React.PureComponent {
 
   static propTypes = {
-    placeholder: PropTypes.bool,
-    whoami     : PropTypes.string,
-    profile    : PropTypes.string,
-    mode       : PropTypes.oneOf([ 'desktop', 'mobile' ]),
-    moments    : PropTypes.array,
+    placeholder : PropTypes.bool,
+    whoami      : PropTypes.string,
+    profile     : PropTypes.string,
+    mode        : PropTypes.oneOf([ 'desktop', 'mobile' ]),
+    moments     : PropTypes.array,
   }
 
   static defaultProps = {

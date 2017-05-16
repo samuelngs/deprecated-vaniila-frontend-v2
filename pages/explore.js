@@ -3,6 +3,7 @@ import React from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
 
+import If from '../components/If';
 import WindowObserver from '../components/WindowObserver';
 import BackToTop from '../components/BackToTop';
 import AfterEvent from '../components/AfterEvent';
@@ -12,17 +13,25 @@ import AppMomentsList from '../components/AppMomentsList';
 import AppModalViewMoment from '../components/AppModalViewMoment';
 
 import { api as trendsApi } from '../reducers/trends';
+import { api as liveApi } from '../reducers/live';
 import withRedux from '../storage';
 
 class Explore extends React.Component {
 
   static async getInitialProps ({ req, res, pathname, query, store }) {
-    const { err } = await store.dispatch(trendsApi.retrieveTrends(1));
-    return { err };
+    {
+      const { err } = await store.dispatch(trendsApi.retrieveTrends(1));
+      if ( err ) return { err };
+    }
+    {
+      const { err } = await store.dispatch(liveApi.retrieveLive());
+      if ( err ) return { err };
+    }
+    return { };
   }
 
-  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends }) {
-    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends };
+  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live }) {
+    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live };
   }
 
   state = {
@@ -33,9 +42,12 @@ class Explore extends React.Component {
     const { dispatch } = this.props;
     return new Promise(resolve => {
       this.setState(state => !state.fetching && { fetching: true }, _ => {
-        dispatch(trendsApi.retrieveTrends(1))
-          .then(resolve)
-          .catch(resolve);
+        Promise.all([
+          dispatch(trendsApi.retrieveTrends(1)),
+          dispatch(liveApi.retrieveLive()),
+        ])
+        .then(resolve)
+        .catch(resolve);
       });
     });
   }
@@ -78,6 +90,7 @@ class Explore extends React.Component {
       momentComments,
       playerStates,
       trends,
+      live,
     } = this.props;
 
     const { } = this.props;
@@ -107,9 +120,66 @@ class Explore extends React.Component {
           max-width: 100%;
           max-width: calc(100% - 40px);
         }
+        .headline {
+          margin-top: 40px;
+          margin-bottom: 80px;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          font-size: 22px;
+          font-weight: 300;
+          line-height: 1.3;
+          text-align: center;
+          color: #000;
+        }
+        .headline-bold {
+          font-weight: 700;
+        }
+        .headline-color {
+          color: #288fea;
+          background: -webkit-linear-gradient(-54deg, #C3DC6F, #82C4AC, #288FEA, #288FEA);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .headline span {
+          display: block;
+        }
+        .category {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          margin-top: 20px;
+          margin-bottom: 20px;
+          margin-left: 2px;
+          margin-right: 2px;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #000;
+        }
+        .category-live {
+          color: #07d691;
+        }
+        .category-live svg {
+          width: 14px;
+          height: 14px;
+          margin-top: -2px;
+          fill: #07d691;
+        }
         @media (min-width: 680px) {
           .container {
             width: 620px;
+          }
+          .headline {
+            margin-top: 90px;
+            margin-bottom: 90px;
+            font-size: 40px;
           }
         }
         @media (min-width: 1000px) {
@@ -130,6 +200,22 @@ class Explore extends React.Component {
       <AfterEvent autostart={false} run={this.onPageLoad} then={this.onPageLoaded}  />
 
       <div className="container">
+        <h1 className="headline">
+          <span>Capture <b className="headline-bold headline-color">moments</b></span>
+          <span>Share them with the world</span>
+        </h1>
+        <If condition={live.length > 0}>
+          <h4 className="category category-live">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+              <path d="M16.43 36.684c-.33 0-.663 0-.83-.166-.995-.498-1.66-1.494-1.327-2.656l2.49-9.795H13.94c-.83 0-1.66-.498-1.99-1.162-.333-.664-.333-1.66 0-2.324l9.626-16.1c.166-.164.166-.33.332-.496.663-.664 1.66-.83 2.49-.498.995.498 1.66 1.494 1.327 2.656l-2.49 10.128h2.822c.83 0 1.66.498 1.99 1.162.333.663.333 1.66 0 2.323l-9.627 15.77c-.166.166-.166.332-.332.498-.497.332-1.16.498-1.66.664z"/>
+            </svg>
+            Live
+          </h4>
+        </If>
+        <If condition={live.length > 0}>
+          <AppMomentsList placeholder={false} whoami={accountUsername} moments={live} mode={this.mode()} />
+        </If>
+        <h4 className="category">Trends</h4>
         <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} mode={this.mode()} />
       </div>
 

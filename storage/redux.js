@@ -273,8 +273,10 @@ export default function(createStore) {
         Router.onRouteChangeStart = path => {
           const { accountUsername, accountFullname } = this.store.getState();
           this.store.dispatch({ type: actions.SetServerPath, path });
-          if ( typeof window !== 'undefined' && typeof window.ga === 'function' && !!accountUsername ) {
-            ga('set', 'userId', accountUsername);
+          if ( typeof window !== 'undefined' && typeof window.ga === 'function' ) {
+            if ( !!accountUsername ) {
+              ga('set', 'userId', accountUsername);
+            }
             ga('set', 'page', path);
             ga('send', 'pageview');
           }

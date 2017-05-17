@@ -13,6 +13,7 @@ import commentsReducer from './comments';
 import windowReducer from './window';
 import trendsReducer from './trends';
 import liveReducer from './live';
+import chatReducer from './chat';
 
 export const collections = {
   ...serverReducer,
@@ -29,6 +30,7 @@ export const collections = {
   ...windowReducer,
   ...trendsReducer,
   ...liveReducer,
+  ...chatReducer,
 };
 
 export const middlewares = [

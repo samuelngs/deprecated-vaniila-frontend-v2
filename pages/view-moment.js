@@ -13,7 +13,10 @@ import AppMomentSync from '../components/AppMomentSync';
 import AppMomentViewer from '../components/AppMomentViewer';
 import AppMomentViewerSidebar from '../components/AppMomentViewerSidebar';
 import AppMomentDetails from '../components/AppMomentDetails';
+import AppMomentLeaveComment from '../components/AppMomentLeaveComment';
 import AppMomentListComments from '../components/AppMomentListComments';
+import AppMomentChat from '../components/AppMomentChat';
+import AppMomentChatCompose from '../components/AppMomentChatCompose';
 import AppLaunchLoader from '../components/AppLaunchLoader';
 import AppLaunchSuccess from '../components/AppLaunchSuccess';
 import AppLaunchFail from '../components/AppLaunchFail';
@@ -29,8 +32,8 @@ class ViewMoment extends React.Component {
     return { err, query };
   }
 
-  static observe ({ authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize }) {
-    return { authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize };
+  static observe ({ authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize, chat }) {
+    return { authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, windowSize, chat };
   }
 
   state = {
@@ -110,16 +113,17 @@ class ViewMoment extends React.Component {
 
   render () {
 
-    const { query: { id }, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
+    const { query: { id }, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, chat } = this.props;
     const doc = momentDocuments[id];
     const player = playerStates[id];
     const comments = momentComments[id];
+    const messages = chat[id];
 
     const { err, path, name } = (doc || { });
     const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerLiveInterrupted, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
-    const { player: { width } } = sizes;
+    const { player: { width, height } } = sizes;
 
     return <div>
 
@@ -170,8 +174,9 @@ class ViewMoment extends React.Component {
         >
           {/* desktop chat, only appear when live mode */}
           <If condition={width >= 800 && playerIsLive}>
-            <AppMomentViewerSidebar>
-              <AppMomentListComments id={id} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+            <AppMomentViewerSidebar height={height}>
+              <AppMomentChat id={id} messages={messages} />
+              <AppMomentChatCompose id={id} />
             </AppMomentViewerSidebar>
           </If>
         </AppMomentViewer>

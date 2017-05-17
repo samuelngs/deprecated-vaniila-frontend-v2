@@ -7,6 +7,7 @@ import AppSync from '../AppSync';
 import deepClone from '../../utils/clone';
 import { api as PlayerApi } from '../../reducers/player';
 import { api as momentApi } from '../../reducers/moment';
+import { api as chatApi } from '../../reducers/chat';
 
 export default class AppMomentSync extends React.PureComponent {
 
@@ -33,6 +34,8 @@ export default class AppMomentSync extends React.PureComponent {
   static TYPE = 'moment-sync'
   static OPEN = 'open'
   static CLOSED = 'closed'
+
+  hash = { }
 
   state = {
     id    : UUID.v4(),
@@ -69,6 +72,8 @@ export default class AppMomentSync extends React.PureComponent {
         return this.onAppLiveEnd(type, name, data);
       case 'publish':
         return this.onAppReceivePublish(type, name, data);
+      case 'message':
+        return this.onAppReceiveChatMessage(type, name, data);
     }
   }
 
@@ -103,6 +108,14 @@ export default class AppMomentSync extends React.PureComponent {
     const { store } = this.context;
     const { id } = this.props;
     store.dispatch(momentApi.patchMomentDocument(id, data));
+  }
+
+  onAppReceiveChatMessage(type, name, data) {
+    const { store } = this.context;
+    const { id } = this.props;
+    if ( !data.id || this.hash[data.id] === true ) return;
+    this.hash[data.id] = true;
+    store.dispatch(chatApi.receiveMessage(id, data));
   }
 
   render() {

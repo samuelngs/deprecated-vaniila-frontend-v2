@@ -6,16 +6,18 @@ export default class AppMomentViewerSidebar extends React.PureComponent {
 
   static propTypes = {
     children: PropTypes.node,
+    height  : PropTypes.number,
   }
 
   static defaultProps = {
     children: null,
+    height  : 300,
   }
 
 
   render() {
-    const { children } = this.props;
-    return <div className="base">
+    const { children, height } = this.props;
+    return <div className="base" style={{ height }}>
       <style jsx>{`
         .base {
           display: flex;

@@ -75,7 +75,7 @@ export default class AppFooter extends React.PureComponent {
       <nav>
         <ul>
           <li>
-            <a href="mail:hello@vaniila.com" target="_blank">Contact us</a>
+            <a href="mailto:hello@vaniila.com" target="_blank">Contact us</a>
           </li>
           <li>
             <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link>

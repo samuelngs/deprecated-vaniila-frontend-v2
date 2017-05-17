@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import If from '../If';
 import AppMomentTimer from '../AppMomentTimer';
 import AppMomentPlayer from '../AppMomentPlayer';
 
@@ -242,14 +243,16 @@ export default class AppMomentViewer extends React.PureComponent {
         onMouseLeave={this.onPlayerLeave}
         onMouseMove={this.onPlayerEnter}
       >
-        <AppMomentTimer
-          id={id}
-          live={live}
-          current={moment}
-          hasInterrupted={hasInterrupted}
-          hasNext={hasNext}
-          onNext={onNext}
-        />
+        <If condition={live}>
+          <AppMomentTimer
+            id={id}
+            live={live}
+            current={moment}
+            hasInterrupted={hasInterrupted}
+            hasNext={hasNext}
+            onNext={onNext}
+          />
+        </If>
         <AppMomentPlayer
           id={id}
           modal={modal}

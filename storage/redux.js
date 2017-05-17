@@ -278,7 +278,7 @@ export default function(createStore) {
             ga('set', 'page', path);
             ga('send', 'pageview');
           }
-          if ( typeof window !== 'undefined' && typeof window.FS === 'object' && !!accountUsername ) {
+          if ( typeof window !== 'undefined' && !!window.FS && !!accountUsername ) {
             FS.identify(accountUsername, {
               displayName: accountFullname,
             });

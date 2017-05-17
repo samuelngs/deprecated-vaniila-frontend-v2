@@ -225,8 +225,8 @@ class Explore extends React.Component {
 
       <div className="container">
         <h1 className="headline">
-          <span>Capture <b className="headline-bold headline-color">moments</b></span>
-          <span>Share them with the world</span>
+          <span>Share the best</span>
+          <span><b className="headline-bold headline-color">moments</b> for any event</span>
         </h1>
         <If condition={live.length > 0}>
           <h4 className="category category-live">

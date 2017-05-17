@@ -189,6 +189,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-bottom: 20px;
           padding-left: 0;
           padding-right: 0;
+          max-width: 300px;
         }
         .item-details-info {
           display: flex;

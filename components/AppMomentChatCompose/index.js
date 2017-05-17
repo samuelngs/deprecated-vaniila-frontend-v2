@@ -44,7 +44,16 @@ export default class AppMomentChatCompose extends React.PureComponent {
       return this.n && this.n.focus();
     }
     dispatch(chatReducerApi.sendMessage(id, text))
-      .then(e => this.setState({ text: '' }));
+      .then(e => this.setState({ text: '' }))
+      .then(e => {
+        this.n && this.n.focus();
+      });
+  }
+
+  handleChatKeypress = e => {
+    if ( e.key === 'Enter' ) {
+      this.handleChatSubmit(e);
+    }
   }
 
   render() {
@@ -123,6 +132,7 @@ export default class AppMomentChatCompose extends React.PureComponent {
         autoCapitalize="off"
         spellCheck="false"
         onChange={this.handleChatChange}
+        onKeyPress={this.handleChatKeypress}
       />
       <button className={len > 0 ? "button button-active" : "button"} onClick={this.handleChatSubmit}>Send</button>
     </div>

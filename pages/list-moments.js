@@ -36,8 +36,8 @@ class ListMoments extends React.PureComponent {
     return { username };
   }
 
-  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates }) {
-    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates };
+  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat }) {
+    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat };
   }
 
   state = {
@@ -83,7 +83,7 @@ class ListMoments extends React.PureComponent {
   render () {
 
     const { fetching } = this.state;
-    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates } = this.props;
+    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat } = this.props;
     const { username: author, id } = serverQuery;
 
     const moments = momentsList[username] || [ ];
@@ -145,6 +145,7 @@ class ListMoments extends React.PureComponent {
           momentDocuments,
           momentComments,
           playerStates,
+          chat,
         }}
       >
         <AppModalViewMoment />

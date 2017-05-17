@@ -148,7 +148,7 @@ export default class AppNewMoment extends React.PureComponent {
           <div className="option-container">
             <AppNewLiveMoment style={{ width: '100%', maxWidth: 300 }} />
             <h6 className="option-name">Share Live Event</h6>
-            <p className="option-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            <p className="option-description">Capture live moments at any event.</p>
             <div className="option-fake-button">Create Live Moment</div>
           </div>
         </button>
@@ -156,7 +156,7 @@ export default class AppNewMoment extends React.PureComponent {
           <div className="option-container">
             <AppNewOfflineMoment style={{ width: '100%', maxWidth: 300 }} />
             <h6 className="option-name">Moment</h6>
-            <p className="option-description">Nullam sed dui lectus, Aenean rutrum Vivamus a eleifend lectus.</p>
+            <p className="option-description">Post something cool you want to share to the world.</p>
             <div className="option-fake-button">Create Moment</div>
           </div>
         </button>

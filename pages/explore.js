@@ -32,8 +32,8 @@ class Explore extends React.Component {
     return { };
   }
 
-  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live }) {
-    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live };
+  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live, chat }) {
+    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live, chat };
   }
 
   state = {
@@ -115,6 +115,7 @@ class Explore extends React.Component {
       playerStates,
       trends,
       live,
+      chat,
     } = this.props;
 
     const { } = this.props;
@@ -257,6 +258,7 @@ class Explore extends React.Component {
           momentDocuments,
           momentComments,
           playerStates,
+          chat,
         }}
       >
         <AppModalViewMoment />

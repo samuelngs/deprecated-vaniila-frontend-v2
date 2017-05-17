@@ -15,6 +15,8 @@ import AppMomentStats from '../AppMomentStats';
 import AppMomentListComments from '../AppMomentListComments';
 import AppMomentLoginComment from '../AppMomentLoginComment';
 import AppMomentLeaveComment from '../AppMomentLeaveComment';
+import AppMomentChat from '../AppMomentChat';
+import AppMomentChatCompose from '../AppMomentChatCompose';
 
 import { api as momentReducerApi } from '../../reducers/moment';
 import { api as playerReducerApi } from '../../reducers/player';
@@ -34,6 +36,7 @@ export default class AppModalViewMoment extends React.Component {
     momentComments      : PropTypes.object,
     momentDocuments     : PropTypes.object,
     playerStates        : PropTypes.object,
+    chat                : PropTypes.object,
   }
 
   static defaultProps = {
@@ -45,6 +48,7 @@ export default class AppModalViewMoment extends React.Component {
     momentComments      : { },
     momentDocuments     : { },
     playerStates        : { },
+    chat                : { },
   }
 
   state = {
@@ -128,13 +132,14 @@ export default class AppModalViewMoment extends React.Component {
   render() {
 
     const { fetching } = this.state;
-    const { id, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates } = this.props;
+    const { id, authenticationToken, accountUsername, momentDocuments, momentComments, playerStates, chat } = this.props;
     const sizes = this.getSizes();
     const { container: { width }, screen: { height } } = sizes;
 
     const doc = momentDocuments[id];
     const player = playerStates[id];
     const comments = momentComments[id];
+    const messages = chat[id];
 
     const { err, path, name, impressions, likes, liked, permissions } = (doc || { });
     const { write, admin } = (permissions || { });
@@ -200,16 +205,28 @@ export default class AppModalViewMoment extends React.Component {
           <AppMomentStats id={id} impressions={impressions} likes={likes} liked={liked} authenticated={!!authenticationToken} />
 
           {/* list users comments component */}
-          <AppMomentListComments id={id} modal={true} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+          <If condition={!playerIsLive}>
+            <AppMomentListComments id={id} modal={true} comments={comments} user={accountUsername} authenticated={!!authenticationToken} />
+          </If>
 
           {/* leave comment component */}
-          <If condition={!!authenticationToken}>
+          <If condition={!playerIsLive && !!authenticationToken}>
             <AppMomentLeaveComment id={id} />
           </If>
 
           {/* sign in comment component */}
-          <If condition={!authenticationToken}>
+          <If condition={!playerIsLive && !authenticationToken}>
             <AppMomentLoginComment id={id} />
+          </If>
+
+          {/* list users chat component */}
+          <If condition={playerIsLive}>
+            <AppMomentChat id={id} modal={true} messages={messages} />
+          </If>
+
+          {/* chat component */}
+          <If condition={playerIsLive}>
+            <AppMomentChatCompose id={id} />
           </If>
 
         </AppMomentDetails>

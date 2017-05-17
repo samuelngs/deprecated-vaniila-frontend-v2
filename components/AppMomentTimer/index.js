@@ -42,13 +42,10 @@ export default class AppMomentTimer extends React.PureComponent {
     onNext        : e => null,
   }
 
-  lastUpdate = Date.now()
-
   componentScheduleTask = o => {
     if ( this.$$_SCHEDULE_$$ ) this.$$_SCHEDULE_$$ = null;
     const { onNext } = this.props;
     onNext(o, true);
-    this.lastUpdate = Date.now();
   }
 
   componentWillUpdate({ id, live, hasInterrupted }) {
@@ -59,31 +56,20 @@ export default class AppMomentTimer extends React.PureComponent {
 
   componentDidUpdate({ id, hasInterrupted, hasNext }) {
 
-    if ( typeof window === 'undefined' || !id || !hasNext ) return;
+    if ( typeof window === 'undefined' || !id || !hasNext || hasInterrupted || this.$$_SCHEDULE_$$ ) return;
 
     const wpms = this.getMilliseconds();
-
-    if ( ( Date.now() - this.lastUpdate ) > wpms ) {
-      this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, 0);
-    } else {
-      this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, wpms);
-    }
+    this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, wpms);
   }
 
   componentDidMount() {
 
-    const { id, hasNext } = this.props;
+    const { id, hasNext, hasInterrupted } = this.props;
 
-    if ( typeof window === 'undefined' || !id || !hasNext ) return;
+    if ( typeof window === 'undefined' || !id || !hasNext || hasInterrupted || this.$$_SCHEDULE_$$ ) return;
 
     const wpms = this.getMilliseconds();
-
-    if ( ( Date.now() - this.lastUpdate ) > wpms ) {
-      this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, 0);
-    } else {
-      this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, wpms);
-    }
-
+    this.$$_SCHEDULE_$$ = window.setTimeout(this.componentScheduleTask, wpms);
   }
 
   getMilliseconds() {

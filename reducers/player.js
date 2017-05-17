@@ -28,7 +28,7 @@ const defaults = {
     moment: undefined,
     pulse: undefined,
     live: undefined,
-    interrupted: undefined,
+    automation: undefined,
   },
 
 };
@@ -162,8 +162,8 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
     state.playerIsLive = opts.live;
   }
 
-  if ( typeof opts.interrupted === 'boolean' ) {
-    state.playerLiveInterrupted = opts.interrupted;
+  if ( typeof opts.automation === 'boolean' && state.playerIsLive ) {
+    state.playerLiveInterrupted = !opts.automation;
   }
 
   const idx = ids.indexOf(opts.moment);
@@ -190,6 +190,9 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
         state.playerHasNext = false;
         state.playerNextMoment = null;
         state.playerNextIndex = -2;
+        if ( state.playerIsLive ) {
+          state.playerLiveInterrupted = false;
+        }
       }
     } else {
 
@@ -213,6 +216,9 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
         state.playerHasNext = false;
         state.playerNextMoment = null;
         state.playerNextIndex = -2;
+        if ( state.playerIsLive ) {
+          state.playerLiveInterrupted = false;
+        }
       }
     }
   }

@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import AppMomentTimer from '../AppMomentTimer';
 import AppMomentPlayer from '../AppMomentPlayer';
 
 export default class AppMomentViewer extends React.PureComponent {
@@ -23,6 +24,7 @@ export default class AppMomentViewer extends React.PureComponent {
 
     sizes         : PropTypes.object,
 
+    hasInterrupted: PropTypes.bool,
     hasPrevious   : PropTypes.bool,
     hasNext       : PropTypes.bool,
     onPrevious    : PropTypes.func,
@@ -48,6 +50,7 @@ export default class AppMomentViewer extends React.PureComponent {
 
     sizes         : { },
 
+    hasInterrupted: false,
     hasPrevious   : false,
     hasNext       : false,
     onPrevious    : e => null,
@@ -198,7 +201,7 @@ export default class AppMomentViewer extends React.PureComponent {
   }
 
   render() {
-    const { id, sizes, modal, live, pulse, moments, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex, children } = this.props;
+    const { id, sizes, modal, live, pulse, moments, hasInterrupted, hasNext, hasPrevious, onNext, onPrevious, currentIndex, nextIndex, previousIndex, children } = this.props;
     const { hover } = this.state;
     const { moment, next, previous, begins, ends, permissions } = this.doc();
     return <div className={ modal ? "base base-modal" : "base" }>
@@ -239,6 +242,14 @@ export default class AppMomentViewer extends React.PureComponent {
         onMouseLeave={this.onPlayerLeave}
         onMouseMove={this.onPlayerEnter}
       >
+        <AppMomentTimer
+          id={id}
+          live={live}
+          current={moment}
+          hasInterrupted={hasInterrupted}
+          hasNext={hasNext}
+          onNext={onNext}
+        />
         <AppMomentPlayer
           id={id}
           modal={modal}

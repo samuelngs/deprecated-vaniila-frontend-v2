@@ -21,12 +21,14 @@ const defaults = {
     playerNextIndex: -2,
     playerIsLive: false,
     playerPulse: false,
+    playerLiveInterrupted: false, // move to the newest moment automatically
   },
 
   options: {
     moment: undefined,
     pulse: undefined,
     live: undefined,
+    interrupted: undefined,
   },
 
 };
@@ -104,12 +106,11 @@ function hookInitialPlaceholder(states, { id }, store) {
 
     // if it's live stream, starts from the latest moment
     if (
-      startedAt.getTime() < 0 ||  // if live stream hasn't started, starts from the beginning
-      endedAt.getTime() > 0 ||    // if live stream has already ended, starts from the beginning
+      !livestreaming ||
       ids.length === 0            // if there are no other moments, starts from cover screen
     ) return clone;
 
-    const idx = idx.length - 1;
+    const idx = ids.length - 1;
 
     state.playerMoment = ids[idx];
     state.playerIndex = idx;
@@ -159,6 +160,10 @@ function hookSetPlayerState(states, { id, options: opts }, store) {
 
   if ( typeof opts.live === 'boolean' ) {
     state.playerIsLive = opts.live;
+  }
+
+  if ( typeof opts.interrupted === 'boolean' ) {
+    state.playerLiveInterrupted = opts.interrupted;
   }
 
   const idx = ids.indexOf(opts.moment);
@@ -373,21 +378,26 @@ function playerStates (states = defaults.states, action = defaults.action, store
   // do not do anything if id is missing
   if ( typeof action.id !== 'string' || ( typeof action.id === 'string' && action.id.trim().length === 0 ) ) return states;
 
-  // initialize state if it does not exist
-  states = hookInitialPlaceholder(states, action, store);
-
   switch ( action.type ) {
 
     /**
      * player initialization or update
      */
     case actions.SetPlayerState:
+
+      // initialize state if it does not exist
+      states = hookInitialPlaceholder(states, action, store);
+
       return hookSetPlayerState(states, action, store);
 
     /**
      * sync player state with document changes
      */
     case actions.SyncPlayerState:
+
+      // initialize state if it does not exist
+      states = hookInitialPlaceholder(states, action, store);
+
       return hookSyncWithDocument(states, action, store);
 
     /**
@@ -415,10 +425,10 @@ function setPlayerState(id, opts) {
 /**
  * next moment
  */
-function next(id) {
+function next(id, automation = false) {
   return function ( dispatch, getState ) {
     const { playerHasNext, playerNextMoment: moment } = getState().playerStates[id];
-    const options = { moment };
+    const options = { moment, automation };
     return new Promise(resolve => {
       if ( !playerHasNext ) return resolve();
       return resolve(dispatch({ type: actions.SetPlayerState, id, options }));
@@ -429,10 +439,10 @@ function next(id) {
 /**
  * previous moment
  */
-function previous(id) {
+function previous(id, automation = false) {
   return function ( dispatch, getState ) {
     const { playerHasPrevious, playerPreviousMoment: moment } = getState().playerStates[id];
-    const options = { moment };
+    const options = { moment, automation };
     return new Promise(resolve => {
       if ( !playerHasPrevious ) return resolve();
       return resolve(dispatch({ type: actions.SetPlayerState, id, options }));

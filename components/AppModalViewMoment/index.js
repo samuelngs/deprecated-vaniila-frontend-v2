@@ -65,10 +65,10 @@ export default class AppModalViewMoment extends React.Component {
     this.setState(state => state.fetching && { fetching: false });
   }
 
-  handleNextMoment = e => {
+  handleNextMoment = (e, automation) => {
     const { store: { dispatch } } = this.context;
     const { id } = this.props;
-    dispatch(playerReducerApi.next(id));
+    dispatch(playerReducerApi.next(id, automation));
   }
 
   handlePreviousMoment = e => {
@@ -139,7 +139,7 @@ export default class AppModalViewMoment extends React.Component {
     const { err, path, name, impressions, likes, liked, permissions } = (doc || { });
     const { write, admin } = (permissions || { });
 
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments, playerLiveInterrupted } = (player || { });
 
     return <div className="modal-container" style={{ width, height }}>
       <style jsx>{`
@@ -186,6 +186,7 @@ export default class AppModalViewMoment extends React.Component {
           previousIndex={playerPreviousIndex}
           next={playerNextMoment}
           nextIndex={playerNextIndex}
+          hasInterrupted={playerLiveInterrupted}
           hasNext={playerHasNext}
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}

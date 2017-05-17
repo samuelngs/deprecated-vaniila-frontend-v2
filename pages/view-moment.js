@@ -59,9 +59,9 @@ class ViewMoment extends React.Component {
     }
   }
 
-  handleNextMoment = e => {
+  handleNextMoment = (e, automation) => {
     const { dispatch, query: { id } } = this.props;
-    dispatch(playerReducerApi.next(id));
+    dispatch(playerReducerApi.next(id, automation));
   }
 
   handlePreviousMoment = e => {
@@ -116,7 +116,7 @@ class ViewMoment extends React.Component {
     const comments = momentComments[id];
 
     const { err, path, name } = (doc || { });
-    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerMoments } = (player || { });
+    const { playerMoment: current, playerNextMoment, playerHasNext, playerPreviousMoment, playerIndex, playerNextIndex, playerPreviousIndex, playerHasPrevious, playerPulse, playerIsLive, playerLiveInterrupted, playerMoments } = (player || { });
 
     const sizes = this.getSizes();
     const { player: { width } } = sizes;
@@ -161,6 +161,7 @@ class ViewMoment extends React.Component {
           previousIndex={playerPreviousIndex}
           next={playerNextMoment}
           nextIndex={playerNextIndex}
+          hasInterrupted={playerLiveInterrupted}
           hasNext={playerHasNext}
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}

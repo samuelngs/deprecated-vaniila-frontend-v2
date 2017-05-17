@@ -11,6 +11,7 @@ import WindowObserver from '../components/WindowObserver';
 import AfterEvent from '../components/AfterEvent';
 import BackToTop from '../components/BackToTop';
 import AppHeader from '../components/AppHeader';
+import AppFooter from '../components/AppFooter';
 import AppModal from '../components/AppModal';
 import AppMomentsList from '../components/AppMomentsList';
 import AppMomentsProfile from '../components/AppMomentsProfile';
@@ -148,6 +149,8 @@ class ListMoments extends React.PureComponent {
       >
         <AppModalViewMoment />
       </AppModal>
+
+      <AppFooter />
 
     </div>
   }

@@ -8,6 +8,7 @@ import If from '../components/If';
 import BackToTop from '../components/BackToTop';
 import WindowObserver from '../components/WindowObserver';
 import AppHeader from '../components/AppHeader';
+import AppFooter from '../components/AppFooter';
 import AppMomentSync from '../components/AppMomentSync';
 import AppMomentViewer from '../components/AppMomentViewer';
 import AppMomentViewerSidebar from '../components/AppMomentViewerSidebar';
@@ -186,6 +187,8 @@ class ViewMoment extends React.Component {
           <h1>Not Found</h1>
         </div>
       </AppLaunchFail>
+
+      <AppFooter />
 
     </div>
   }

@@ -8,9 +8,11 @@ import WindowObserver from '../components/WindowObserver';
 import BackToTop from '../components/BackToTop';
 import AfterEvent from '../components/AfterEvent';
 import AppHeader from '../components/AppHeader';
+import AppFooter from '../components/AppFooter';
 import AppModal from '../components/AppModal';
 import AppMomentsList from '../components/AppMomentsList';
 import AppModalViewMoment from '../components/AppModalViewMoment';
+import AppLoadMore from '../components/AppLoadMore';
 
 import { api as trendsApi } from '../reducers/trends';
 import { api as liveApi } from '../reducers/live';
@@ -36,6 +38,7 @@ class Explore extends React.Component {
 
   state = {
     fetching: false,
+    until   : 0,
   }
 
   onPageLoad = o => {
@@ -54,6 +57,27 @@ class Explore extends React.Component {
 
   onPageLoaded = o => {
     this.setState(state => state.fetching && { fetching: false });
+  }
+
+  onLoadMore = o => {
+    const { dispatch, trends: { page } } = this.props;
+    const { until } = this.state;
+    if ( until > 0 && Date.now() - until <= 60000 ) {
+      return;
+    }
+    return new Promise(resolve => {
+      this.setState(state => !state.fetching && { fetching: true }, _ => {
+        dispatch(trendsApi.retrieveTrends())
+          .then(resolve)
+          .catch(resolve);
+      });
+    }).then(o => {
+      if ( page === o.page && o.trends.length < 15 ) {
+        this.setState(state => state.fetching && { fetching: false, until: Date.now() });
+      } else {
+        this.setState(state => state.fetching && { fetching: false, until: 0 });
+      }
+    });
   }
 
   onModalDismiss = e => {
@@ -217,6 +241,7 @@ class Explore extends React.Component {
         </If>
         <h4 className="category">Trends</h4>
         <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} mode={this.mode()} />
+        <AppLoadMore run={this.onLoadMore} />
       </div>
 
       <AppModal
@@ -236,6 +261,8 @@ class Explore extends React.Component {
       >
         <AppModalViewMoment />
       </AppModal>
+
+      <AppFooter />
 
     </div>
   }

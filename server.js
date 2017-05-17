@@ -10,6 +10,8 @@ const handle = app.getRequestHandler();
 
 const routes = {
   '/'                       : '/explore',
+  '/privacy'                : '/privacy',
+  '/tos'                    : '/tos',
   '/signin'                 : '/signin',
   '/signout'                : '/signout',
   '/new'                    : '/new-moment',

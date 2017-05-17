@@ -136,7 +136,7 @@ export default class AppMomentsListItem extends React.PureComponent {
     const { id, whoami, author, name, members, background, impressions, likes, liked, created_at, onPress } = this.props;
     const { confirmation } = this.state;
     const editable = whoami === author || members.indexOf(whoami) > -1;
-    return <li className="item">
+    return <li className="item moments-list-item">
       <style jsx>{`
         .item {
           margin-top: 0;
@@ -287,6 +287,16 @@ export default class AppMomentsListItem extends React.PureComponent {
           background-color: transparent;
           outline: none;
           cursor: pointer;
+        }
+        @media (min-width: 680px) {
+          .moments-list-item { flex-basis: calc(50% - 20px); }
+          .moments-list-item + .moments-list-item { margin-left: 20px; }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 0px; }
+        }
+        @media (min-width: 1000px) {
+          .moments-list-item { flex-basis: calc(33.3% - 20px); }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 20px; }
+          .moments-list-item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
       <a className="item-cover" href={`/${author}/${id}`} onClick={this.handleItemPress}>

@@ -4,7 +4,7 @@ import React from 'react';
 export default class AppMomentsListPlaceholderItem extends React.PureComponent {
 
   render() {
-    return <li className="item">
+    return <li className="item moments-list-item">
       <style jsx>{`
         @keyframes placeholder{
           0%   { background-position: -468px 0; }
@@ -78,6 +78,18 @@ export default class AppMomentsListPlaceholderItem extends React.PureComponent {
           .item { flex-basis: calc(33.3% - 20px); }
           .item:nth-child(2n + 1) { margin-left: 20px; }
           .item:nth-child(3n + 1) { margin-left: 0px; }
+        }
+      `}</style>
+      <style jsx global>{`
+        @media (min-width: 680px) {
+          .moments-list-item { flex-basis: calc(50% - 20px); }
+          .moments-list-item + .moments-list-item { margin-left: 20px; }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 0px; }
+        }
+        @media (min-width: 1000px) {
+          .moments-list-item { flex-basis: calc(33.3% - 20px); }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 20px; }
+          .moments-list-item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
       <div className="item-mask item-cover-separator" />

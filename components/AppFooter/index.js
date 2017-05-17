@@ -11,15 +11,15 @@ export default class AppFooter extends React.PureComponent {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          align-items: center;
-          margin-top: 20px;
-          margin-bottom: 30px;
+          margin-top: 0;
+          margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
+          padding-top: 20px;
+          padding-bottom: 30px;
+          padding-left: 14px;
+          padding-right: 14px;
+          border-top: 1px solid #f4f4f4;
         }
         footer ul, footer li {
           margin-top: 0;
@@ -34,22 +34,42 @@ export default class AppFooter extends React.PureComponent {
         }
         footer ul {
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
         }
         footer li {
+          padding-top: 2px;
+          padding-bottom: 2px;
           padding-left: 6px;
           padding-right: 6px;
         }
         footer a {
           color: #666;
           text-decoration: none;
-          font-size: 13px;
+          font-size: 15px;
           font-weight: 600;
         }
         footer span {
           color: #000;
           font-size: 13px;
           font-weight: 600;
+        }
+        @media (max-width: 680px) {
+          footer li.copyright {
+            margin-top: 20px;
+            order: 10;
+          }
+        }
+        @media (min-width: 680px) {
+          footer {
+            align-items: center;
+            border-top: none;
+          }
+          footer ul {
+            flex-direction: row;
+          }
+          footer a {
+            font-size: 13px;
+          }
         }
       `}</style>
       <nav>
@@ -60,7 +80,7 @@ export default class AppFooter extends React.PureComponent {
           <li>
             <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link>
           </li>
-          <li>
+          <li className="copyright">
             <span><b>©</b> 2017 Vaniila, Inc.</span>
           </li>
           <li>

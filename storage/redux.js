@@ -18,6 +18,15 @@ const localforageConf = {
   storeName : 'vaniila-com',
 }
 
+if (
+  process.env.NODE_ENV === 'production' &&
+  typeof window !== 'undefined' &&
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ &&
+  Object.keys(window.__REACT_DEVTOOLS_GLOBAL_HOOK__._renderers).length
+) {
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__._renderers = {};
+}
+
 /**
  * redux store initialization
  */

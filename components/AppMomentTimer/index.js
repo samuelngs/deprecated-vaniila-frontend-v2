@@ -54,8 +54,9 @@ export default class AppMomentTimer extends React.PureComponent {
     }
   }
 
-  componentDidUpdate({ id, hasInterrupted, hasNext }) {
+  componentDidUpdate() {
 
+    const { id, hasInterrupted, hasNext } = this.props;
     if ( typeof window === 'undefined' || !id || !hasNext || hasInterrupted || this.$$_SCHEDULE_$$ ) return;
 
     const wpms = this.getMilliseconds();
@@ -65,7 +66,6 @@ export default class AppMomentTimer extends React.PureComponent {
   componentDidMount() {
 
     const { id, hasNext, hasInterrupted } = this.props;
-
     if ( typeof window === 'undefined' || !id || !hasNext || hasInterrupted || this.$$_SCHEDULE_$$ ) return;
 
     const wpms = this.getMilliseconds();

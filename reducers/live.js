@@ -48,7 +48,7 @@ function live (live = defaults.live, action = defaults.action) {
 function retrieveLive() {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moments/live`, {
       method      : 'get',
       credentials : 'include',

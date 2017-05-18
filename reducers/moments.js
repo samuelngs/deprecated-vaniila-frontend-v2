@@ -66,7 +66,7 @@ function momentsList (moments = defaults.moments, action = defaults.action) {
 function retrieveMoments(username) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/${username}`, {
       method      : 'get',
       credentials : 'include',
@@ -87,7 +87,7 @@ function retrieveMoments(username) {
 function removeMoments(username, id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/${username}/${id}`, {
       method      : 'delete',
       credentials : 'include',

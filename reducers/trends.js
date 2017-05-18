@@ -71,7 +71,7 @@ function trends (trends = defaults.trends, action = defaults.action) {
 function retrieveTrends(override) {
   return function ( dispatch, getState ) {
     const { authenticationToken, trends: { page: target } } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     const page = typeof override === 'number'
       ? override
       : target;

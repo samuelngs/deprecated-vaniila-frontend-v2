@@ -43,7 +43,7 @@ function usersList (users = defaults.users, action = defaults.action) {
 function retrieveUser(username) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/users/${username}?query={username,name,avatar,created_at}`, {
       method      : 'get',
       credentials : 'include',

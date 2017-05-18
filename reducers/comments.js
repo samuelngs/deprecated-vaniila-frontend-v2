@@ -78,7 +78,7 @@ function momentComments (states = defaults.states, action = defaults.action, sto
 function retrieveComments(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/comments`, {
       method      : 'get',
       credentials : 'include',
@@ -97,7 +97,7 @@ function leaveComment(id, comment) {
   return function ( dispatch, getState ) {
 
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
 
     const body = new FormData();
     body.append('comment', comment);
@@ -120,7 +120,7 @@ function leaveComment(id, comment) {
 function deleteComment(id, ref) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/comments/${ref}`, {
       method      : 'delete',
       credentials : 'include',

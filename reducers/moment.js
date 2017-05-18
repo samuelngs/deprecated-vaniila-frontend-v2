@@ -110,7 +110,7 @@ function momentDocuments (documents = defaults.documents, action = defaults.acti
 function retrieveMomentDocument(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}`, {
       method      : 'get',
       credentials : 'include',
@@ -159,7 +159,7 @@ function patchMomentDocument(id, moments) {
 function like(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/likes`, {
       method      : 'post',
       credentials : 'include',
@@ -180,7 +180,7 @@ function like(id) {
 function unlike(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/likes`, {
       method      : 'delete',
       credentials : 'include',

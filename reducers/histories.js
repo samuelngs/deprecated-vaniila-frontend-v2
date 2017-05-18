@@ -332,7 +332,7 @@ function retrieveEditableState(id, cache = false) {
         });
       }
     }
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moments/anyone/${id}`, {
       method      : 'get',
       credentials : 'include',

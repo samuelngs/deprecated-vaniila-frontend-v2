@@ -58,7 +58,7 @@ function accountAvatar (avatar = defaults.avatar, action = defaults.avatar) {
 function retrieveMyAccount() {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/user?query={username,name,avatar}`, {
       method      : 'get',
       credentials : 'include',

@@ -80,7 +80,7 @@ function chat (states = defaults.states, action = defaults.action, store) {
 function retrieveHistories(id) {
   return function ( dispatch, getState ) {
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
     return fetch(`${BACKEND_URL}/i/moment/anyone/${id}/chat`, {
       method      : 'get',
       credentials : 'include',
@@ -107,7 +107,7 @@ function sendMessage(id, message) {
   return function ( dispatch, getState ) {
 
     const { authenticationToken } = getState();
-    const headers = isServer && { internal: 'TRUE', 'Access-Token': authenticationToken };
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
 
     const body = new FormData();
     body.append('message', message);

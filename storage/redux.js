@@ -270,26 +270,33 @@ export default function(createStore) {
       }
 
       componentDidMount() {
+        this.analytics(this.store);
         Router.onRouteChangeStart = path => {
-          const { accountUsername, accountFullname } = this.store.getState();
           this.store.dispatch({ type: actions.SetServerPath, path });
-          if ( typeof window !== 'undefined' && typeof window.ga === 'function' ) {
-            if ( !!accountUsername ) {
-              ga('set', 'userId', accountUsername);
-            }
-            ga('set', 'page', path);
-            ga('send', 'pageview');
-          }
-          if ( typeof window !== 'undefined' && !!window.FS && !!accountUsername ) {
-            FS.identify(accountUsername, {
-              displayName: accountFullname,
-            });
-          }
+          this.analytics(this.store, path);
         }
       }
 
       componentWillUnmount() {
         Router.onRouteChangeStart = null;
+      }
+
+      async analytics(store, path) {
+        const { accountUsername, accountFullname } = store.getState();
+        if ( typeof window !== 'undefined' && typeof window.ga === 'function' ) {
+          if ( !!accountUsername ) {
+            ga('set', 'userId', accountUsername);
+          }
+          if ( !!path ) {
+            ga('set', 'page', path);
+            ga('send', 'pageview');
+          }
+        }
+        if ( typeof window !== 'undefined' && !!window.FS && !!accountUsername ) {
+          FS.identify(accountUsername, {
+            displayName: accountFullname,
+          });
+        }
       }
 
       async persistStore(store, state) {

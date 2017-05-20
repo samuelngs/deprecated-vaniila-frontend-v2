@@ -172,14 +172,16 @@ class ViewMoment extends React.Component {
           <If condition={!!doc}><meta name="og:url" content={`https://${serverHostname}/${path}`} /></If>
           <If condition={!!doc && !!background}><meta name="og:image" content={`https://cdn-images.vaniila.com/${background}/embed`} /></If>
           <If condition={!!doc && !!background}><meta name="og:image:secure_url" content={`https://cdn-images.vaniila.com/${background}/embed`} /></If>
-
           <If condition={!!doc}><meta name="og:type" content="article" /></If>
           <If condition={!!doc}><meta name="og:title" content={name || 'There\'s nothing here, yet 🙌'} /></If>
           <If condition={!!doc}><meta name="og:headline" content={name || 'There\'s nothing here, yet 🙌'} /></If>
           <If condition={!!doc}><meta name="og:description" content={`Published on ${format(new Date(created_at), "MMMM D, YYYY")} by ${fullname || `@${username}`}`} /></If>
           <If condition={!!doc}><meta name="og:locale" content="en_US" /></If>
           <If condition={!!doc}><meta name="og:site_name" content="vaniila.com" /></If>
+
+          {/* og article metatags */}
           <If condition={!!doc}><meta name="article:author" content={username} /></If>
+          <If condition={!!doc}><meta name="article:published_time" content={created_at} /></If>
 
         </Head>
 

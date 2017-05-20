@@ -50,13 +50,53 @@ export default class _Document extends Document {
         .code { font-family: 'Ubuntu Mono', 'Proxima Nova', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", serif; font-weight: 400; margin-top: 10px; margin-bottom: 10px; background-color: #dbffef; color: #44b17d; }
         ::selection { background-color: #60ffb4; color: #004f2a; }
       `}</style>
+
+      {/* inject head prefix to document */}
       <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# business: http://ogp.me/ns/business#" />
+
       <Head>
+
+        <title>Vaniila • Capture, highlight, and share your moments for any event</title>
+
+        {/* viewport metatags */}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="MobileOptimized" content="320" />
-        <meta name="google" value="notranslate" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        {/* site info metatags */}
+        <meta name="distribution" content="Global" />
+        <meta name="description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="creator" content="vaniila.com" />
+        <meta name="publisher" content="vaniila.com" />
+
+        {/* twitter metatags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@vaniilacom" />
+        <meta name="twitter:creator" content="@vaniilacom" />
+        <meta name="twitter:title" content="Vaniila • Capture, highlight, and share your moments for any event" />
+        <meta name="twitter:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="twitter:image:alt" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="twitter:image" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="twitter:player" content="https://vaniila.com" />
+
+        {/* google, facebook metatags */}
+        <meta name="og:url" content="https://vaniila.com" />
+        <meta name="og:image" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="og:image:secure_url" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="og:image:height" content="600" />
+        <meta name="og:image:width" content="600" />
+        <meta name="og:type" content="website" />
+        <meta name="og:title" content="Vaniila • Capture, highlight, and share your moments for any event" />
+        <meta name="og:headline" content="Vaniila • Capture, highlight, and share your moments for any event" />
+        <meta name="og:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="og:locale" content="en_US" />
+        <meta name="og:site_name" content="vaniila.com" />
+
+        {/* app metatags */}
         <meta name="referrer" content="origin-when-cross-origin" />
+        <meta name="rating" content="general" />
+        <meta name="robots" content="index, follow" />
+        <meta name="google" value="notranslate" />
         <meta name="google-site-verification" content="tf8YxPbyH9QpkRZc28QISiHPk-EFDR4PJlT7aNKKs_Y" />
         <meta name="fb:app_id" content="1058096164319914" />
       </Head>

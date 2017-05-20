@@ -50,7 +50,7 @@ function retrieveUser(username) {
       headers,
     })
     .then(res => res.json())
-    .then(res => (res.error ? promise.reject(res.error) : res))
+    .then(res => (res.error ? Promise.reject(res.error) : res))
     .then(
       user  => dispatch({ type: actions.SetUser, username, user }),
       err   => ({ err }),

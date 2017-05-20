@@ -26,11 +26,14 @@ class ListMoments extends React.PureComponent {
 
   static async getInitialProps ({ req, res, pathname, query: { username }, store, isServer }) {
     {
-      const { err } = await store.dispatch(momentsApi.retrieveMoments(username));
-      if ( err ) return { username, err }
+      const { err } = await store.dispatch(usersApi.retrieveUser(username));
+      if ( isServer && err ) {
+        res.statusCode = 404;
+      }
+      if ( err ) return { username, err };
     }
     {
-      const { err } = await store.dispatch(usersApi.retrieveUser(username));
+      const { err } = await store.dispatch(momentsApi.retrieveMoments(username));
       if ( err ) return { username, err }
     }
     return { username };

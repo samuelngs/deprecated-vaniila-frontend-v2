@@ -5,7 +5,7 @@ export default () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 20
   <style jsx>{`
     svg { width: 45px; height: 45px; fill: url(#app-header-logo); }
     @media (min-width: 768px) {
-      svg { width: 51px; height: 51px; padding: 2px; }
+      svg { width: 44px; height: 44px; padding: 6px; }
     }
   `}</style>
   <defs>

@@ -252,7 +252,7 @@ export default class AppHeader extends React.Component {
             color: #888;
           }
           .header-grid-column-al { order: 2; }
-          .header-grid-column-ac { order: 1; padding-left: 20px; }
+          .header-grid-column-ac { order: 1; padding-left: 10px; padding-right: 10px; }
           .header-grid-column-ar { order: 3; }
         }
       `}</style>
@@ -293,9 +293,6 @@ export default class AppHeader extends React.Component {
             </button>
             <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
               <li className="header-nav-li">
-                <Link href="/explore" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
-              </li>
-              <li className="header-nav-li">
                 <Link href={{ pathname: '/list-moments', query: { username: accountUsername }}} as={`/${accountUsername}`}><a className={ (serverPath || '').indexOf(`/${accountUsername}`) === 0 ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Your Moments</a></Link>
               </li>
               <li className="header-nav-li">
@@ -308,14 +305,6 @@ export default class AppHeader extends React.Component {
         {/* left menu items when guest */}
         <If condition={!authenticationToken}>
           <div className="header-grid-column-4 header-grid-column-al">
-            <button className="header-nav-button" onClick={this.handleHeaderMenuPress}>
-              <AppHeaderMenu active={active} />
-            </button>
-            <ul className={ active ? "header-nav-ul header-nav-dropdown header-nav-dropdown-active" : "header-nav-ul header-nav-dropdown" }>
-              <li className="header-nav-li">
-                <Link href="/explore" as="/"><a className={ serverPath === '/' ? "header-nav-a header-nav-a-active" : "header-nav-a" }>Explore</a></Link>
-              </li>
-            </ul>
           </div>
         </If>
 

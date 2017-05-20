@@ -167,7 +167,7 @@ export default class AppModalViewMoment extends React.Component {
 
       <AppLaunchSuccess modal={true} success={!fetching && doc && !err}>
         <Head>
-          <title>{ name || 'There\'s nothing here, yet 🙌' }</title>
+          <title>Vaniila • { name || 'There\'s nothing here, yet 🙌' }</title>
         </Head>
 
         {/* moment websocket sync component */}

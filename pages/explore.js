@@ -215,7 +215,39 @@ class Explore extends React.Component {
       `}</style>
 
       <Head>
-        <title>Vaniila</title>
+
+        <title>Vaniila • Capture, highlight, and share your moments for any event</title>
+
+        {/* site info metatags */}
+        <meta name="distribution" content="Global" />
+        <meta name="description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="creator" content="vaniila.com" />
+        <meta name="publisher" content="vaniila.com" />
+        <meta name="rating" content="general" />
+        <meta name="robots" content="index, follow" />
+
+        {/* twitter metatags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@vaniilacom" />
+        <meta name="twitter:creator" content="@vaniilacom" />
+        <meta name="twitter:title" content="Vaniila" />
+        <meta name="twitter:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="twitter:image:alt" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="twitter:image" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="twitter:player" content="https://vaniila.com" />
+
+        {/* google, facebook metatags */}
+        <meta name="og:url" content="https://vaniila.com" />
+        <meta name="og:image" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="og:image:secure_url" content="https://cdn-images.vaniila.com/xqLNOwneZ4a3bDY9QDmkGQdpyRK8B7/embed" />
+        <meta name="og:image:height" content="600" />
+        <meta name="og:image:width" content="600" />
+        <meta name="og:type" content="website" />
+        <meta name="og:title" content="Vaniila" />
+        <meta name="og:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+        <meta name="og:locale" content="en_US" />
+        <meta name="og:site_name" content="vaniila.com" />
+
       </Head>
 
       <WindowObserver />

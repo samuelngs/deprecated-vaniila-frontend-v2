@@ -149,7 +149,7 @@ class ViewMoment extends React.Component {
 
         <Head>
 
-          <title>{ name || 'There\'s nothing here, yet 🙌' }</title>
+          <title>Vaniila • { name || 'There\'s nothing here, yet 🙌' }</title>
 
           <meta name="distribution" content="Global" />
           <meta name="rating" content="general" />
@@ -174,7 +174,6 @@ class ViewMoment extends React.Component {
           <If condition={!!doc && !!background}><meta name="og:image:secure_url" content={`https://cdn-images.vaniila.com/${background}/embed`} /></If>
           <If condition={!!doc}><meta name="og:type" content="article" /></If>
           <If condition={!!doc}><meta name="og:title" content={name || 'There\'s nothing here, yet 🙌'} /></If>
-          <If condition={!!doc}><meta name="og:headline" content={name || 'There\'s nothing here, yet 🙌'} /></If>
           <If condition={!!doc}><meta name="og:description" content={`Published on ${format(new Date(created_at), "MMMM D, YYYY")} by ${fullname || `@${username}`}`} /></If>
           <If condition={!!doc}><meta name="og:locale" content="en_US" /></If>
           <If condition={!!doc}><meta name="og:site_name" content="vaniila.com" /></If>
@@ -232,7 +231,7 @@ class ViewMoment extends React.Component {
 
         <Head>
 
-          <title>There\'s nothing here, yet 🙌</title>
+          <title>Vaniila • There\'s nothing here, yet 🙌</title>
 
           <meta name="distribution" content="IU" />
           <meta name="rating" content="general" />

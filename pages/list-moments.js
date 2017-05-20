@@ -16,6 +16,8 @@ import AppModal from '../components/AppModal';
 import AppMomentsList from '../components/AppMomentsList';
 import AppMomentsProfile from '../components/AppMomentsProfile';
 import AppModalViewMoment from '../components/AppModalViewMoment';
+import AppLaunchSuccess from '../components/AppLaunchSuccess';
+import AppLaunchFail from '../components/AppLaunchFail';
 
 import { api as momentsApi } from '../reducers/moments';
 import { api as usersApi } from '../reducers/users';
@@ -86,11 +88,11 @@ class ListMoments extends React.PureComponent {
   render () {
 
     const { fetching } = this.state;
-    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat } = this.props;
+    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat, err } = this.props;
     const { username: author, id } = serverQuery;
 
-    const moments = momentsList[username] || [ ];
-    const user = usersList[username] || { };
+    const moments = momentsList[username];
+    const user = usersList[username];
 
     return <div>
 
@@ -120,39 +122,93 @@ class ListMoments extends React.PureComponent {
         }
       `}</style>
 
-      <Head>
-        <title>Your Moments</title>
-      </Head>
-
       <BackToTop id={username} />
       <AfterEvent id={username} autostart={false} run={this.onPageLoad} then={this.onPageLoaded} timeout={1000} />
 
       <AppHeader />
       <WindowObserver />
 
-      <div className="container">
-        <AppMomentsProfile user={user} />
-        <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
-      </div>
+      <AppLaunchSuccess success={user && moments && !err}>
 
-      <AppModal
-        color="rgba(134, 143, 146, 0.7)"
-        active={serverPathname === '/list-moments' && !!id && !!author}
-        dismiss={this.handleViewMomentDismiss}
-        control={false}
-        props={{
-          id,
-          windowSize,
-          authenticationToken,
-          accountUsername,
-          momentDocuments,
-          momentComments,
-          playerStates,
-          chat,
-        }}
-      >
-        <AppModalViewMoment />
-      </AppModal>
+        <Head>
+
+          <title>Vaniila • { (user || { }).name } (@{ username })</title>
+
+          {/* site info metatags */}
+          <meta name="distribution" content="Global" />
+          <meta name="description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+          <meta name="creator" content="vaniila.com" />
+          <meta name="publisher" content="vaniila.com" />
+          <meta name="rating" content="general" />
+          <meta name="robots" content="index, follow" />
+
+          {/* twitter metatags */}
+          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:site" content="@vaniilacom" />
+          <meta name="twitter:creator" content="@vaniilacom" />
+          <meta name="twitter:title" content="Vaniila" />
+          <meta name="twitter:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+          <meta name="twitter:image:alt" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+          <meta name="twitter:image" content={((user || { }).avatar || '').replace('_normal', '_bigger')} />
+          <meta name="twitter:player" content="https://vaniila.com" />
+
+          {/* google, facebook metatags */}
+          <meta name="og:url" content="https://vaniila.com" />
+          <meta name="og:image" content={((user || { }).avatar || '').replace('_normal', '_bigger')} />
+          <meta name="og:image:secure_url" content={((user || { }).avatar || '').replace('_normal', '_bigger')} />
+          <meta name="og:image:height" content="100" />
+          <meta name="og:image:width" content="100" />
+          <meta name="og:type" content="website" />
+          <meta name="og:title" content="Vaniila" />
+          <meta name="og:description" content="Share all your moments from last night’s party, this week’s tech conference, and next month’s political debate." />
+          <meta name="og:locale" content="en_US" />
+          <meta name="og:site_name" content="vaniila.com" />
+
+        </Head>
+
+        <div className="container">
+          <AppMomentsProfile user={user} />
+          <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
+        </div>
+
+        <AppModal
+          color="rgba(134, 143, 146, 0.7)"
+          active={serverPathname === '/list-moments' && !!id && !!author}
+          dismiss={this.handleViewMomentDismiss}
+          control={false}
+          props={{
+            id,
+            windowSize,
+            authenticationToken,
+            accountUsername,
+            momentDocuments,
+            momentComments,
+            playerStates,
+            chat,
+          }}
+        >
+          <AppModalViewMoment />
+        </AppModal>
+
+      </AppLaunchSuccess>
+
+      <AppLaunchFail failure={err}>
+
+        <Head>
+
+          <title>Vaniila • There\'s nothing here, yet 🙌</title>
+
+          <meta name="distribution" content="IU" />
+          <meta name="rating" content="general" />
+          <meta name="robots" content="noindex, follow" />
+
+        </Head>
+
+        <div className="container container-error">
+          <h1>Not Found</h1>
+        </div>
+
+      </AppLaunchFail>
 
       <AppFooter />
 

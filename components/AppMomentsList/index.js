@@ -15,6 +15,7 @@ export default class AppMomentsList extends React.PureComponent {
     profile     : PropTypes.string,
     mode        : PropTypes.oneOf([ 'desktop', 'mobile' ]),
     moments     : PropTypes.array,
+    permissions : PropTypes.object,
   }
 
   static defaultProps = {
@@ -23,10 +24,11 @@ export default class AppMomentsList extends React.PureComponent {
     profile     : '',
     mode        : 'desktop',
     moments     : [ ],
+    permissions : { },
   }
 
   render() {
-    const { placeholder, moments, whoami, profile, mode } = this.props;
+    const { placeholder, moments, permissions, whoami, profile, mode } = this.props;
     return <ul className="base">
       <style jsx>{`
         .base {
@@ -42,7 +44,7 @@ export default class AppMomentsList extends React.PureComponent {
         ).map(
           (props, i) => ( props === 0 )
             ? <AppMomentsListPlaceholderItem key={i} />
-            : <AppMomentsListItem key={props.id} whoami={whoami} profile={profile} mode={mode} {...props} />
+            : <AppMomentsListItem key={props.id} whoami={whoami} profile={profile} permissions={permissions[props.id]} mode={mode} {...props} />
         )
       }
     </ul>

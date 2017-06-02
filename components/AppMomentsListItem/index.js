@@ -11,6 +11,8 @@ import AppDropdownItem from '../AppDropdownItem';
 import AppDropdownSeparator from '../AppDropdownSeparator';
 import AppMomentDropdownEdit from '../AppMomentDropdownEdit';
 import AppMomentDropdownDelete from '../AppMomentDropdownDelete';
+import AppMomentDropdownSettings from '../AppMomentDropdownSettings';
+import AppMomentSettings from '../AppMomentSettings';
 import AppMomentDeleteConfirmation from '../AppMomentDeleteConfirmation';
 
 import { api as momentsApi } from '../../reducers/moments';
@@ -31,6 +33,7 @@ export default class AppMomentsListItem extends React.PureComponent {
     background  : PropTypes.string,
     members     : PropTypes.array,
     impressions : PropTypes.number,
+    permissions : PropTypes.array,
     likes       : PropTypes.number,
     liked       : PropTypes.bool,
     created_at  : PropTypes.string,
@@ -45,6 +48,7 @@ export default class AppMomentsListItem extends React.PureComponent {
     name        : '',
     background  : '',
     members     : [ ],
+    permissions : [ ],
     impressions : 0,
     likes       : 0,
     liked       : false,
@@ -52,6 +56,7 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   state = {
+    settings    : false,
     confirmation: false,
   }
 
@@ -72,7 +77,6 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   handleItemPress = e => {
-
     e.preventDefault();
 
     const { profile, id, author: username, mode } = this.props;
@@ -95,26 +99,28 @@ export default class AppMomentsListItem extends React.PureComponent {
           query   : { id, username },
         }, `/${username}/${id}`);
     }
-
   }
 
   handleEditPress = e => {
-
     e.preventDefault();
-
     const { id, author: username } = this.props;
-
     return Router.push({
       pathname: '/edit-moment',
       query   : { id, username },
     }, `/${username}/${id}/edit`);
+  }
 
+  handleSettingsPress = e => {
+    e.preventDefault();
+    this.setState(state => !state.settings && { settings: true });
+  }
+
+  handleSettingsDismiss = e => {
+    this.setState(state => state.settings && { settings: false });
   }
 
   handleDeletePress = e => {
-
     e.preventDefault();
-
     this.setState(state => !state.confirmation && { confirmation: true });
   }
 
@@ -133,9 +139,9 @@ export default class AppMomentsListItem extends React.PureComponent {
   }
 
   render() {
-    const { id, whoami, author, name, members, background, impressions, likes, liked, created_at, onPress } = this.props;
-    const { confirmation } = this.state;
-    const editable = whoami === author || members.indexOf(whoami) > -1;
+    const { id, whoami, author, name, members, permissions, background, impressions, likes, liked, created_at, onPress } = this.props;
+    const { settings, confirmation } = this.state;
+    const editable = whoami === author || members.filter(member => member.username === whoami).length > 0;
     return <li className="item moments-list-item">
       <style jsx>{`
         .item {
@@ -329,6 +335,9 @@ export default class AppMomentsListItem extends React.PureComponent {
           <div className="item-details-option">
             <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
               <AppDropdownMenu>
+                <AppDropdownItem onPress={this.handleSettingsPress}>
+                  <AppMomentDropdownSettings />
+                </AppDropdownItem>
                 <AppDropdownItem onPress={this.handleEditPress}>
                   <AppMomentDropdownEdit />
                 </AppDropdownItem>
@@ -340,6 +349,9 @@ export default class AppMomentsListItem extends React.PureComponent {
             </AppDropdownButton>
           </div>
         </If>
+        <AppModal color="#fff" active={settings} dismiss={this.handleSettingsDismiss}>
+          <AppMomentSettings id={id} name={(name || 'Draft')} author={author} permissions={permissions} onCancel={this.handleSettingsDismiss} />
+        </AppModal>
         <AppModal color="#fff" active={confirmation} dismiss={this.handleConfirmationDismiss}>
           <AppMomentDeleteConfirmation name={(name || 'Draft')} author={author} onPress={this.handleConfirmationRemove} onCancel={this.handleConfirmationDismiss} />
         </AppModal>

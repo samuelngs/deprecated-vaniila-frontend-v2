@@ -59,10 +59,32 @@ function retrieveUser(username) {
 }
 
 /**
+ * search users
+ */
+function searchUsers(username) {
+  return function ( dispatch, getState ) {
+    const { authenticationToken } = getState();
+    const headers = isServer ? { internal: 'TRUE', 'Access-Token': authenticationToken } : { };
+    return fetch(`${BACKEND_URL}/i/user/search?keyword=${username}`, {
+      method      : 'get',
+      credentials : 'include',
+      headers,
+    })
+    .then(res => res.json())
+    .then(res => (res.error ? Promise.reject(res.error) : res))
+    .then(
+      users => users,
+      err   => [ ],
+    );
+  }
+}
+
+/**
  * export store api
  */
 export const api = {
   retrieveUser,
+  searchUsers,
 };
 
 export default {

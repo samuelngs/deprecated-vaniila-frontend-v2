@@ -5,6 +5,7 @@ import accountReducer, { middleware as accountMiddleware } from './account';
 import usersReducer from './users';
 import momentReducer from './moment';
 import momentsReducer from './moments';
+import permissionsReducer from './permissions';
 import historiesReducer from './histories';
 import editorReducer from './editor';
 import fileReducer from './file';
@@ -22,6 +23,7 @@ export const collections = {
   ...usersReducer,
   ...momentReducer,
   ...momentsReducer,
+  ...permissionsReducer,
   ...historiesReducer,
   ...editorReducer,
   ...fileReducer,

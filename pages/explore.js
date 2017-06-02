@@ -32,8 +32,8 @@ class Explore extends React.Component {
     return { };
   }
 
-  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live, chat }) {
-    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, playerStates, trends, live, chat };
+  static observe ({ accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, momentPermissions, playerStates, trends, live, chat }) {
+    return { accountUsername, authenticationToken, serverPathname, serverQuery, windowSize, momentDocuments, momentComments, momentPermissions, playerStates, trends, live, chat };
   }
 
   state = {
@@ -112,6 +112,7 @@ class Explore extends React.Component {
       windowSize,
       momentDocuments,
       momentComments,
+      momentPermissions,
       playerStates,
       trends,
       live,
@@ -270,10 +271,10 @@ class Explore extends React.Component {
           </h4>
         </If>
         <If condition={live.length > 0}>
-          <AppMomentsList placeholder={false} whoami={accountUsername} moments={live} mode={this.mode()} />
+          <AppMomentsList placeholder={false} whoami={accountUsername} moments={live} permissions={momentPermissions} mode={this.mode()} />
         </If>
         <h4 className="category">Trends</h4>
-        <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} mode={this.mode()} />
+        <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} permissions={momentPermissions} mode={this.mode()} />
         <AppLoadMore run={this.onLoadMore} />
       </div>
 

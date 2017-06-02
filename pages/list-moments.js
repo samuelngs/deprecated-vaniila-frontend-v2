@@ -41,8 +41,8 @@ class ListMoments extends React.PureComponent {
     return { username };
   }
 
-  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat }) {
-    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat };
+  static observe ({ authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, momentPermissions, playerStates, chat }) {
+    return { authenticationToken, accountUsername, serverPath, serverPathname, serverParams, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, momentPermissions, playerStates, chat };
   }
 
   state = {
@@ -88,7 +88,7 @@ class ListMoments extends React.PureComponent {
   render () {
 
     const { fetching } = this.state;
-    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, playerStates, chat, err } = this.props;
+    const { username, authenticationToken, accountUsername, serverPathname, serverQuery, windowSize, usersList, momentsList, momentDocuments, momentComments, momentPermissions, playerStates, chat, err } = this.props;
     const { username: author, id } = serverQuery;
 
     const moments = momentsList[username];
@@ -168,7 +168,7 @@ class ListMoments extends React.PureComponent {
 
         <div className="container">
           <AppMomentsProfile user={user} />
-          <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} mode={this.mode()} />
+          <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} permissions={momentPermissions} mode={this.mode()} />
         </div>
 
         <AppModal

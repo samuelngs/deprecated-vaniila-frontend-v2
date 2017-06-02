@@ -146,8 +146,8 @@ export default class AppModal extends React.PureComponent {
           right: 30px;
           margin: 0;
           padding: 0;
-          width: 60px;
-          height: 60px;
+          width: 50px;
+          height: 50px;
           background-color: #f1fcfd;
           border-radius: 30px;
           border: none;

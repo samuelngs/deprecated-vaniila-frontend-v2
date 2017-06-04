@@ -46,12 +46,12 @@ export default class AppFooter extends React.PureComponent {
           color: #666;
           text-decoration: none;
           font-size: 15px;
-          font-weight: 600;
+          font-weight: 400;
         }
         footer span {
           color: #000;
           font-size: 13px;
-          font-weight: 600;
+          font-weight: 500;
         }
         @media (max-width: 680px) {
           footer li.copyright {
@@ -69,6 +69,7 @@ export default class AppFooter extends React.PureComponent {
           }
           footer a {
             font-size: 13px;
+            font-weight: 400;
           }
         }
       `}</style>

@@ -180,9 +180,6 @@ export default class EditorHeader extends React.PureComponent {
             onEndConfirmationPress={this.handleEndConfirmationPress}
           /> }
         </div>
-        <div className="header-grid-column-1 header-grid-column-ac">
-          <EditorHeaderLogo headerHeight={EditorHeader.cssVariables.headerHeight} />
-        </div>
         <div className="header-grid-column-4 header-grid-column-ar">
           <EditorPeersList
             headerHeight={EditorHeader.cssVariables.headerHeight}

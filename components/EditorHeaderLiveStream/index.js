@@ -46,7 +46,7 @@ function EditorLiveStreamBegin({ confirmation, onPress }) {
         cursor: pointer;
         outline: none;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
         color: #8aa7b1;
       }
       .btn:hover {
@@ -134,7 +134,7 @@ function EditorLiveStreamOnair({ confirmation, onPress }) {
         cursor: pointer;
         outline: none;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
         color: #8aa7b1;
       }
       .btn:hover {
@@ -208,7 +208,7 @@ function EditorLiveStreamResult() {
         align-items: center;
         justify-content: center;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
         color: #8aa7b1;
       }
       .base span {

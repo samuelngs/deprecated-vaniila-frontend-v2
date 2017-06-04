@@ -60,9 +60,9 @@ class Explore extends React.Component {
   }
 
   onLoadMore = o => {
-    const { dispatch, trends: { page } } = this.props;
+    const { dispatch, trends: { page, moments } } = this.props;
     const { until } = this.state;
-    if ( until > 0 && Date.now() - until <= 60000 ) {
+    if ( ( until > 0 && Date.now() - until <= 60000 ) || moments.length % 15 !== 0 ) {
       return;
     }
     return new Promise(resolve => {
@@ -156,19 +156,13 @@ class Explore extends React.Component {
           padding-left: 0;
           padding-right: 0;
           font-size: 22px;
-          font-weight: 300;
+          font-weight: 400;
           line-height: 1.3;
-          text-align: center;
           color: #000;
         }
         .headline-bold {
-          font-weight: 700;
-        }
-        .headline-color {
-          color: #288fea;
-          background: -webkit-linear-gradient(-54deg, #C3DC6F, #82C4AC, #288FEA, #288FEA);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #00d68f;
+          font-weight: 500;
         }
         .headline span {
           display: block;
@@ -185,32 +179,32 @@ class Explore extends React.Component {
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
-          font-size: 16px;
-          font-weight: 600;
-          color: #000;
+          font-size: 18px;
+          font-weight: 500;
+          color: #656d72;
         }
         .category-live {
           color: #07d691;
         }
         .category-live svg {
-          width: 14px;
-          height: 14px;
-          margin-top: -2px;
+          width: 16px;
+          height: 16px;
+          margin-top: -1px;
           fill: #07d691;
         }
-        @media (min-width: 680px) {
+        @media (min-width: 780px) {
           .container {
-            width: 620px;
+            width: 700px;
           }
           .headline {
             margin-top: 90px;
             margin-bottom: 90px;
-            font-size: 40px;
+            font-size: 42px;
           }
         }
-        @media (min-width: 1000px) {
+        @media (min-width: 1160px) {
           .container {
-            width: 940px;
+            width: 1080px;
           }
         }
       `}</style>
@@ -259,8 +253,8 @@ class Explore extends React.Component {
 
       <div className="container">
         <h1 className="headline">
-          <span>Share the best</span>
-          <span><b className="headline-bold headline-color">moments</b> of any event.</span>
+          <span>Life is full of amazing events.</span>
+          <span>Capture them with <b className="headline-bold">Vaniila Moments</b></span>
         </h1>
         <If condition={live.length > 0}>
           <h4 className="category category-live">

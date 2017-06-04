@@ -106,18 +106,18 @@ class ListMoments extends React.PureComponent {
           padding-bottom: 130px;
           padding-left: 0;
           padding-right: 0;
-          width: 300px;
+          width: 342px;
           max-width: 100%;
           max-width: calc(100% - 40px);
         }
-        @media (min-width: 680px) {
+        @media (min-width: 780px) {
           .container {
-            width: 620px;
+            width: 700px;
           }
         }
-        @media (min-width: 1000px) {
+        @media (min-width: 1160px) {
           .container {
-            width: 940px;
+            width: 1080px;
           }
         }
       `}</style>

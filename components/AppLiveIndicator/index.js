@@ -15,7 +15,7 @@ export default class AppLiveIndicator extends React.PureComponent {
   }
 
   static defaultProps = {
-    color: '#185be7',
+    color: '#00d68f',
 
     fill : true,
     tint : '#fff',

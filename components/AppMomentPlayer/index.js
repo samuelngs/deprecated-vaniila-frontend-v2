@@ -255,7 +255,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       <div className="live-indicator">
         <AppMomentPulse color="#59b7ff" active={live && pulse} />
         <If condition={live}>
-          <AppLiveIndicator color="#59b7ff" fill={true} tint="#fff" />
+          <AppLiveIndicator color="#82a3b7" fill={true} tint="#fff" />
         </If>
       </div>
 

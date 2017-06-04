@@ -162,12 +162,12 @@ export default class AppMomentsListItem extends React.PureComponent {
           height: 360px;
         }
         .item-cover {
-          width: 300px;
+          width: 342px;
           height: 300px;
           max-width: 100%;
         }
         .item-cover-image {
-          width: 300px;
+          width: 342px;
           height: 300px;
           border-radius: 3px;
           overflow: hidden;
@@ -195,7 +195,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-bottom: 20px;
           padding-left: 0;
           padding-right: 0;
-          max-width: 300px;
+          max-width: 342px;
         }
         .item-details-info {
           display: flex;
@@ -269,12 +269,12 @@ export default class AppMomentsListItem extends React.PureComponent {
           font-weight: 400;
           color: #777;
         }
-        @media (min-width: 680px) {
+        @media (min-width: 780px) {
           .item { flex-basis: calc(50% - 20px); }
           .item + .item { margin-left: 20px; }
           .item:nth-child(2n + 1) { margin-left: 0px; }
         }
-        @media (min-width: 1000px) {
+        @media (min-width: 1160px) {
           .item { flex-basis: calc(33.3% - 20px); }
           .item:nth-child(2n + 1) { margin-left: 20px; }
           .item:nth-child(3n + 1) { margin-left: 0px; }

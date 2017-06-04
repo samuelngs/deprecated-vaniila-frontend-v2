@@ -187,9 +187,9 @@ export default class AppHeader extends React.Component {
           display: flex;
           align-items: center;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 500;
           text-decoration: none;
-          color: #888;
+          color: #484848;
           transition: color .5s ease;
         }
         .header-nav-avatar {
@@ -238,6 +238,8 @@ export default class AppHeader extends React.Component {
           }
           .header-nav-ul.header-nav-dropdown {
             display: flex;
+            margin-left: 0;
+            margin-right: 0;
           }
           .header-nav-li {
             padding-top: 0;
@@ -248,8 +250,8 @@ export default class AppHeader extends React.Component {
           }
           .header-nav-a {
             font-size: 14px;
-            font-weight: 600;
-            color: #888;
+            font-weight: 500;
+            color: #787878;
           }
           .header-grid-column-al { order: 2; }
           .header-grid-column-ac { order: 1; padding-left: 10px; padding-right: 10px; }
@@ -312,7 +314,7 @@ export default class AppHeader extends React.Component {
         <div className="header-grid-column-1 header-grid-column-ac">
           <Link href="/explore" as="/">
             <a>
-              <AppHeaderLogo />
+              <AppHeaderLogo active={serverPath === '/'} />
             </a>
           </Link>
         </div>

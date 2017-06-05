@@ -165,14 +165,14 @@ class Explore extends React.Component {
           color: #000;
         }
         .headline-bold {
-          color: #00d68f;
+          color: #2ae6a8;
           font-weight: 500;
         }
         .headline span {
           display: block;
         }
         .navigation {
-          margin-top: 20px;
+          margin-top: 26px;
           margin-bottom: 80px;
           margin-left: 0;
           margin-right: 0;

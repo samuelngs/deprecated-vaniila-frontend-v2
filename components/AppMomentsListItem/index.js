@@ -215,7 +215,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
           max-width: 200px;
-          font-size: 16px;
+          font-size: 12px;
           font-weight: 400;
           color: #9eb4c1;
           overflow: hidden;
@@ -307,11 +307,13 @@ export default class AppMomentsListItem extends React.PureComponent {
           .item { height: 510px; }
           .item-cover { height: 400px; }
           .item-cover-image { height: 400px; }
+          .item-details-option { font-size: 16px; }
         }
         @media (min-width: 1160px) {
           .item { height: 510px; }
           .item-cover { height: 400px; }
           .item-cover-image { height: 400px; }
+          .item-details-option { font-size: 16px; }
         }
       `}</style>
       <style jsx global>{`

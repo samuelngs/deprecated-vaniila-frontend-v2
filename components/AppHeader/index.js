@@ -70,16 +70,16 @@ export default class AppHeader extends React.Component {
     e.preventDefault();
 
     const { store: { getState } } = this.context;
-    const { serverPathname, serverQuery } = getState();
+    const { serverPath, serverPathname, serverQuery } = getState();
 
-    // return Router.push({
-    //   pathname: '/signin',
-    //   query   : { redirect: serverPath },
-    // }, '/signin');
     return Router.push({
-      pathname: serverPathname,
-      query   : { ...serverQuery, signin: 'modal' },
+      pathname: '/signin',
+      query   : { redirect: serverPath },
     }, '/signin');
+    // return Router.push({
+    //   pathname: serverPathname,
+    //   query   : { ...serverQuery, signin: 'modal' },
+    // }, '/signin');
   }
 
   handleSigninDismiss = e => {

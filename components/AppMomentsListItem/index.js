@@ -345,7 +345,7 @@ export default class AppMomentsListItem extends React.PureComponent {
       <a className="item-cover" href={`/${author}/${id}`} onClick={this.handleItemPress}>
         <If condition={!!background}>
           <div className="item-cover-image" style={{
-            backgroundImage: `url(${CDN_URL}/${background}/regular)`,
+            backgroundImage: `url(${CDN_URL}/${background}/embed)`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
           }} />

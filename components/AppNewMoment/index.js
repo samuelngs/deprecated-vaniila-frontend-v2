@@ -98,7 +98,7 @@ export default class AppNewMoment extends React.PureComponent {
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 2px;
-          color: #1977f3;
+          color: #87989e;
         }
         .option-description {
           margin-top: 0;
@@ -123,7 +123,7 @@ export default class AppNewMoment extends React.PureComponent {
           padding-bottom: 12px;
           padding-right: 20px;
           padding-left: 20px;
-          background-color: #1977f3;
+          background-color: #00D68F;
           border-radius: 20px;
           font-size: 15px;
           font-weight: 400;
@@ -131,7 +131,7 @@ export default class AppNewMoment extends React.PureComponent {
         }
         .option-fake-button:hover,
         .option-fake-button:active {
-          background-color: #185be7;
+          background-color: #04C987;
         }
         @media (min-width: 768px) {
           .options {

@@ -4,13 +4,20 @@ import PropTypes from 'prop-types';
 import Router from 'next/router';
 
 import If from '../If';
-
-import distanceInWordsStrict from 'date-fns/distance_in_words_strict';
-import isToday from 'date-fns/is_today';
+import AppModal from '../AppModal';
+import AppDropdownButton from '../AppDropdownButton';
+import AppDropdownMenu from '../AppDropdownMenu';
+import AppDropdownItem from '../AppDropdownItem';
+import AppDropdownSeparator from '../AppDropdownSeparator';
+import AppMomentDropdownEdit from '../AppMomentDropdownEdit';
+import AppMomentDropdownDelete from '../AppMomentDropdownDelete';
+import AppMomentDropdownSettings from '../AppMomentDropdownSettings';
+import AppMomentSettings from '../AppMomentSettings';
+import AppMomentDeleteConfirmation from '../AppMomentDeleteConfirmation';
 
 import { api as momentsApi } from '../../reducers/moments';
 
-export default class AppMomentsListItem extends React.PureComponent {
+export default class AppMomentsGridItem extends React.PureComponent {
 
   static contextTypes = {
     store: PropTypes.object,
@@ -22,7 +29,6 @@ export default class AppMomentsListItem extends React.PureComponent {
     mode        : PropTypes.string,
     id          : PropTypes.string,
     author      : PropTypes.string,
-    avatar      : PropTypes.string,
     name        : PropTypes.string,
     background  : PropTypes.string,
     members     : PropTypes.array,
@@ -31,9 +37,6 @@ export default class AppMomentsListItem extends React.PureComponent {
     likes       : PropTypes.number,
     liked       : PropTypes.bool,
     created_at  : PropTypes.string,
-    updated_at  : PropTypes.string,
-    started_at  : PropTypes.string,
-    ended_at    : PropTypes.string,
   }
 
   static defaultProps = {
@@ -42,7 +45,6 @@ export default class AppMomentsListItem extends React.PureComponent {
     mode        : 'desktop',
     id          : '',
     author      : '',
-    avatar      : '',
     name        : '',
     background  : '',
     members     : [ ],
@@ -51,13 +53,11 @@ export default class AppMomentsListItem extends React.PureComponent {
     likes       : 0,
     liked       : false,
     created_at  : '',
-    updated_at  : '',
-    started_at  : '',
-    ended_at    : '',
   }
 
-  componentWillMount() {
-    this.now = new Date();
+  state = {
+    settings    : false,
+    confirmation: false,
   }
 
   handleAuthorPress = e => {
@@ -101,17 +101,47 @@ export default class AppMomentsListItem extends React.PureComponent {
     }
   }
 
+  handleEditPress = e => {
+    e.preventDefault();
+    const { id, author: username } = this.props;
+    return Router.push({
+      pathname: '/edit-moment',
+      query   : { id, username },
+    }, `/${username}/${id}/edit`);
+  }
+
+  handleSettingsPress = e => {
+    e.preventDefault();
+    this.setState(state => !state.settings && { settings: true });
+  }
+
+  handleSettingsDismiss = e => {
+    this.setState(state => state.settings && { settings: false });
+  }
+
+  handleDeletePress = e => {
+    e.preventDefault();
+    this.setState(state => !state.confirmation && { confirmation: true });
+  }
+
+  handleConfirmationDismiss = e => {
+    this.setState(state => state.confirmation && { confirmation: false });
+  }
+
+  handleConfirmationRemove = e => {
+
+    const { store: { dispatch } } = this.context;
+    const { id, author } = this.props;
+
+    this.setState(state => state.confirmation && { confirmation: false }, e => {
+      dispatch(momentsApi.removeMoments(author, id));
+    });
+  }
+
   render() {
-
-    const { id, whoami, author, avatar, name, members, permissions, background, impressions, likes, liked, created_at, onPress } = this.props;
-
+    const { id, whoami, author, name, members, permissions, background, impressions, likes, liked, created_at, onPress } = this.props;
+    const { settings, confirmation } = this.state;
     const editable = whoami === author || members.filter(member => member.username === whoami).length > 0;
-
-    const when = new Date(created_at);
-    const date = isToday(when)
-      ? 'Today'
-      : `${distanceInWordsStrict(when, this.now)} ago`
-
     return <li className="item moments-list-item">
       <style jsx>{`
         .item {
@@ -126,19 +156,20 @@ export default class AppMomentsListItem extends React.PureComponent {
           list-style: none;
           display: flex;
           flex-direction: column;
+          flex-basis: 100%;
           max-width: 100%;
-          height: 410px;
-        }
-        .item + .item {
-          border-top: 1px solid #fafafa;
-          padding-top: 10px;
+          width: 300px;
+          height: 360px;
         }
         .item-cover {
+          width: 342px;
           height: 300px;
           max-width: 100%;
         }
         .item-cover-image {
+          width: 342px;
           height: 300px;
+          border-radius: 3px;
           overflow: hidden;
           max-width: 100%;
         }
@@ -156,22 +187,22 @@ export default class AppMomentsListItem extends React.PureComponent {
         .item-details {
           display: flex;
           flex-direction: row;
-          margin-top: 6px;
-          margin-bottom: 18px;
+          margin-top: 0;
+          margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
+          padding-top: 20px;
+          padding-bottom: 20px;
           padding-left: 0;
           padding-right: 0;
-          max-width: 100%;
+          max-width: 342px;
         }
         .item-details-info {
           display: flex;
           flex: 1;
           flex-grow: 1;
           flex-shrink: 1;
-          flex-direction: row;
+          flex-direction: column;
           max-width: 100%;
           margin-top: 0;
           margin-bottom: 0;
@@ -182,28 +213,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
         }
-        .item-details-image {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 10px;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-          width: 34px;
-          height: 34px;
-          border-radius: 18px;
-          border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        .item-details-column {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
         .item-details-option {
-          display: flex;
-          align-items: center;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
@@ -212,10 +222,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
-          max-width: 200px;
-          font-size: 16px;
-          font-weight: 400;
-          color: #9eb4c1;
+          width: 30px;
         }
         .item-details a {
           margin-top: 0;
@@ -243,8 +250,8 @@ export default class AppMomentsListItem extends React.PureComponent {
           padding-right: 0;
         }
         .item-name a {
-          font-size: 14px;
-          font-weight: 500;
+          font-size: 16px;
+          font-weight: 400;
           color: #000;
         }
         .item-description {
@@ -262,52 +269,15 @@ export default class AppMomentsListItem extends React.PureComponent {
           font-weight: 400;
           color: #777;
         }
-        .item-toolbar {
-          display: flex;
-          flex-direction: row;
-          margin-top: 18px;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 5px;
-          padding-right: 5px;
-        }
-        .item-column {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 0;
-          margin-right: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          padding-left: 0;
-          padding-right: 0;
-          display: flex;
-          flex-direction: row;
-        }
-        .item-column + .item-column {
-          margin-left: 20px;
-        }
-        .item-icon {
-          width: 18px;
-          height: 18px;
-        }
-        .counter {
-          margin-left: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #6a767d;
-        }
         @media (min-width: 780px) {
-          .item { height: 510px; }
-          .item-cover { height: 400px; }
-          .item-cover-image { height: 400px; }
+          .item { flex-basis: calc(50% - 20px); }
+          .item + .item { margin-left: 20px; }
+          .item:nth-child(2n + 1) { margin-left: 0px; }
         }
         @media (min-width: 1160px) {
-          .item { height: 510px; }
-          .item-cover { height: 400px; }
-          .item-cover-image { height: 400px; }
+          .item { flex-basis: calc(33.3% - 20px); }
+          .item:nth-child(2n + 1) { margin-left: 20px; }
+          .item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
       <style jsx global>{`
@@ -325,27 +295,21 @@ export default class AppMomentsListItem extends React.PureComponent {
           outline: none;
           cursor: pointer;
         }
+        @media (min-width: 680px) {
+          .moments-list-item { flex-basis: calc(50% - 20px); }
+          .moments-list-item + .moments-list-item { margin-left: 20px; }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 0px; }
+        }
+        @media (min-width: 1000px) {
+          .moments-list-item { flex-basis: calc(33.3% - 20px); }
+          .moments-list-item:nth-child(2n + 1) { margin-left: 20px; }
+          .moments-list-item:nth-child(3n + 1) { margin-left: 0px; }
+        }
       `}</style>
-      <div className="item-details">
-        <div className="item-details-info">
-          <div className="item-details-column">
-            <img className="item-details-image" src={avatar} />
-          </div>
-          <div className="item-details-column">
-            <h2 className="item-name">
-              <a href={`/${author}/${id}`} onClick={this.handleItemPress}>{ name || 'Draft' }</a>
-            </h2>
-            <p className="item-description">
-              <a href={`/${author}`} onClick={this.handleAuthorPress}>{ author }</a>
-            </p>
-          </div>
-        </div>
-        <div className="item-details-option">{ date }</div>
-      </div>
       <a className="item-cover" href={`/${author}/${id}`} onClick={this.handleItemPress}>
         <If condition={!!background}>
           <div className="item-cover-image" style={{
-            backgroundImage: `url(${CDN_URL}/${background}/regular)`,
+            backgroundImage: `url(${CDN_URL}/${background}/embed)`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
           }} />
@@ -358,20 +322,39 @@ export default class AppMomentsListItem extends React.PureComponent {
           </div>
         </If>
       </a>
-      <div className="item-toolbar">
-
-        {/* impression counter */}
-        <div className="item-column no-select">
-          <img className="item-icon" src="/static/emoji/2x/3030.png" />
-          <span className="counter">{ impressions } impressions</span>
+      <div className="item-details">
+        <div className="item-details-info">
+          <h2 className="item-name">
+            <a href={`/${author}/${id}`} onClick={this.handleItemPress}>{ name || 'Draft' }</a>
+          </h2>
+          <p className="item-description">
+            <a href={`/${author}`} onClick={this.handleAuthorPress}>{ author }</a>
+          </p>
         </div>
-
-        {/* clapping counter */}
-        <div className="item-column no-select">
-          <img className="item-icon" src="/static/emoji/2x/1f44f.png" />
-          <span className="counter">{ likes } likes</span>
-        </div>
-
+        <If condition={editable}>
+          <div className="item-details-option">
+            <AppDropdownButton className="item-dropdown-button" id={id} icon={true}>
+              <AppDropdownMenu>
+                <AppDropdownItem onPress={this.handleSettingsPress}>
+                  <AppMomentDropdownSettings />
+                </AppDropdownItem>
+                <AppDropdownItem onPress={this.handleEditPress}>
+                  <AppMomentDropdownEdit />
+                </AppDropdownItem>
+                <AppDropdownSeparator />
+                <AppDropdownItem warning onPress={this.handleDeletePress}>
+                  <AppMomentDropdownDelete />
+                </AppDropdownItem>
+              </AppDropdownMenu>
+            </AppDropdownButton>
+          </div>
+        </If>
+        <AppModal color="#fff" active={settings} dismiss={this.handleSettingsDismiss}>
+          <AppMomentSettings id={id} name={(name || 'Draft')} author={author} permissions={permissions} onCancel={this.handleSettingsDismiss} />
+        </AppModal>
+        <AppModal color="#fff" active={confirmation} dismiss={this.handleConfirmationDismiss}>
+          <AppMomentDeleteConfirmation name={(name || 'Draft')} author={author} onPress={this.handleConfirmationRemove} onCancel={this.handleConfirmationDismiss} />
+        </AppModal>
       </div>
     </li>
   }

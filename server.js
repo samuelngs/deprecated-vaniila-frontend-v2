@@ -15,6 +15,7 @@ const routes = {
   '/signin'                 : '/signin',
   '/signout'                : '/signout',
   '/new'                    : '/new-moment',
+  '/learn'                  : '/learn-more',
   '/:username'              : '/list-moments',
   '/:username/:id'          : '/view-moment',
   '/:username/:id/edit'     : '/edit-moment',

@@ -56,7 +56,6 @@ function EditorLiveStreamBegin({ confirmation, onPress }) {
         background-color: rgb(239, 239, 239);
       }
       .btn span {
-          margin-top: 2px;
           display: none;
       }
       .btn i {
@@ -144,7 +143,6 @@ function EditorLiveStreamOnair({ confirmation, onPress }) {
         background-color: rgb(239, 239, 239);
       }
       .btn span {
-          margin-top: 2px;
           display: none;
       }
       .btn i {
@@ -214,7 +212,6 @@ function EditorLiveStreamResult() {
       .base span {
         display: none;
         margin-left: 10px;
-        margin-top: 2px;
       }
       @media (min-width: 768px) {
         .base span {

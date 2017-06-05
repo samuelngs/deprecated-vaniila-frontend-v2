@@ -2,12 +2,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import AppMomentsListItem from '../AppMomentsListItem';
-import AppMomentsListPlaceholderItem from '../AppMomentsListPlaceholderItem';
+import AppMomentsGridItem from '../AppMomentsGridItem';
+import AppMomentsGridPlaceholderItem from '../AppMomentsGridPlaceholderItem';
 
 const placeholders = [ 0, 0, 0, 0, 0 ];
 
-export default class AppMomentsList extends React.PureComponent {
+export default class AppMomentsGrid extends React.PureComponent {
 
   static propTypes = {
     placeholder : PropTypes.bool,
@@ -33,7 +33,9 @@ export default class AppMomentsList extends React.PureComponent {
       <style jsx>{`
         .base {
           display: flex;
-          flex-direction: column;
+          justify-content: flex-start;
+          flex-direction: row;
+          flex-wrap: wrap;
         }
       `}</style>
       { (placeholder
@@ -41,8 +43,8 @@ export default class AppMomentsList extends React.PureComponent {
           : moments
         ).map(
           (props, i) => ( props === 0 )
-            ? <AppMomentsListPlaceholderItem key={i} />
-            : <AppMomentsListItem key={props.id} whoami={whoami} profile={profile} permissions={permissions[props.id]} mode={mode} {...props} />
+            ? <AppMomentsGridPlaceholderItem key={i} />
+            : <AppMomentsGridItem key={props.id} whoami={whoami} profile={profile} permissions={permissions[props.id]} mode={mode} {...props} />
         )
       }
     </ul>

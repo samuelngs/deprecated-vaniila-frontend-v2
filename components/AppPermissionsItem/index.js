@@ -90,7 +90,7 @@ export default class AppPermissionsItem extends React.PureComponent {
         }
         .user-fullname {
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 500;
           color: #000;
         }
         .user-username {

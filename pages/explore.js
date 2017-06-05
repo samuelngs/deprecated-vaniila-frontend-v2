@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import Router from 'next/router';
 
 import If from '../components/If';
@@ -10,9 +11,12 @@ import AfterEvent from '../components/AfterEvent';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import AppModal from '../components/AppModal';
+import AppMomentsGrid from '../components/AppMomentsGrid';
 import AppMomentsList from '../components/AppMomentsList';
 import AppModalViewMoment from '../components/AppModalViewMoment';
 import AppLoadMore from '../components/AppLoadMore';
+import AppSidebarSignupForm from '../components/AppSidebarSignupForm';
+import AppSidebarSignupTwitter from '../components/AppSidebarSignupTwitter';
 
 import { api as trendsApi } from '../reducers/trends';
 import { api as liveApi } from '../reducers/live';
@@ -148,7 +152,7 @@ class Explore extends React.Component {
         }
         .headline {
           margin-top: 40px;
-          margin-bottom: 80px;
+          margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;
           padding-top: 0;
@@ -166,6 +170,87 @@ class Explore extends React.Component {
         }
         .headline span {
           display: block;
+        }
+        .navigation {
+          margin-top: 20px;
+          margin-bottom: 80px;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .agreement {
+          margin-top: 20px;
+          margin-bottom: 0;
+          margin-left: 10px;
+          margin-right: 10px;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+          font-size: 14px;
+          font-weight: 400;
+          color: #5c7584;
+        }
+        .agreement a {
+          text-decoration: none;
+          font-weight: 500;
+          color: #000;
+        }
+        .grid {
+          display: flex;
+          flex-direction: column;
+        }
+        .column {
+          display: flex;
+          flex-direction: column;
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .column-fill {
+          flex: 1;
+        }
+        .column-sidebar {
+          flex: 1;
+        }
+        .button {
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-left: 0;
+          margin-right: 0;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          padding-left: 16px;
+          padding-right: 16px;
+          border: none;
+          border-radius: 3px;
+          background-color: #fff;
+          font-size: 14px;
+          font-weight: 400;
+          text-decoration: none;
+          color: #000;
+          outline: none;
+        }
+        .button-highlight {
+          background-color: #000;
+          color: #fff;
+        }
+        .button-highlight:hover {
+          background-color: #222;
+        }
+        .button-highlight:active {
+          background-color: #444;
+        }
+        .button + .button {
+          margin-left: 8px;
         }
         .category {
           display: flex;
@@ -198,13 +283,29 @@ class Explore extends React.Component {
           }
           .headline {
             margin-top: 90px;
-            margin-bottom: 90px;
             font-size: 42px;
+          }
+          .navigation {
+            margin-bottom: 90px;
+          }
+          .button {
+            font-size: 16px;
           }
         }
         @media (min-width: 1160px) {
           .container {
             width: 1080px;
+          }
+          .grid {
+            flex-direction: row;
+          }
+          .column-sidebar {
+            flex: initial;
+            width: 300px;
+            margin-top: 122px;
+            margin-left: 20px;
+            max-width: 100%;
+            max-width: calc(100% - 40px);
           }
         }
       `}</style>
@@ -252,10 +353,16 @@ class Explore extends React.Component {
       <AfterEvent autostart={false} run={this.onPageLoad} then={this.onPageLoaded}  />
 
       <div className="container">
+
         <h1 className="headline">
           <span>Life is full of amazing events.</span>
-          <span>Capture them with <b className="headline-bold">Vaniila Moments</b></span>
+          <span>Capture them with <b className="headline-bold">Vaniila Moments</b>.</span>
         </h1>
+
+        <div className="navigation">
+          <Link href={{ pathname: '/learn-more' }} as="learn"><a className="button button-highlight">Learn more</a></Link>
+        </div>
+
         <If condition={live.length > 0}>
           <h4 className="category category-live">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
@@ -265,10 +372,30 @@ class Explore extends React.Component {
           </h4>
         </If>
         <If condition={live.length > 0}>
-          <AppMomentsList placeholder={false} whoami={accountUsername} moments={live} permissions={momentPermissions} mode={this.mode()} />
+          <AppMomentsGrid placeholder={false} whoami={accountUsername} moments={live} permissions={momentPermissions} mode={this.mode()} />
         </If>
-        <h4 className="category">Trends</h4>
-        <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} permissions={momentPermissions} mode={this.mode()} />
+
+        <If condition={!!authenticationToken}>
+          <h4 className="category">Trends</h4>
+        </If>
+        <If condition={!!authenticationToken}>
+          <AppMomentsGrid placeholder={fetching} whoami={accountUsername} moments={moments} permissions={momentPermissions} mode={this.mode()} />
+        </If>
+
+        <If condition={!authenticationToken}>
+          <div className="grid">
+            <div className="column column-fill">
+              <h4 className="category">Trends</h4>
+              <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} permissions={momentPermissions} mode={this.mode()} />
+            </div>
+            <div className="column column-sidebar column-fixed">
+              <AppSidebarSignupForm />
+              <AppSidebarSignupTwitter />
+              <p className="agreement">By signing up, you agree to the <Link href="/tos" as="/tos"><a>Terms of Service</a></Link> and <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link></p>
+            </div>
+          </div>
+        </If>
+
         <AppLoadMore run={this.onLoadMore} />
       </div>
 

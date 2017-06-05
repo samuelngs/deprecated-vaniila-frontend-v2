@@ -156,11 +156,11 @@ export default class AppMomentDetails extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 500;
           color: #000;
         }
         .details-username {
-          margin-top: 2px;
+          margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;

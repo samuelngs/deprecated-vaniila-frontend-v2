@@ -148,7 +148,7 @@ export default class AppModal extends React.PureComponent {
           padding: 0;
           width: 50px;
           height: 50px;
-          background-color: #f1fcfd;
+          background-color: #dbffef;
           border-radius: 30px;
           border: none;
           cursor: pointer;
@@ -157,7 +157,7 @@ export default class AppModal extends React.PureComponent {
         .icon {
           height: 36px;
           width: 36px;
-          fill: #83c8e1;
+          fill: #00d68f;
           pointer-events: none;
         }
       `}</style>

@@ -54,7 +54,7 @@ export default class AppMomentsProfile extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
           font-size: 24px;
-          font-weight: 600;
+          font-weight: 500;
           color: #000;
         }
         .username {
@@ -67,7 +67,7 @@ export default class AppMomentsProfile extends React.PureComponent {
           padding-left: 0;
           padding-right: 0;
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 500;
           color: #777;
         }
       `}</style>

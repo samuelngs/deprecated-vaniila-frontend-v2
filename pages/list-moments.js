@@ -13,7 +13,7 @@ import BackToTop from '../components/BackToTop';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import AppModal from '../components/AppModal';
-import AppMomentsList from '../components/AppMomentsList';
+import AppMomentsGrid from '../components/AppMomentsGrid';
 import AppMomentsProfile from '../components/AppMomentsProfile';
 import AppModalViewMoment from '../components/AppModalViewMoment';
 import AppLaunchSuccess from '../components/AppLaunchSuccess';
@@ -168,7 +168,7 @@ class ListMoments extends React.PureComponent {
 
         <div className="container">
           <AppMomentsProfile user={user} />
-          <AppMomentsList placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} permissions={momentPermissions} mode={this.mode()} />
+          <AppMomentsGrid placeholder={fetching} whoami={accountUsername} profile={username} moments={moments} permissions={momentPermissions} mode={this.mode()} />
         </div>
 
         <AppModal

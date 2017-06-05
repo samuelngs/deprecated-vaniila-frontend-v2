@@ -9,6 +9,7 @@ import AppHeaderLogo from '../AppHeaderLogo';
 import AppHeaderMenu from '../AppHeaderMenu';
 import AppModal from '../AppModal';
 import AppModalNewMoment from '../AppModalNewMoment';
+import AppModalSignin from '../AppModalSignin';
 import AppDropdownButton from '../AppDropdownButton';
 import AppDropdownMenu from '../AppDropdownMenu';
 import AppDropdownItem from '../AppDropdownItem';
@@ -69,12 +70,21 @@ export default class AppHeader extends React.Component {
     e.preventDefault();
 
     const { store: { getState } } = this.context;
-    const { serverPath } = getState();
+    const { serverPathname, serverQuery } = getState();
 
+    // return Router.push({
+    //   pathname: '/signin',
+    //   query   : { redirect: serverPath },
+    // }, '/signin');
     return Router.push({
-      pathname: '/signin',
-      query   : { redirect: serverPath },
+      pathname: serverPathname,
+      query   : { ...serverQuery, signin: 'modal' },
     }, '/signin');
+  }
+
+  handleSigninDismiss = e => {
+    e.preventDefault();
+    return Router.back();
   }
 
   handleUserLogout = e => {
@@ -352,6 +362,11 @@ export default class AppHeader extends React.Component {
       {/* new moment modal screen */}
       <AppModal color="#fff" active={!!serverQuery.new} dismiss={this.handleNewMomentDismiss}>
         <AppModalNewMoment />
+      </AppModal>
+
+      {/* new moment modal screen */}
+      <AppModal color="#fff" active={!!serverQuery.signin} dismiss={this.handleSigninDismiss}>
+        <AppModalSignin />
       </AppModal>
 
     </header>

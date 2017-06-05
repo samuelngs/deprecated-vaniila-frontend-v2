@@ -128,6 +128,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           flex-direction: column;
           max-width: 100%;
           height: 410px;
+          min-height: 410px;
         }
         .item + .item {
           border-top: 1px solid #fafafa;
@@ -304,13 +305,13 @@ export default class AppMomentsListItem extends React.PureComponent {
           color: #6a767d;
         }
         @media (min-width: 780px) {
-          .item { height: 510px; }
+          .item { height: 510px; min-height: 510px; }
           .item-cover { height: 400px; }
           .item-cover-image { height: 400px; }
           .item-details-option { font-size: 16px; }
         }
         @media (min-width: 1160px) {
-          .item { height: 510px; }
+          .item { height: 510px; min-height: 510px; }
           .item-cover { height: 400px; }
           .item-cover-image { height: 400px; }
           .item-details-option { font-size: 16px; }

@@ -104,9 +104,10 @@ class LearnMore extends React.PureComponent {
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
-          font-size: 18px;
+          font-size: 14px;
           font-weight: 400;
           color: #536168;
+          line-height: 1.6;
         }
         .column p + p {
           margin-top: 20px;
@@ -117,14 +118,15 @@ class LearnMore extends React.PureComponent {
           margin-bottom: 0;
           margin-left: 0;
           margin-right: 0;
-          padding-top: 40px;
-          padding-bottom: 40px;
-          padding-left: 40px;
-          padding-right: 40px;
+          padding-top: 20px;
+          padding-bottom: 20px;
+          padding-left: 20px;
+          padding-right: 20px;
           background-color: #f4f4f4;
-          font-size: 20px;
+          font-size: 16px;
           font-weight: 400;
           color: #666;
+          line-height: 1.4;
         }
         @media (min-width: 780px) {
           .container {
@@ -137,6 +139,17 @@ class LearnMore extends React.PureComponent {
           .column-highlight {
             height: 412px;
             margin-top: 40px;
+          }
+          .column p {
+            font-size: 18px;
+            line-height: 1.4;
+          }
+          .layout-center {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            padding-left: 40px;
+            padding-right: 40px;
+            font-size: 22px;
           }
         }
         @media (min-width: 1160px) {

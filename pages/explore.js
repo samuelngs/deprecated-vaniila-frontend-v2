@@ -165,7 +165,7 @@ class Explore extends React.Component {
           color: #000;
         }
         .headline-bold {
-          color: #2ae6a8;
+          color: #00d68f;
           font-weight: 500;
         }
         .headline span {

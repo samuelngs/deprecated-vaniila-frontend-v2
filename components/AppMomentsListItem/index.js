@@ -217,7 +217,7 @@ export default class AppMomentsListItem extends React.PureComponent {
           max-width: 200px;
           font-size: 12px;
           font-weight: 400;
-          color: #9eb4c1;
+          color: #00d68f;
           overflow: hidden;
           white-space: nowrap;
         }

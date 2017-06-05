@@ -95,7 +95,6 @@ export default class AppMomentStats extends React.PureComponent {
           height: 18px;
         }
         .counter {
-          margin-top: 3px;
           margin-left: 8px;
           font-size: 13px;
           font-weight: 500;

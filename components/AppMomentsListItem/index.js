@@ -176,11 +176,13 @@ export default class AppMomentsListItem extends React.PureComponent {
           margin-top: 0;
           margin-bottom: 0;
           margin-left: 0;
-          margin-right: 0;
+          margin-right: 10px;
           padding-top: 0;
           padding-bottom: 0;
           padding-left: 0;
           padding-right: 0;
+          overflow: hidden;
+          white-space: nowrap;
         }
         .item-details-image {
           margin-top: 0;
@@ -216,6 +218,8 @@ export default class AppMomentsListItem extends React.PureComponent {
           font-size: 16px;
           font-weight: 400;
           color: #9eb4c1;
+          overflow: hidden;
+          white-space: nowrap;
         }
         .item-details a {
           margin-top: 0;

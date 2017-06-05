@@ -132,6 +132,8 @@ export default class AppSidebarSignupForm extends React.PureComponent {
           background-color: #fff;
           border: none;
           outline: none;
+          -webkit-border-radius: 0;
+          -webkit-appearance: none;
         }
         .input + .input {
           border-top: 1px solid #f8f8f8;

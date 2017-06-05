@@ -15,6 +15,7 @@ import AppMomentsGrid from '../components/AppMomentsGrid';
 import AppMomentsList from '../components/AppMomentsList';
 import AppModalViewMoment from '../components/AppModalViewMoment';
 import AppLoadMore from '../components/AppLoadMore';
+import AppFixedLayer from '../components/AppFixedLayer';
 import AppSidebarSignupForm from '../components/AppSidebarSignupForm';
 import AppSidebarSignupTwitter from '../components/AppSidebarSignupTwitter';
 
@@ -388,11 +389,22 @@ class Explore extends React.Component {
               <h4 className="category">Trends</h4>
               <AppMomentsList placeholder={fetching} whoami={accountUsername} moments={moments} permissions={momentPermissions} mode={this.mode()} />
             </div>
-            <div className="column column-sidebar column-fixed">
-              <AppSidebarSignupForm />
-              <AppSidebarSignupTwitter />
-              <p className="agreement">By signing up, you agree to the <Link href="/tos" as="/tos"><a>Terms of Service</a></Link> and <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link></p>
-            </div>
+            <If condition={windowSize.width >= 1160}>
+              <div className="column column-sidebar column-fixed">
+                <AppFixedLayer offset={70} width={300}>
+                  <AppSidebarSignupForm />
+                  <AppSidebarSignupTwitter />
+                  <p className="agreement">By signing up, you agree to the <Link href="/tos" as="/tos"><a>Terms of Service</a></Link> and <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link></p>
+                </AppFixedLayer>
+              </div>
+            </If>
+            <If condition={windowSize.width < 1160}>
+              <div className="column column-sidebar column-fixed">
+                <AppSidebarSignupForm />
+                <AppSidebarSignupTwitter />
+                <p className="agreement">By signing up, you agree to the <Link href="/tos" as="/tos"><a>Terms of Service</a></Link> and <Link href="/privacy" as="/privacy"><a>Privacy Policy</a></Link></p>
+              </div>
+            </If>
           </div>
         </If>
 

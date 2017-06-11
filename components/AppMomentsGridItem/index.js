@@ -142,7 +142,7 @@ export default class AppMomentsGridItem extends React.PureComponent {
     const { id, whoami, author, name, members, permissions, background, impressions, likes, liked, created_at, onPress } = this.props;
     const { settings, confirmation } = this.state;
     const editable = whoami === author || members.filter(member => member.username === whoami).length > 0;
-    return <li className="item moments-list-item">
+    return <li className="item moments-grid-item">
       <style jsx>{`
         .item {
           margin-top: 0;
@@ -296,14 +296,14 @@ export default class AppMomentsGridItem extends React.PureComponent {
           cursor: pointer;
         }
         @media (min-width: 680px) {
-          .moments-list-item { flex-basis: calc(50% - 20px); }
-          .moments-list-item + .moments-list-item { margin-left: 20px; }
-          .moments-list-item:nth-child(2n + 1) { margin-left: 0px; }
+          .moments-grid-item { flex-basis: calc(50% - 20px); }
+          .moments-grid-item + .moments-grid-item { margin-left: 20px; }
+          .moments-grid-item:nth-child(2n + 1) { margin-left: 0px; }
         }
         @media (min-width: 1000px) {
-          .moments-list-item { flex-basis: calc(33.3% - 20px); }
-          .moments-list-item:nth-child(2n + 1) { margin-left: 20px; }
-          .moments-list-item:nth-child(3n + 1) { margin-left: 0px; }
+          .moments-grid-item { flex-basis: calc(33.3% - 20px); }
+          .moments-grid-item:nth-child(2n + 1) { margin-left: 20px; }
+          .moments-grid-item:nth-child(3n + 1) { margin-left: 0px; }
         }
       `}</style>
       <a className="item-cover" href={`/${author}/${id}`} onClick={this.handleItemPress}>

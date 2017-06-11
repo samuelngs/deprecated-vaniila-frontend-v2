@@ -35,6 +35,7 @@ export default class MomentCard extends React.PureComponent {
     scale       : PropTypes.number,
     width       : PropTypes.number,
     height      : PropTypes.number,
+    peers       : PropTypes.array,
     cover       : PropTypes.bool,
     livestream  : PropTypes.bool,
     placeholder : PropTypes.string,
@@ -61,6 +62,7 @@ export default class MomentCard extends React.PureComponent {
     scale       : 1,
     width       : 0,
     height      : 0,
+    peers       : [ ],
     cover       : false,
     livestream  : false,
     placeholder : 'What\'s happening?',
@@ -190,7 +192,7 @@ export default class MomentCard extends React.PureComponent {
       case 'delete-moment':
         return MomentEditorHook.onMomentDelete.call(this);
       case 'publish-moment':
-        return MomentEditorHook.onMomentPublish.call(this);
+        return MomentEditorHook.onMomentPublish.call(this, data);
       case 'append-moment':
         return onCreate().then(({ name, block }) => {
           const { root } = this.props;
@@ -203,6 +205,8 @@ export default class MomentCard extends React.PureComponent {
           const { store: { dispatch } } = this.context;
           return dispatch(api.setEditorState(root, { grid: false, nextId: name, focus: true }));
         });
+      case 'last-moment':
+        return MomentEditorHook.onLastMoment.call(this, data);
     }
   }
 
@@ -452,7 +456,7 @@ export default class MomentCard extends React.PureComponent {
    * render component view
    */
   render() {
-    const { id, no, total, scale, cover, livestream, player, editmode, gridview, moment, editorState, files, width, height } = this.props;
+    const { id, no, total, scale, peers, cover, livestream, player, editmode, gridview, moment, editorState, files, width, height } = this.props;
     const { editorMoment, editorSelectionTop, editorSelectionLeft, editorIsCollapsed, editorIsCompositionMode } = editorState;
     const when = moment.when;
     const fullscreen = !!moment.parent;
@@ -527,6 +531,7 @@ export default class MomentCard extends React.PureComponent {
         no={no}
         when={when}
         total={total}
+        peers={peers}
         livestream={livestream}
         published={published}
         editmode={editmode && !cover}

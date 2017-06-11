@@ -18,7 +18,7 @@ export default function onKeyDown(e) {
         const { livestream, started_at: startedAt, ended_at: endedAt } = (getState().momentDocuments[root] || { });
         const streaming = livestream && new Date(startedAt).getTime() > 0 && new Date(endedAt).getTime() <= 0;
         if ( streaming ) {
-          return this.emit('edit', 'publish-moment');
+          return this.emit('edit', 'publish-moment', e.shiftKey);
         }
         return this.emit('edit', 'append-moment');
       }
@@ -29,7 +29,8 @@ export default function onKeyDown(e) {
       return;
 
     case Codes.TAB:
-      return;
+      e.preventDefault && e.preventDefault();
+      return this.emit('edit', 'last-moment', e.shiftKey);
 
     case Codes.UP:
     case Codes.DOWN:

@@ -2,7 +2,7 @@
 import deepClone from '../../../../utils/clone';
 import { api } from '../../../../reducers/editor';
 
-export function onMomentPublish() {
+export function onMomentPublish(create) {
 
   const { moment, root, id, onCreate, onChange } = this.props;
   const { store: { dispatch } } = this.context;
@@ -16,9 +16,13 @@ export function onMomentPublish() {
   clone.hash = `${Date.now()}`;
   clone.published = true;
 
-  return Promise.resolve(onChange(id, clone)).then(_ => {
-    return onCreate().then(({ name, block }) => {
-      return dispatch(api.setEditorState(root, { grid: false, nextId: name, focus: true }));
+  if ( create ) {
+    return Promise.resolve(onChange(id, clone)).then(_ => {
+      return onCreate().then(({ name, block }) => {
+        return dispatch(api.setEditorState(root, { grid: false, nextId: name, focus: true }));
+      });
     });
-  });
+  }
+
+  return Promise.resolve(onChange(id, clone));
 }

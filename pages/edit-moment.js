@@ -86,6 +86,15 @@ class EditMoment extends React.Component {
     }
   }
 
+  componentDidUpdate({ id, editorStates: a }) {
+    const { editorStates: b } = this.props;
+    const { editorMoment: prev } = a[id] || { };
+    const { editorMoment: next } = b[id] || { };
+    if ( prev !== next && this.sync ) {
+      window.setTimeout(e => this.sync.signal(), 700);
+    }
+  }
+
   /**
    * shortcut functions
    *
@@ -543,6 +552,7 @@ class EditMoment extends React.Component {
         <EditorStoryboard
           id={id}
           doc={doc}
+          peers={peers}
           cover={cover}
           files={files}
           livestream={streaming}

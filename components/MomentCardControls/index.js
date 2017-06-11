@@ -24,6 +24,7 @@ export default class MomentCardControls extends React.PureComponent {
     no          : PropTypes.number,
     when        : PropTypes.number,
     total       : PropTypes.number,
+    peers       : PropTypes.array,
     livestream  : PropTypes.bool,
     published   : PropTypes.bool,
     editmode    : PropTypes.bool,
@@ -37,6 +38,7 @@ export default class MomentCardControls extends React.PureComponent {
     no          : 1,
     when        : -1,
     total       : 0,
+    peers       : [ ],
     livestream  : false,
     published   : false,
     editmode    : false,
@@ -137,8 +139,43 @@ export default class MomentCardControls extends React.PureComponent {
     return `${hours}:${minutes} ${ampm}`;
   }
 
+  renderUsers = (users) => {
+    return users.map(({ shortname, background }, i) => <div key={i} className={background ? "base" : "base base-active"}>
+      <style jsx>{`
+        .base {
+          align-items: center;
+          justify-content: center;
+          display: flex;
+          width: 18px;
+          height: 18px;
+          border-radius: 12px;
+          border: 2px solid #f8f8f8;
+          color: #d2d2d2;
+          font-size: 10px;
+          font-weight: 500;
+          background-color: #eee;
+          box-shadow: rgba(0, 0, 0, 0.098) 0px 0px 0px 1px inset;
+          cursor: pointer;
+        }
+        .base-active {
+          color: #fff;
+        }
+        .base-active:nth-child(1) { background-color: #185be7; }
+        .base-active:nth-child(2) { background-color: #4db1d4; }
+        .base-active:nth-child(3) { background-color: #4dceae; }
+        .base-active:nth-child(4) { background-color: #4deb88; }
+        .base-active:nth-child(5) { background-color: #4dfa75; }
+        .base + .base {
+          margin-left: -6px;
+        }
+      `}</style>
+      { shortname }
+    </div>);
+  }
+
   renderCardControls = ({ key, style, data }) => {
-    const { id, no, when, total, livestream, published, editmode, active, fullscreen, onAction } = this.props;
+    const { id, no, when, total, peers, livestream, published, editmode, active, fullscreen, onAction } = this.props;
+    const users = peers.filter(u => u.cursor === id);
     return <div key={key} className="base" style={{ opacity: style.opacity, transform: `translate3d(0px, ${style.y}px, 0px) scale(1)` }} data-controls>
       <style jsx>{`
         .base {
@@ -164,6 +201,13 @@ export default class MomentCardControls extends React.PureComponent {
           margin-left: 14px;
           padding-left: 14px;
           border-left: 1px solid #e8e8e8;
+        }
+        .column-fill {
+          flex: 1;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
         }
       `}</style>
       <style jsx global>{`
@@ -218,6 +262,11 @@ export default class MomentCardControls extends React.PureComponent {
               <EditorMomentCardControlPublish active={published} />
             </Tooltip>
           </If>
+        </div>
+      </If>
+      <If condition={users.length > 0}>
+        <div className="column-fill" data-controls>
+          { this.renderUsers(users) }
         </div>
       </If>
     </div>

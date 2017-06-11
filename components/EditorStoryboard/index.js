@@ -17,6 +17,7 @@ export default class EditorStoryboard extends React.Component {
   static propTypes = {
     id              : PropTypes.string,
     doc             : PropTypes.object,
+    peers           : PropTypes.array,
     cover           : PropTypes.object,
     files           : PropTypes.object,
     gridview        : PropTypes.bool,
@@ -34,6 +35,7 @@ export default class EditorStoryboard extends React.Component {
   static defaultProps = {
     id              : '',
     doc             : { data: { slides: { } } },
+    peers           : [ ],
     cover           : { data: { } },
     files           : { },
     gridview        : false,
@@ -475,6 +477,7 @@ export default class EditorStoryboard extends React.Component {
 
     const {
       id,
+      peers,
       cover,
       files,
       gridview,
@@ -541,6 +544,7 @@ export default class EditorStoryboard extends React.Component {
         ref={n => this.cards = n}
         id={id}
         ids={ids}
+        peers={peers}
         count={count}
         cover={cover}
         gridview={gridview}

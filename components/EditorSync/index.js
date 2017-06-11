@@ -152,10 +152,12 @@ export default class EditorSync extends React.Component {
    */
   signal() {
     const { store } = this.context;
-    const { accountUsername, accountFullname, accountAvatar } = store.getState();
+    const { accountUsername, accountFullname, accountAvatar, editorStates } = store.getState();
+    const { moment } = this.props;
     const { id, background } = this.state;
     const { platform = 'Device' } = typeof navigator === 'object' ? navigator : { };
     const accountFullnameParts = accountFullname.split(' ');
+    const editorState = editorStates[moment];
     this.emit({
       action: 'signal',
       platform,
@@ -167,6 +169,9 @@ export default class EditorSync extends React.Component {
       shortname : accountFullnameParts.length >= 2
         ? ( accountFullnameParts[0].substring(0, 1) ).toUpperCase()
         : ( accountUsername.substring(0, 1) ).toUpperCase(),
+      cursor    : editorState && editorState.editorMoment
+        ? editorState.editorMoment
+        : '',
     }, false);
   }
 

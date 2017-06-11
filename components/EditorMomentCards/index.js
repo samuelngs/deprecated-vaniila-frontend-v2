@@ -21,6 +21,8 @@ export default class EditorMomentCards extends React.Component {
     id              : PropTypes.string,
     // moments' items id(s)
     ids             : PropTypes.arrayOf(PropTypes.string),
+    // peers list
+    peers           : PropTypes.array,
     // number of moment items
     count           : PropTypes.number,
     // moments datastore
@@ -61,6 +63,7 @@ export default class EditorMomentCards extends React.Component {
   static defaultProps = {
     id              : '',
     ids             : [ ],
+    peers           : [ ],
     count           : 0,
     cover           : { data: { } },
     moments         : { },
@@ -139,6 +142,7 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       gridview,
+      peers,
       cover: { data: { blocks: [ { data: title }, ...etc ] } },
       livestream,
       scrollLeft,
@@ -158,6 +162,7 @@ export default class EditorMomentCards extends React.Component {
       data      : {
         root,
         id,
+        peers,
         no          : i + 1,
         total       : ids.length,
         ref         : n => this.cards[id] = n,
@@ -203,6 +208,7 @@ export default class EditorMomentCards extends React.Component {
       ids,
       moments,
       gridview,
+      peers,
       cover: { data: { blocks: [ { data: title }, ...etc ] } },
       livestream,
       scrollLeft,
@@ -227,6 +233,7 @@ export default class EditorMomentCards extends React.Component {
       data      : {
         root,
         id,
+        peers,
         no          : i + 1,
         total       : ids.length,
         ref         : n => this.cards[id] = n,

@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import If from '../If';
 import MomentCardMediaControls from '../MomentCardMediaControls';
 
 export default class MomentCardYoutube extends React.PureComponent {
@@ -56,6 +57,7 @@ export default class MomentCardYoutube extends React.PureComponent {
 
   getStyle(type) {
     const { editmode, fullscreen, height, width } = this.props;
+    const ismobile = width < 800;
     return {
       position: 'relative',
       marginTop: fullscreen ? 0 : 10,
@@ -68,12 +70,26 @@ export default class MomentCardYoutube extends React.PureComponent {
       paddingRight: 0,
       width: fullscreen ? width : '100%',
       height: fullscreen && height,
-      borderRadius: fullscreen && 4,
+      borderRadius: !ismobile && fullscreen && 4,
       overflow: fullscreen && 'hidden',
       display: fullscreen && 'flex',
       alignItems: fullscreen && 'center',
       justifyContent: fullscreen && 'center',
     };
+  }
+
+  onPlay = e => {
+    const { block: { data } } = this.props;
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    let url;
+    if (/android/i.test(userAgent)) {
+      url = `http://www.youtube.com/watch?v=${data}`;
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      url = `youtube://${data}`;
+    } else {
+      url = `http://www.youtube.com/watch?v=${data}`;
+    }
+    window.open(url, '_blank');
   }
 
   onChange = type => {
@@ -90,6 +106,8 @@ export default class MomentCardYoutube extends React.PureComponent {
       key === editorStartKey &&
       key === editorEndKey
     );
+
+    const ismobile = width < 800;
 
     const style = this.getStyle(type);
     const className = editmode
@@ -121,6 +139,7 @@ export default class MomentCardYoutube extends React.PureComponent {
     return <div { ...props } onClick={this.handleClick} draggable={false} contentEditable={false}>
       <style jsx>{`
         .youtube {
+          position: relative;
           margin-top: 0;
           margin-bottom: 0;
           margin-left: auto;
@@ -137,9 +156,55 @@ export default class MomentCardYoutube extends React.PureComponent {
           pointer-events: none;
           cursor: default;
         }
+        .youtube-play {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 60px;
+          height: 60px;
+          border: none;
+          border-radius: 30px;
+          background-color: #fff;
+          outline: none;
+        }
+        .youtube-play:active {
+          background-color: #00d68f;
+        }
+        .youtube-icon {
+          margin-left: 4px;
+          width: 30px;
+          height: 30px;
+          fill: #00d68f;
+        }
+        .youtube-play:active .youtube-icon {
+          fill: #fff;
+        }
       `}</style>
       <MomentCardMediaControls active={isSelected} fullscreen={fullscreen} onChange={this.onChange} />
-      <iframe className={className} width={iframeWidth} height={iframeHeight} src={iframeSrc} frameBorder={0} allowFullScreen />
+      <If condition={ismobile}>
+        <div className={className} style={{
+          width: iframeWidth,
+          height: iframeHeight,
+          backgroundColor: '#000',
+          backgroundImage: `url(http://i.ytimg.com/vi/${data}/hqdefault.jpg)`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}>
+          <button className="youtube-play" onClick={this.onPlay}>
+            <svg className="youtube-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+              <path d="M74.437 53.96c1.59-1.59 1.59-4.167 0-5.756-.416-.416-40.53-25.48-40.766-25.598l-.03-.02v.002c-.54-.263-1.136-.424-1.775-.424-2.015 0-3.676 1.468-4 3.39l-.07 50.376c0 2.247 1.822 4.07 4.07 4.07.634 0 1.227-.16 1.762-.418l40.81-25.623z"/>
+            </svg>
+          </button>
+        </div>
+      </If>
+      <If condition={!ismobile}>
+        <iframe className={className} width={iframeWidth} height={iframeHeight} src={iframeSrc} frameBorder={0} allowFullScreen />
+      </If>
     </div>
   }
 

@@ -78,20 +78,6 @@ export default class MomentCardYoutube extends React.PureComponent {
     };
   }
 
-  onPlay = e => {
-    const { block: { data } } = this.props;
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    let url;
-    if (/android/i.test(userAgent)) {
-      url = `http://www.youtube.com/watch?v=${data}`;
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-      url = `youtube://${data}`;
-    } else {
-      url = `http://www.youtube.com/watch?v=${data}`;
-    }
-    window.open(url, '_blank');
-  }
-
   onChange = type => {
     const { block: { key }, onChange } = this.props;
     return onChange(type, key);
@@ -195,11 +181,11 @@ export default class MomentCardYoutube extends React.PureComponent {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
         }}>
-          <button className="youtube-play" onClick={this.onPlay}>
+          <a className="youtube-play" href={`https://www.youtube.com/watch?v=${data}`} target="_blank" data-moment-control>
             <svg className="youtube-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
               <path d="M74.437 53.96c1.59-1.59 1.59-4.167 0-5.756-.416-.416-40.53-25.48-40.766-25.598l-.03-.02v.002c-.54-.263-1.136-.424-1.775-.424-2.015 0-3.676 1.468-4 3.39l-.07 50.376c0 2.247 1.822 4.07 4.07 4.07.634 0 1.227-.16 1.762-.418l40.81-25.623z"/>
             </svg>
-          </button>
+          </a>
         </div>
       </If>
       <If condition={!ismobile}>

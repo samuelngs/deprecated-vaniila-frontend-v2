@@ -72,6 +72,9 @@ export default class AppMomentPlayer extends React.PureComponent {
     const { sizes: { player: { mode } } } = this.props;
     if ( mode !== 'mobile' ) return;
 
+    const { target } = e;
+    if ( target.hasAttribute('data-moment-control') ) return;
+
     e.cancelable && e.preventDefault && e.preventDefault();
     if ( window.scrollY !== 0 ) window.scrollTo(0, 0);
 

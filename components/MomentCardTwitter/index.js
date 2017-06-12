@@ -7,18 +7,6 @@ import MomentCardMediaControls from '../MomentCardMediaControls';
 
 const callbacks = [ ];
 
-function addScript (src, cb) {
-  if (callbacks.length === 0) {
-    callbacks.push(cb)
-    var s = document.createElement('script')
-    s.setAttribute('src', src)
-    s.onload = () => callbacks.forEach((cb) => cb())
-    document.body.appendChild(s)
-  } else {
-    callbacks.push(cb)
-  }
-}
-
 export default class MomentCardTwitter extends React.PureComponent {
 
   static propTypes = {
@@ -69,13 +57,7 @@ export default class MomentCardTwitter extends React.PureComponent {
 
   componentDidMount() {
     this.$$_mounted_$$ = true;
-    if ( !window.twttr ) {
-      const isLocal = window.location.protocol.indexOf('file') >= 0
-      const protocol = isLocal ? this.props.protocol : ''
-      addScript(`${protocol}//platform.twitter.com/widgets.js`, this.renderTweet);
-    } else {
-      this.renderTweet();
-    }
+    this.renderTweet();
   }
 
   componentWillUnmount() {

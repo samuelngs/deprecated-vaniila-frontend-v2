@@ -61,6 +61,7 @@ export default class _Document extends Document {
         <meta name="google-site-verification" content="tf8YxPbyH9QpkRZc28QISiHPk-EFDR4PJlT7aNKKs_Y" />
         <meta name="fb:app_id" content="1058096164319914" />
 
+        <script src="//platform.twitter.com/widgets.js" />
       </Head>
       <body>
         <Main />

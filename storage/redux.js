@@ -13,7 +13,7 @@ import { syncCookies } from './store';
 import { actions } from '../reducers/server';
 
 const localforageConf = {
-  // driver    : [ localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE ],
+  driver    : [ localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE ],
   name      : 'vaniila-com',
   storeName : 'vaniila-com',
 }

@@ -208,6 +208,10 @@ export default class AppHeader extends React.Component {
         .header-nav-ul:hover .header-nav-a:hover {
           color: #000;
         }
+        .a-mobile,
+        .a-desktop {
+          display: none;
+        }
         @media (max-width: 768px) {
           .header-nav-ul.header-nav-dropdown-active {
             position: absolute;
@@ -229,6 +233,9 @@ export default class AppHeader extends React.Component {
           }
           .header-nav-ul.header-nav-dropdown .header-nav-a {
             font-size: 16px;
+          }
+          .a-mobile {
+            display: flex;
           }
         }
         @media (min-width: 768px) {
@@ -261,6 +268,9 @@ export default class AppHeader extends React.Component {
           .header-grid-column-al { order: 2; }
           .header-grid-column-ac { order: 1; padding-left: 10px; padding-right: 10px; }
           .header-grid-column-ar { order: 3; }
+          .a-desktop {
+            display: flex;
+          }
         }
       `}</style>
       <style jsx global>{`
@@ -346,7 +356,8 @@ export default class AppHeader extends React.Component {
           <div className="header-grid-column-4 header-grid-column-ar">
             <ul className="header-nav-ul">
               <li className="header-nav-li">
-                <a className="header-nav-a" href="/signin" onClick={this.handleUserLogin}>Sign up / Log in</a>
+                <a className="header-nav-a a-mobile" href="/signin" onClick={this.handleUserLogin}>Log in</a>
+                <a className="header-nav-a a-desktop" href="/signin" onClick={this.handleUserLogin}>Sign up / Log in</a>
               </li>
             </ul>
           </div>

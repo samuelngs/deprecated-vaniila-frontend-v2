@@ -1,7 +1,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Router from 'next/router';
 
 import If from '../If';
 import AppLoginForm from '../AppLoginForm';
@@ -20,13 +19,14 @@ export default class AppModalSignin extends React.PureComponent {
     e.preventDefault();
 
     const { store: { getState } } = this.context;
-    const { serverPath, serverQuery } = getState();
-    const { current = '/' } = serverQuery;
+    const { serverQuery } = getState();
+    const { redirect, current = '/' } = serverQuery;
 
-    return Router.push({
-      pathname: '/signin',
-      query   : { redirect: current },
-    }, '/signin');
+    if (current === '/signin') {
+      location.href = `${BACKEND_URL}/i/auth?redirect=/`;
+    } else {
+      location.href = `${BACKEND_URL}/i/auth?redirect=${redirect || current}`;
+    }
   }
 
   handleSiteSignin = e => {

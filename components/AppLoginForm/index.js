@@ -27,7 +27,7 @@ export default class AppLoginForm extends React.PureComponent {
 
     const { store: { getState } } = this.context;
     const { serverPath, serverQuery } = getState();
-    const { current = '/' } = serverQuery;
+    const { redirect, current = '/' } = serverQuery;
 
     const { name, password } = this.state;
     const body = new FormData();
@@ -41,7 +41,7 @@ export default class AppLoginForm extends React.PureComponent {
     })
     .then(res => res.json())
     .then(res => (res.error ? Promise.reject(res.error) : res))
-    .then(user => (location.href = current))
+    .then(user => (location.href = (current === '/signin' ? '/' : (redirect || current))))
     .catch(m => {
       let err = m;
       switch ( err ) {

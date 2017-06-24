@@ -44,7 +44,6 @@ export default class AppLoginForm extends React.PureComponent {
     .then(user => (location.href = current))
     .catch(m => {
       let err = m;
-      console.log(err);
       switch ( err ) {
         case 'username is empty':
           err = 'What\'s your login email or username?';

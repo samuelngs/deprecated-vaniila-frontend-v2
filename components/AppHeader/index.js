@@ -66,20 +66,15 @@ export default class AppHeader extends React.Component {
   }
 
   handleUserLogin = e => {
-
     e.preventDefault();
 
     const { store: { getState } } = this.context;
     const { serverPath, serverPathname, serverQuery } = getState();
 
     return Router.push({
-      pathname: '/signin',
-      query   : { redirect: serverPath },
+      pathname: serverPathname,
+      query   : { ...serverQuery, signin: 'modal', current: serverPath },
     }, '/signin');
-    // return Router.push({
-    //   pathname: serverPathname,
-    //   query   : { ...serverQuery, signin: 'modal' },
-    // }, '/signin');
   }
 
   handleSigninDismiss = e => {
@@ -351,7 +346,7 @@ export default class AppHeader extends React.Component {
           <div className="header-grid-column-4 header-grid-column-ar">
             <ul className="header-nav-ul">
               <li className="header-nav-li">
-                <a className="header-nav-a" href="/signin" onClick={this.handleUserLogin}>Sign In</a>
+                <a className="header-nav-a" href="/signin" onClick={this.handleUserLogin}>Sign up / Log in</a>
               </li>
             </ul>
           </div>

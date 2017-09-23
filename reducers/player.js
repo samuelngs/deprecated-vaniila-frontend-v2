@@ -457,11 +457,28 @@ function previous(id, automation = false) {
 }
 
 /**
+ * to moment
+ */
+function to(id, moment, automation = false) {
+  return function ( dispatch, getState ) {
+    const { playerMoments } = getState().playerStates[id];
+    return new Promise(resolve => {
+      if (playerMoments.indexOf(moment) === -1) {
+        return resolve();
+      }
+      const options = { moment, automation };
+      return resolve(dispatch({ type: actions.SetPlayerState, id, options }));
+    });
+  }
+}
+
+/**
  * export store api
  */
 export const api = {
   next,
   previous,
+  to,
   setPlayerState,
 }
 

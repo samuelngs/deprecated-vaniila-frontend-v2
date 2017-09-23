@@ -81,6 +81,12 @@ export default class AppModalViewMoment extends React.Component {
     dispatch(playerReducerApi.previous(id));
   }
 
+  handlerToMoment = (e, moment) => {
+    const { store: { dispatch } } = this.context;
+    const { id } = this.props;
+    dispatch(playerReducerApi.to(id, moment));
+  }
+
   getSizes() {
 
     const { windowSize: { width: ww, height: wh } } = this.props;
@@ -196,6 +202,7 @@ export default class AppModalViewMoment extends React.Component {
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}
           onPrevious={this.handlePreviousMoment}
+          onTo={this.handlerToMoment}
           sizes={sizes}
         />
 

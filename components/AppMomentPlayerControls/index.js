@@ -7,6 +7,7 @@ import { TransitionMotion, spring } from 'react-motion';
 import AppMomentPlayerLiveProgressbar from '../AppMomentPlayerLiveProgressbar';
 import AppMomentPlayerProgressbar from '../AppMomentPlayerProgressbar';
 import AppMomentPlayerTimer from '../AppMomentPlayerTimer';
+import AppMomentPlayerHighlights from '../AppMomentPlayerHighlights';
 
 const active   = [ { key: 'player-control' } ];
 const inactive = [ ];
@@ -14,19 +15,25 @@ const inactive = [ ];
 export default class AppMomentPlayerControls extends React.PureComponent {
 
   static propTypes = {
-    live    : PropTypes.bool,
-    active  : PropTypes.bool,
-    current : PropTypes.object,
-    begins  : PropTypes.number,
-    ends    : PropTypes.number,
+    live      : PropTypes.bool,
+    active    : PropTypes.bool,
+    current   : PropTypes.object,
+    moments   : PropTypes.arrayOf(PropTypes.string),
+    doc       : PropTypes.object,
+    begins    : PropTypes.number,
+    ends      : PropTypes.number,
+    onTo      : PropTypes.func,
   }
 
   static defaultProps = {
-    live    : false,
-    active  : false,
-    current : { },
-    begins  : -1,
-    ends    : -1,
+    live      : false,
+    active    : false,
+    current   : { },
+    moments   : [ ],
+    doc       : { },
+    begins    : -1,
+    ends      : -1,
+    onTo      : e => null,
   }
 
   state = {
@@ -45,7 +52,8 @@ export default class AppMomentPlayerControls extends React.PureComponent {
 
   handleMouseEnter = e => {
     const x = e.pageX || e.clientX;
-    const { left, right, width } = e.target.getBoundingClientRect();
+    const target = e.currentTarget || e.target;
+    const { left, right, width } = target.getBoundingClientRect();
     if ( x >= left && x <= right ) {
       const oprogress = ( x - left ) / width * 100;
       const progress = Math.round(oprogress);
@@ -61,6 +69,33 @@ export default class AppMomentPlayerControls extends React.PureComponent {
     this.$$_mounted_$$ && this.setState(state => state.hovered && { hovered: false });
   }
 
+  handleMouseClick = e => {
+    const { target } = e;
+    const { hoverProgress, hoverOProgress, hovered } = this.state;
+    const { doc, moments, onTo } = this.props
+    if (!hovered || target.className === 'highlight') {
+      return false
+    }
+    const isArray = Array.isArray(moments)
+    if (!isArray || (isArray && moments.length === 0)) {
+      return nil.arr
+    }
+    const { document } = doc || nil.obj
+    const { data } = document || nil.obj
+    const { slides } = data || nil.obj
+    const steps = [ ]
+    const goal = hoverProgress
+    for (const key of moments) {
+      const { when } = slides[key] || nil.obj
+      const progress = this.getProgress(when)
+      steps.push(progress)
+    }
+    const step = steps.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    const idx = steps.indexOf(step)
+    const moment = moments[idx]
+    onTo(e, moment)
+  }
+
   willEnter = o => {
     return { opacity: 0 }
   }
@@ -70,16 +105,16 @@ export default class AppMomentPlayerControls extends React.PureComponent {
   }
 
   getDefaultStyles = o => {
-    const { active: visible } = this.props;
-    const arr = visible
+    const { active: visible, begins, ends } = this.props;
+    const arr = visible && !(begins < 0 && ends < 0)
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { opacity: 0 } }));
   }
 
   getStyles = o => {
-    const { active: visible } = this.props;
-    const arr = visible
+    const { active: visible, begins, ends } = this.props;
+    const arr = visible && !(begins < 0 && ends < 0)
       ? active
       : inactive;
     return arr.map(o => ({ ...o, style: { opacity: spring(1) } }));
@@ -103,8 +138,9 @@ export default class AppMomentPlayerControls extends React.PureComponent {
     return { milliseconds, unit, hours, minutes, seconds, ampm };
   }
 
-  getProgress() {
-    const { current: { when }, begins, ends } = this.props;
+  getProgress(when) {
+    const { current: { when: def }, begins, ends } = this.props;
+    if (!when) when = def
     const { unit } = this.getUnits();
     if ( when > ends ) return 100;
     if ( when < begins ) return 0;
@@ -131,7 +167,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
 
   render() {
 
-    const { begins, live } = this.props;
+    const { begins, ends, live, moments, doc, onTo } = this.props;
     const { hovered, hoverProgress } = this.state;
 
     const time = this.getHoverTime();
@@ -149,6 +185,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
         onMouseMove={this.handleMouseMove}
+        onClick={this.handleMouseClick}
       >
         <style jsx>{`
           .base {
@@ -178,7 +215,6 @@ export default class AppMomentPlayerControls extends React.PureComponent {
             width: 100%;
             border-radius: 2px;
             background-color: rgba(0, 0, 0, 0.04);
-            pointer-events: none;
           }
         `}</style>
         <div className="timeline">
@@ -186,6 +222,7 @@ export default class AppMomentPlayerControls extends React.PureComponent {
           <AppMomentPlayerProgressbar active={true} animated={true} progress={progress} color="rgba(120, 120, 120, 0.4)" />
           <AppMomentPlayerLiveProgressbar active={live} />
           <AppMomentPlayerTimer active={hovered} progress={hoverProgress}>{ time }</AppMomentPlayerTimer>
+          <AppMomentPlayerHighlights active={true} begins={begins} ends={ends} moments={moments} doc={doc} onTo={onTo} />
         </div>
       </div> : null }
     </TransitionMotion>

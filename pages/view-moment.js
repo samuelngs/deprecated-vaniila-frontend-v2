@@ -77,6 +77,11 @@ class ViewMoment extends React.Component {
     dispatch(playerReducerApi.previous(id));
   }
 
+  handlerToMoment = (e, moment) => {
+    const { dispatch, query: { id } } = this.props;
+    dispatch(playerReducerApi.to(id, moment));
+  }
+
   getSizes() {
 
     const { windowSize: { width, height } } = this.props;
@@ -209,6 +214,7 @@ class ViewMoment extends React.Component {
           hasPrevious={playerHasPrevious}
           onNext={this.handleNextMoment}
           onPrevious={this.handlePreviousMoment}
+          onTo={this.handlerToMoment}
           sizes={sizes}
         >
           {/* desktop chat, only appear when live mode */}

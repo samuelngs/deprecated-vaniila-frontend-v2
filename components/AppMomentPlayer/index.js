@@ -25,6 +25,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     hover           : PropTypes.bool,
     begins          : PropTypes.number,
     ends            : PropTypes.number,
+    doc             : PropTypes.object,
     moments         : PropTypes.arrayOf(PropTypes.string),
     moment          : PropTypes.object,
     momentIndex     : PropTypes.number,
@@ -37,6 +38,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     hasNext         : PropTypes.bool,
     onPrevious      : PropTypes.func,
     onNext          : PropTypes.func,
+    onTo            : PropTypes.func,
   }
 
   static defaultProps = {
@@ -48,6 +50,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     hover           : false,
     begins          : -1,
     ends            : -1,
+    doc             : { },
     moments         : [ ],
     moment          : { },
     momentIndex     : -2,
@@ -60,6 +63,7 @@ export default class AppMomentPlayer extends React.PureComponent {
     hasNext         : false,
     onPrevious      : e => null,
     onNext          : e => null,
+    onTo            : e => null,
   }
 
   state = {
@@ -173,6 +177,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       ends,
       modal,
       moments,
+      doc,
       moment,
       momentIndex,
       nextMoment,
@@ -186,6 +191,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       hasNext,
       onPrevious,
       onNext,
+      onTo,
 
     } = this.props;
 
@@ -300,7 +306,7 @@ export default class AppMomentPlayer extends React.PureComponent {
       <AppMomentPrevious modal={(width >= 800 && live) || modal} active={mode === 'desktop' && hover && hasPrevious} onPress={onPrevious} />
       <AppMomentNext modal={(width >= 800 && live) || modal} active={mode === 'desktop' && hover && hasNext} onPress={onNext} />
 
-      <AppMomentPlayerControls active={!draft && begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} live={live} current={moment} />
+      <AppMomentPlayerControls active={!draft && begins !== -1 && mode === 'desktop' && hover} begins={begins} ends={ends} live={live} current={moment} moments={moments} doc={doc} onTo={onTo} />
     </div>;
   }
 

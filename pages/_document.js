@@ -4,10 +4,16 @@ import flush from 'styled-jsx/server';
 
 export default class _Document extends Document {
 
-  static getInitialProps ({ renderPage }) {
-    const { html, head } = renderPage();
-    const styles = flush();
-    return { html, head, styles };
+  // static getInitialProps ({ renderPage }) {
+  //   const { html, head } = renderPage();
+  //   const styles = flush();
+  //   return { html, head, styles };
+  // }
+
+  static getInitialProps({ renderPage }) {
+    const { html, head, errorHtml, chunks } = renderPage()
+    const styles = flush()
+    return { html, head, errorHtml, chunks, styles }
   }
 
   render () {
